@@ -52,4 +52,14 @@ class ProductControllerTest(
                 jsonPath("$.stock") { value(stock) }
             }
     }
+
+    @Test
+    fun `상품 조회를 실패한다`() {
+        val nonExistingId = 999L
+        mockMvc.get("/products/{id}", nonExistingId)
+            .andExpect {
+                status { isNotFound() }
+                jsonPath("$.message") { value("id: $nonExistingId, 상품을 찾을 수 없습니다.") }
+            }
+    }
 }
