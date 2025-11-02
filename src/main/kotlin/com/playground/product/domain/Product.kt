@@ -15,5 +15,10 @@ class Product(
     var name: String,
     var stock: Int,
 ) {
+    fun update(name: String, stock: Int) {
+        this.name = name
+        this.stock = stock
+    }
+
     override fun toString(): String = "Product(id=$id, name=$name, stock=$stock)"
 }
