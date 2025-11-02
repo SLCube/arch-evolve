@@ -1,0 +1,17 @@
+# Created by Gemini
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Build output
+build/
+target/
+
+# Log files
+*.log
+
+# OS-specific
+.DS_Store
+Thumbs.db
