@@ -5,6 +5,9 @@
 *.iml
 out/
 
+# Gradle
+.gradle/
+
 # Build output
 build/
 target/
