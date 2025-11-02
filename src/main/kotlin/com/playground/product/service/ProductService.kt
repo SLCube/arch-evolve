@@ -12,4 +12,6 @@ class ProductService (
         val product = Product(name = name, stock = stock)
         return productRepository.save(product)
     }
+
+    fun findById(id: Long) : Product =  productRepository.findById(id).orElseThrow()
 }

@@ -25,4 +25,17 @@ class ProductServiceTest(
         assertThat(savedProduct.name).isEqualTo(name)
         assertThat(savedProduct.stock).isEqualTo(stock)
     }
+
+    @Test
+    fun `상품을 조회한다`() {
+        // given
+        val name = "상품1"
+        val stock = 10
+        val savedProduct = productService.save(name, stock)
+
+        val foundProduct = productService.findById(savedProduct.id)
+
+        assertThat(foundProduct.name).isEqualTo(name)
+        assertThat(foundProduct.stock).isEqualTo(stock)
+    }
 }
