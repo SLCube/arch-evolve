@@ -16,12 +16,12 @@ class ProductService(
         return productRepository.save(product)
     }
 
-    fun findById(id: Long): Product = productRepository.findById(id).orElseThrow { ProductNotFoundException("id: $id, 상품을 찾을 수 없습니다.") }
+    fun findById(id: Long): Product = productRepository.findById(id).orElseThrow { ProductNotFoundException(id) }
 
     fun findAll(): List<Product> = productRepository.findAll()
 
     fun update(id: Long, name: String, stock: Int): Product {
-        val foundProduct = productRepository.findById(id).orElseThrow { ProductNotFoundException("id: $id, 상품을 찾을 수 없습니다.") }
+        val foundProduct = productRepository.findById(id).orElseThrow { ProductNotFoundException(id) }
         foundProduct.update(name, stock)
 
         return foundProduct

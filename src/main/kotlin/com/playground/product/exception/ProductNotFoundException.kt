@@ -1,3 +1,3 @@
 package com.playground.product.exception
 
-class ProductNotFoundException(message: String) : RuntimeException(message)
+class ProductNotFoundException(val productId: Long) : RuntimeException()

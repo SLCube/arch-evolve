@@ -4,6 +4,7 @@ import com.playground.product.controller.request.ProductSaveRequestDto
 import com.playground.product.controller.request.ProductUpdateRequestDto
 import com.playground.product.domain.Product
 import com.playground.product.service.ProductService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -21,7 +22,7 @@ class ProductController(
 ) {
 
     @PostMapping
-    fun save(@RequestBody requestDto: ProductSaveRequestDto): ResponseEntity<Product> {
+    fun save(@RequestBody @Valid requestDto: ProductSaveRequestDto): ResponseEntity<Product> {
         val savedProduct = productService.save(requestDto.name, requestDto.stock)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct)
     }

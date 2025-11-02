@@ -1,6 +1,7 @@
 package com.playground.product.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.playground.common.error.ErrorCode
 import com.playground.product.controller.request.ProductSaveRequestDto
 import com.playground.product.controller.request.ProductUpdateRequestDto
 import com.playground.product.repository.ProductRepository
@@ -49,6 +50,61 @@ class ProductControllerTest(
     }
 
     @Test
+    fun `상품 등록시 이름이 비어있는 경우`() {
+        val productSaveRequestDto = ProductSaveRequestDto(
+            name = "",
+            stock = 10
+        )
+
+        mockMvc.post("/products") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(productSaveRequestDto)
+        }.andExpect {
+            status { isBadRequest() }
+            jsonPath("$.code") { value(ErrorCode.INVALID_INPUT.code) }
+            jsonPath("$.message") { value(ErrorCode.INVALID_INPUT.message()) }
+            jsonPath("$.errors.name") { value("상품 이름은 필수입니다.") }
+        }
+    }
+
+    @Test
+    fun `상품 등록시 재고량이 0보다 작을경우`() {
+        val productSaveRequestDto = ProductSaveRequestDto(
+            name = "상품1",
+            stock = -10
+        )
+
+        mockMvc.post("/products") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(productSaveRequestDto)
+        }.andExpect {
+            status { isBadRequest() }
+            jsonPath("$.code") { value(ErrorCode.INVALID_INPUT.code) }
+            jsonPath("$.message") { value(ErrorCode.INVALID_INPUT.message()) }
+            jsonPath("$.errors.stock") { value("재고량은 0보다 커야 합니다.") }
+        }
+    }
+
+    @Test
+    fun `상품 등록시 이름이 비어있고 재고 수량이 양수가 아닌경우`() {
+        val productSaveRequestDto = ProductSaveRequestDto(
+            name = "",
+            stock = -10
+        )
+
+        mockMvc.post("/products") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(productSaveRequestDto)
+        }.andExpect {
+            status { isBadRequest() }
+            jsonPath("$.code") { value(ErrorCode.INVALID_INPUT.code) }
+            jsonPath("$.message") { value(ErrorCode.INVALID_INPUT.message()) }
+            jsonPath("$.errors.name") { value("상품 이름은 필수입니다.") }
+            jsonPath("$.errors.stock") { value("재고량은 0보다 커야 합니다.") }
+        }
+    }
+
+    @Test
     fun `상품을 조회한다`() {
         val name = "상품1"
         val stock = 10
@@ -69,7 +125,8 @@ class ProductControllerTest(
         mockMvc.get("/products/{id}", nonExistingId)
             .andExpect {
                 status { isNotFound() }
-                jsonPath("$.message") { value("id: $nonExistingId, 상품을 찾을 수 없습니다.") }
+                jsonPath("$.code") { value(ErrorCode.PRODUCT_NOT_FOUND.code) }
+                jsonPath("$.message") { value(ErrorCode.PRODUCT_NOT_FOUND.message(nonExistingId)) }
             }
     }
 
