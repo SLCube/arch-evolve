@@ -1,0 +1,24 @@
+package com.playground.product.controller
+
+import com.playground.product.controller.request.ProductSaveRequestDto
+import com.playground.product.domain.Product
+import com.playground.product.service.ProductService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/products")
+class ProductController(
+    private val productService: ProductService
+) {
+
+    @PostMapping
+    fun save(@RequestBody requestDto: ProductSaveRequestDto): ResponseEntity<Product> {
+        val savedProduct = productService.save(requestDto.name, requestDto.stock)
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct)
+    }
+}
