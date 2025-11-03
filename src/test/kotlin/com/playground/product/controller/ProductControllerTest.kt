@@ -105,68 +105,114 @@ class ProductControllerTest(
     }
 
     @Test
-    fun `상품을 조회한다`() {
+    fun `상품 수정시 이름이 비어있는 경우`() {
         val name = "상품1"
         val stock = 10
         val savedProduct = productService.save(name, stock)
 
-        mockMvc.get("/products/{id}", savedProduct.id)
-            .andExpect {
-                status { isOk() }
-                jsonPath("$.id") { value(savedProduct.id) }
-                jsonPath("$.name") { value(name) }
-                jsonPath("$.stock") { value(stock) }
-            }
-    }
-
-    @Test
-    fun `상품 조회를 실패한다`() {
-        val nonExistingId = 999L
-        mockMvc.get("/products/{id}", nonExistingId)
-            .andExpect {
-                status { isNotFound() }
-                jsonPath("$.code") { value(ErrorCode.PRODUCT_NOT_FOUND.code) }
-                jsonPath("$.message") { value(ErrorCode.PRODUCT_NOT_FOUND.message(nonExistingId)) }
-            }
-    }
-
-    @Test
-    fun `상품 목록을 조회한다`() {
-        productService.save("상품1", 10)
-        productService.save("상품2", 20)
-
-        mockMvc.get("/products")
-            .andExpect {
-                status { isOk() }
-                jsonPath("$") { isArray() }
-                jsonPath("$.length()") { value(2) }
-                jsonPath("$[0].name") { value("상품1") }
-                jsonPath("$[0].stock") { value(10) }
-                jsonPath("$[1].name") { value("상품2") }
-                jsonPath("$[1].stock") { value(20) }
-            }
-    }
-
-    @Test
-    fun `상품 정보를 수정한다`() {
-        val name = "상품1"
-        val stock = 10
-        val savedProduct = productService.save(name, stock)
-
-        val updatedName = "상품2"
-        val updatedStock = 20
         val productUpdateRequestDto = ProductUpdateRequestDto(
-            name = updatedName,
-            stock = updatedStock
+            name = "",
+            stock = 20
+        )
+
+        mockMvc.put(
+            "/products/{id}", savedProduct.id) {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(productUpdateRequestDto)
+        }.andExpect {
+            status { isBadRequest() }
+            jsonPath("$.code") { value(ErrorCode.INVALID_INPUT.code) }
+            jsonPath("$.message") { value(ErrorCode.INVALID_INPUT.message()) }
+            jsonPath("$.errors.name") { value("상품 이름은 필수입니다.") }
+        }
+
+}
+
+    @Test
+    fun `상품 수정시 재고가 0보다 작을경우`() {
+        val name = "상품1"
+        val stock = 10
+        val savedProduct = productService.save(name, stock)
+
+        val productUpdateRequestDto = ProductUpdateRequestDto(
+            name = "상품2",
+            stock = -20
         )
 
         mockMvc.put("/products/{id}", savedProduct.id) {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(productUpdateRequestDto)
         }.andExpect {
-            status { isOk() }
-            jsonPath("$.name") { value(updatedName) }
-            jsonPath("$.stock") { value(updatedStock) }
+            status { isBadRequest() }
+            jsonPath("$.code") { value(ErrorCode.INVALID_INPUT.code) }
+            jsonPath("$.message") { value(ErrorCode.INVALID_INPUT.message()) }
+            jsonPath("$.errors.stock") { value("재고량은 0보다 커야 합니다.") }
         }
     }
+
+@Test
+fun `상품을 조회한다`() {
+    val name = "상품1"
+    val stock = 10
+    val savedProduct = productService.save(name, stock)
+
+    mockMvc.get("/products/{id}", savedProduct.id)
+        .andExpect {
+            status { isOk() }
+            jsonPath("$.id") { value(savedProduct.id) }
+            jsonPath("$.name") { value(name) }
+            jsonPath("$.stock") { value(stock) }
+        }
+}
+
+@Test
+fun `상품 조회를 실패한다`() {
+    val nonExistingId = 999L
+    mockMvc.get("/products/{id}", nonExistingId)
+        .andExpect {
+            status { isNotFound() }
+            jsonPath("$.code") { value(ErrorCode.PRODUCT_NOT_FOUND.code) }
+            jsonPath("$.message") { value(ErrorCode.PRODUCT_NOT_FOUND.message(nonExistingId)) }
+        }
+}
+
+@Test
+fun `상품 목록을 조회한다`() {
+    productService.save("상품1", 10)
+    productService.save("상품2", 20)
+
+    mockMvc.get("/products")
+        .andExpect {
+            status { isOk() }
+            jsonPath("$") { isArray() }
+            jsonPath("$.length()") { value(2) }
+            jsonPath("$[0].name") { value("상품1") }
+            jsonPath("$[0].stock") { value(10) }
+            jsonPath("$[1].name") { value("상품2") }
+            jsonPath("$[1].stock") { value(20) }
+        }
+}
+
+@Test
+fun `상품 정보를 수정한다`() {
+    val name = "상품1"
+    val stock = 10
+    val savedProduct = productService.save(name, stock)
+
+    val updatedName = "상품2"
+    val updatedStock = 20
+    val productUpdateRequestDto = ProductUpdateRequestDto(
+        name = updatedName,
+        stock = updatedStock
+    )
+
+    mockMvc.put("/products/{id}", savedProduct.id) {
+        contentType = MediaType.APPLICATION_JSON
+        content = objectMapper.writeValueAsString(productUpdateRequestDto)
+    }.andExpect {
+        status { isOk() }
+        jsonPath("$.name") { value(updatedName) }
+        jsonPath("$.stock") { value(updatedStock) }
+    }
+}
 }

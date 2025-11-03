@@ -40,7 +40,7 @@ class ProductController(
     }
 
     @PutMapping("/{id}")
-    fun update(@PathVariable id: Long, @RequestBody requestDto: ProductUpdateRequestDto): ResponseEntity<Product> {
+    fun update(@PathVariable id: Long, @RequestBody @Valid requestDto: ProductUpdateRequestDto): ResponseEntity<Product> {
         val updatedProduct = productService.update(id, requestDto.name, requestDto.stock)
         return ResponseEntity.status(HttpStatus.OK).body(updatedProduct)
     }
