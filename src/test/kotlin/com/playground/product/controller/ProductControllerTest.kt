@@ -251,4 +251,19 @@ class ProductControllerTest(
 
         assertThat(finalProduct.stock).isZero()
     }
+
+    @Test
+    fun `재고보다 많은 수량을 차감시도를 한다`() {
+        val savedProduct = productService.save("테스트 상품", 10)
+        val productId = savedProduct.id
+        val quantity = 11
+
+        mockMvc.post("/products/{id}/decrease-stock", productId) {
+            param("quantity", quantity.toString())
+        }.andExpect {
+            status { isBadRequest() }
+            jsonPath("$.code") { value(ErrorCode.INSUFFICIENT_STOCK.code) }
+            jsonPath("$.message") { value(ErrorCode.INSUFFICIENT_STOCK.message()) }
+        }
+    }
 }

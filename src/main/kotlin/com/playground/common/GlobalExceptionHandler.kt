@@ -3,6 +3,7 @@ package com.playground.common
 import com.playground.common.error.ErrorCode
 import com.playground.common.error.ErrorResponse
 import com.playground.common.utils.logger
+import com.playground.product.exception.InsufficientStockException
 import com.playground.product.exception.ProductNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -30,7 +31,7 @@ class GlobalExceptionHandler {
     fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
         val errors = mutableMapOf<String, String?>()
         e.bindingResult.allErrors.forEach { error ->
-            if(error is FieldError) {
+            if (error is FieldError) {
                 errors[error.field] = error.defaultMessage
             }
         }
@@ -40,5 +41,15 @@ class GlobalExceptionHandler {
         val errorMessage = errorCode.message()
         val errorResponse = ErrorResponse(errorCode.code, errorMessage, errors)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+    }
+
+    @ExceptionHandler(InsufficientStockException::class)
+    fun handleInsufficientStockException(e: InsufficientStockException): ResponseEntity<ErrorResponse> {
+        log.warn(e.message)
+
+        val errorCode = ErrorCode.INSUFFICIENT_STOCK
+        val errorResponse = ErrorResponse(errorCode.code, errorCode.message())
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
+
     }
 }

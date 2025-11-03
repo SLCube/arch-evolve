@@ -1,11 +1,7 @@
 package com.playground.product.domain
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Version
+import com.playground.product.exception.InsufficientStockException
+import jakarta.persistence.*
 
 @Entity
 class Product(
@@ -25,7 +21,10 @@ class Product(
     }
 
     fun decreaseStock(quantity: Int) {
-        require(stock - quantity >= 0) { "재고가 부족합니다." }
+        if(stock - quantity < 0) {
+            throw InsufficientStockException("재고가 부족합니다.")
+        }
+
         stock -= quantity
     }
 
