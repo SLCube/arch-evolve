@@ -26,4 +26,11 @@ class ProductService(
 
         return foundProduct
     }
+
+    fun decreaseStock(id: Long, quantity: Int): Product {
+        val foundProduct = productRepository.findByIdWithPerssimisticLock(id).orElseThrow { ProductNotFoundException(id) }
+        foundProduct.decreaseStock(quantity)
+
+        return foundProduct
+    }
 }

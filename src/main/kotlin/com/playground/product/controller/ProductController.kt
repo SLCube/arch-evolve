@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -30,18 +31,24 @@ class ProductController(
     @GetMapping("/{id}")
     fun findById(@PathVariable id: Long): ResponseEntity<Product> {
         val foundProduct = productService.findById(id)
-        return ResponseEntity.status(HttpStatus.OK).body(foundProduct)
+        return ResponseEntity.ok(foundProduct)
     }
 
     @GetMapping
     fun findAll(): ResponseEntity<List<Product>> {
         val foundProducts = productService.findAll()
-        return ResponseEntity.status(HttpStatus.OK).body(foundProducts)
+        return ResponseEntity.ok(foundProducts)
     }
 
     @PutMapping("/{id}")
     fun update(@PathVariable id: Long, @RequestBody @Valid requestDto: ProductUpdateRequestDto): ResponseEntity<Product> {
         val updatedProduct = productService.update(id, requestDto.name, requestDto.stock)
-        return ResponseEntity.status(HttpStatus.OK).body(updatedProduct)
+        return ResponseEntity.ok(updatedProduct)
+    }
+
+    @PostMapping("/{id}/decrease-stock")
+    fun decreaseStock(@PathVariable id: Long, @RequestParam quantity: Int): ResponseEntity<Product> {
+        val updatedProduct = productService.decreaseStock(id, quantity)
+        return ResponseEntity.ok(updatedProduct)
     }
 }
