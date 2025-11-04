@@ -8,7 +8,7 @@ class Product(
     @Id
     @Column(name = "product_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0L,
+    val id: Long? = null,
     var name: String,
     var stock: Int,
 
