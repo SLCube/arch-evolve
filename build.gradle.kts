@@ -6,6 +6,9 @@ plugins {
 	kotlin("plugin.jpa") version "1.9.23"
 }
 
+val kotestVersion = "5.8.0"
+val kotestSpringExtensionVersion = "1.1.3"
+
 group = "com.playground"
 version = "0.0.1-SNAPSHOT"
 
@@ -27,6 +30,12 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    // KoTest
+    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
+    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
+    testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestSpringExtensionVersion")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
