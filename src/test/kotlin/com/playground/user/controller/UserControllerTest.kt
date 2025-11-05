@@ -2,8 +2,10 @@ package com.playground.user.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.user.controller.request.UserSignUpRequestDto
+import com.playground.user.repository.UserRepository
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.extensions.spring.SpringExtension
+import io.kotest.matchers.shouldNotBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -22,6 +24,9 @@ class UserControllerTest: BehaviorSpec() {
 
     @Autowired
     private lateinit var objectMapper: ObjectMapper
+
+    @Autowired
+    private lateinit var userRepository: UserRepository
 
     init {
         Given("회원가입에 필요한 정보가 주어졌을 때") {
@@ -43,6 +48,9 @@ class UserControllerTest: BehaviorSpec() {
                         jsonPath("$.username") { value("testUser") }
                         jsonPath("$.nickname") { value("테스트유저") }
                     }
+
+                    val savedUser = userRepository.findAll().first()
+                    savedUser.password shouldNotBe request.password
                 }
             }
         }
