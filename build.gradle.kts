@@ -8,6 +8,7 @@ plugins {
 
 val kotestVersion = "5.8.0"
 val kotestSpringExtensionVersion = "1.1.3"
+val jjwtVersion = "0.12.5"
 
 group = "com.playground"
 version = "0.0.1-SNAPSHOT"
@@ -29,6 +30,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    // JWT
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
+
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
