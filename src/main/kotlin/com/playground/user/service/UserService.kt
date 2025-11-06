@@ -1,5 +1,7 @@
 package com.playground.user.service
 
+import com.playground.common.security.jwt.JwtTokenProvider
+import com.playground.user.controller.response.UserLoginResponseDto
 import com.playground.user.controller.response.UserResponseDto
 import com.playground.user.domain.User
 import com.playground.user.exception.InValidPasswordException
@@ -13,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class UserService(
     private val userRepository: UserRepository,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
+    private val jwtTokenProvider: JwtTokenProvider
 ) {
 
     fun signUp(username: String, password: String, nickname: String): UserResponseDto {
@@ -23,11 +26,15 @@ class UserService(
         return UserResponseDto.toResponse(savedUser)
     }
 
-    fun login(username: String, password: String) {
+    fun login(username: String, password: String): UserLoginResponseDto {
         val foundUser = userRepository.findByUsername(username).orElseThrow { UserNotFoundException() }
 
         if (!passwordEncoder.matches(password, foundUser.password)) {
             throw InValidPasswordException()
         }
+
+        val accessToken = jwtTokenProvider.generateToken(foundUser.username)
+
+        return UserLoginResponseDto(accessToken)
     }
 }

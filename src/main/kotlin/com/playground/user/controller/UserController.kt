@@ -2,6 +2,7 @@ package com.playground.user.controller
 
 import com.playground.user.controller.request.UserLoginRequestDto
 import com.playground.user.controller.request.UserSignUpRequestDto
+import com.playground.user.controller.response.UserLoginResponseDto
 import com.playground.user.controller.response.UserResponseDto
 import com.playground.user.service.UserService
 import org.springframework.http.HttpStatus
@@ -24,8 +25,8 @@ class UserController(
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: UserLoginRequestDto): ResponseEntity<Unit> {
-        userService.login(request.username, request.password)
-        return ResponseEntity.ok().build()
+    fun login(@RequestBody request: UserLoginRequestDto): ResponseEntity<UserLoginResponseDto> {
+        val loginResponse = userService.login(request.username, request.password)
+        return ResponseEntity.ok().body(loginResponse)
     }
 }

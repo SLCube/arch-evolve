@@ -86,6 +86,7 @@ class UserControllerTest : BehaviorSpec() {
                 Then("성공적으로 로그인되고 200 OK 상태를 반환한다") {
                     resultActions.andExpect {
                         status { isOk() }
+                        jsonPath("$.accessToken") { isNotEmpty() }
                     }
                 }
             }
