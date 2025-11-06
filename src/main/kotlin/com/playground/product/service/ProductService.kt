@@ -36,7 +36,6 @@ class ProductService(
     fun decreaseStock(id: Long, quantity: Int): ProductResponseDto {
         val foundProduct = productRepository.findByIdWithPerssimisticLock(id).orElseThrow { ProductNotFoundException(id) }
         foundProduct.decreaseStock(quantity)
-
         return ProductResponseDto.toResponse(foundProduct)
     }
 }

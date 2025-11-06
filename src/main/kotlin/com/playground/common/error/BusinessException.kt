@@ -1,5 +1,6 @@
 package com.playground.common.error
 
 abstract class BusinessException(
-    val errorCode: ErrorCode
-): RuntimeException(errorCode.message())
+    val errorCode: ErrorCode,
+    override val message: String
+): RuntimeException(message)

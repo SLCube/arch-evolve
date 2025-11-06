@@ -18,7 +18,7 @@ class GlobalExceptionHandler {
         log.warn("BusinessException : {}", e.message)
 
         val errorCode = e.errorCode
-        val errorResponse = ErrorResponse(errorCode.code, errorCode.message())
+        val errorResponse = ErrorResponse(errorCode.code, e.message)
 
         return ResponseEntity.status(errorCode.httpStatus).body(errorResponse)
     }

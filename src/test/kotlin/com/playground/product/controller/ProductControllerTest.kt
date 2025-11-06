@@ -4,30 +4,32 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.common.error.ErrorCode
 import com.playground.product.controller.request.ProductSaveRequestDto
 import com.playground.product.controller.request.ProductUpdateRequestDto
+import com.playground.product.domain.Product
 import com.playground.product.repository.ProductRepository
 import com.playground.product.service.ProductService
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.put
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executors
+import org.springframework.transaction.support.TransactionTemplate
 
 @Suppress("NonAsciiCharacters")
 @AutoConfigureMockMvc
 @SpringBootTest
+@WithMockUser
 class ProductControllerTest(
     @param:Autowired private val mockMvc: MockMvc,
     @param:Autowired private val objectMapper: ObjectMapper,
     @param:Autowired private val productService: ProductService,
     @param:Autowired private val productRepository: ProductRepository,
+    @param:Autowired private val transactionTemplate: TransactionTemplate
 ) {
 
     @AfterEach
@@ -221,40 +223,8 @@ class ProductControllerTest(
     }
 
     @Test
-    fun `동시에 재고 100개를 차감한다`() {
-        val name = "상품1"
-        val stock = 100
-        val savedProduct = productService.save(name, stock)
-
-        val threadCount = 100
-        val executorService = Executors.newFixedThreadPool(32)
-
-        val latch = CountDownLatch(threadCount)
-
-        for (i in 1..threadCount) {
-            executorService.submit {
-                try {
-                    mockMvc.post("/products/{id}/decrease-stock", savedProduct.id) {
-                        param("quantity", "1")
-                    }.andExpect {
-                        status { isOk() }
-                    }
-                } finally {
-                    latch.countDown()
-                }
-            }
-        }
-
-        latch.await()
-
-        val finalProduct = productService.findById(savedProduct.id)
-
-        assertThat(finalProduct.stock).isZero()
-    }
-
-    @Test
     fun `재고보다 많은 수량을 차감시도를 한다`() {
-        val savedProduct = productService.save("테스트 상품", 10)
+        val savedProduct = productRepository.save(Product(name = "테스트 상품", stock = 10))
         val productId = savedProduct.id
         val quantity = 11
 

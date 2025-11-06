@@ -22,7 +22,7 @@ class Product(
 
     fun decreaseStock(quantity: Int) {
         if(stock - quantity < 0) {
-            throw InsufficientStockException("재고가 부족합니다.")
+            throw InsufficientStockException()
         }
 
         stock -= quantity

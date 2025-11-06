@@ -3,6 +3,7 @@ package com.playground.product.exception
 import com.playground.common.error.BusinessException
 import com.playground.common.error.ErrorCode
 
-class ProductNotFoundException(productId: Long) : BusinessException(ErrorCode.PRODUCT_NOT_FOUND) {
-    override val message: String = errorCode.message(productId)
-}
+class ProductNotFoundException(productId: Long): BusinessException(
+    errorCode = ErrorCode.PRODUCT_NOT_FOUND,
+    message = ErrorCode.PRODUCT_NOT_FOUND.message(productId)
+)
