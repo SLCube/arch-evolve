@@ -14,7 +14,7 @@ class User(
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-    var username: String,
+    var loginId: String,
     var password: String,
     var nickname: String,
 )

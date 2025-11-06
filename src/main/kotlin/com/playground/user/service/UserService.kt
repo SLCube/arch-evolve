@@ -19,21 +19,21 @@ class UserService(
     private val jwtTokenProvider: JwtTokenProvider
 ) {
 
-    fun signUp(username: String, password: String, nickname: String): UserResponseDto {
+    fun signUp(loginId: String, password: String, nickname: String): UserResponseDto {
         val encodePassword = passwordEncoder.encode(password)
-        val user = User(username = username, password = encodePassword, nickname = nickname)
+        val user = User(loginId = loginId, password = encodePassword, nickname = nickname)
         val savedUser = userRepository.save(user)
         return UserResponseDto.toResponse(savedUser)
     }
 
-    fun login(username: String, password: String): UserLoginResponseDto {
-        val foundUser = userRepository.findByUsername(username).orElseThrow { UserNotFoundException() }
+    fun login(loginId: String, password: String): UserLoginResponseDto {
+        val foundUser = userRepository.findByLoginId(loginId).orElseThrow { UserNotFoundException() }
 
         if (!passwordEncoder.matches(password, foundUser.password)) {
             throw InValidPasswordException()
         }
 
-        val accessToken = jwtTokenProvider.generateToken(foundUser.username)
+        val accessToken = jwtTokenProvider.generateToken(foundUser.loginId)
 
         return UserLoginResponseDto(accessToken)
     }

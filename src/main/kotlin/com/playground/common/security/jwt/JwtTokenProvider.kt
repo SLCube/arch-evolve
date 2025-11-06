@@ -16,12 +16,12 @@ class JwtTokenProvider(
         Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
     }
 
-    fun generateToken(username: String): String {
+    fun generateToken(loginId: String): String {
         val now = Instant.now()
         val expiration = now.plus(1, ChronoUnit.HOURS)
 
         return Jwts.builder()
-            .subject(username)
+            .subject(loginId)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(secretKey)
