@@ -1,8 +1,5 @@
-package com.playground.common
+package com.playground.common.error
 
-import com.playground.common.error.BusinessException
-import com.playground.common.error.ErrorCode
-import com.playground.common.error.ErrorResponse
 import com.playground.common.utils.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
