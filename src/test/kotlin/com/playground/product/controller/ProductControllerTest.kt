@@ -145,7 +145,7 @@ class ProductControllerTest(
         }.andExpect {
             status { isBadRequest() }
             jsonPath("$.code") { value(ErrorCode.INSUFFICIENT_STOCK.code) }
-            jsonPath("$.message") { value(ErrorCode.INSUFFICIENT_STOCK.message()) }
+            jsonPath("$.message") { value(ErrorCode.INSUFFICIENT_STOCK.message(savedProduct.id, savedProduct.stock, quantity)) }
         }
     }
 }
