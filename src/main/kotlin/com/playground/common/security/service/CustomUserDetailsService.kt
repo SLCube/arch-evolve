@@ -2,6 +2,7 @@ package com.playground.common.security.service
 
 import com.playground.user.exception.UserNotFoundException
 import com.playground.user.repository.UserRepository
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
@@ -15,7 +16,8 @@ class CustomUserDetailsService(
         val user = userRepository.findByLoginId(username)
             .orElseThrow { UserNotFoundException() }
 
-        // TODO: roles 추가 예정
-        return User(user.loginId, user.password, emptyList())
+        val authorities = listOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+
+        return User(user.loginId, user.password, authorities)
     }
 }

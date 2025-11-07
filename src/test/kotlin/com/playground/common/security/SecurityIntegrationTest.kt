@@ -1,8 +1,10 @@
 package com.playground.common.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.playground.product.controller.request.ProductSaveRequestDto
 import com.playground.user.controller.request.UserLoginRequestDto
 import com.playground.user.domain.User
+import com.playground.user.enum.UserRole
 import com.playground.user.repository.UserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -43,6 +45,7 @@ class SecurityIntegrationTest(
             loginId = "testUser",
             password = "password123"
         )
+
         val loginResult = mockMvc.post("/users/login") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(loginRequest)
@@ -65,5 +68,42 @@ class SecurityIntegrationTest(
             .andExpect {
                 status { isUnauthorized() }
             }
+    }
+
+    @Test
+    fun `USER 권한으로 ADMIN 전용 API 접근 - 실패, 403 Forbidden을 반환한다`() {
+        val user = User(
+            loginId = "user",
+            password = passwordEncoder.encode("password123"),
+            nickname = "일반유저",
+            role = UserRole.USER
+        )
+        userRepository.save(user)
+
+        val loginRequest = UserLoginRequestDto(
+            loginId = "user",
+            password = "password123"
+        )
+        val loginResult = mockMvc.post("/users/login") {
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(loginRequest)
+        }.andExpect {
+            status { isOk() }
+        }.andReturn()
+
+        val accessToken = objectMapper.readTree(loginResult.response.contentAsString).get("accessToken").asText()
+
+        val requestDto = ProductSaveRequestDto(
+            name = "새 상품",
+            stock = 10
+        )
+
+        mockMvc.post("/products") {
+            header("Authorization", "Bearer $accessToken")
+            contentType = MediaType.APPLICATION_JSON
+            content = requestDto
+        }.andExpect {
+            status { isForbidden() }
+        }
     }
 }

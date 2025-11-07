@@ -9,12 +9,14 @@ import io.jsonwebtoken.UnsupportedJwtException
 import io.jsonwebtoken.security.Keys
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.stream.Collectors
 import javax.crypto.SecretKey
 
 @Component
@@ -29,12 +31,17 @@ class JwtTokenProvider(
         Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
     }
 
-    fun generateToken(loginId: String): String {
+    fun generateToken(authentication: Authentication): String {
+        val authorities = authentication.authorities.stream()
+            .map { it: GrantedAuthority -> it.authority }
+            .collect(Collectors.joining(","))
+
         val now = Instant.now()
         val expiration = now.plus(1, ChronoUnit.HOURS)
 
         return Jwts.builder()
-            .subject(loginId)
+            .subject(authentication.name)
+            .claim("auth", authorities)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(secretKey)

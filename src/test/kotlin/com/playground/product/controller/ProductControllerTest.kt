@@ -34,6 +34,7 @@ class ProductControllerTest(
     }
 
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 등록 - 성공`() {
         val request = ProductSaveRequestDto(
             name = "상품1",
@@ -51,6 +52,7 @@ class ProductControllerTest(
     }
 
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 등록 - 실패, 이름이 비어있음`() {
         val request = ProductSaveRequestDto(
             name = "",
@@ -67,6 +69,7 @@ class ProductControllerTest(
     }
 
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 등록 - 실패, 재고가 0보다 작음`() {
         val request = ProductSaveRequestDto(
             name = "상품1",
@@ -121,6 +124,7 @@ class ProductControllerTest(
     }
 
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 수정 - 성공`() {
         val savedProduct = productRepository.save(Product(name = "상품1", stock = 10))
         val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20)
@@ -136,6 +140,7 @@ class ProductControllerTest(
     }
 
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `재고 차감 - 실패, 재고 부족`() {
         val savedProduct = productRepository.save(Product(name = "테스트 상품", stock = 10))
         val quantity = 11
