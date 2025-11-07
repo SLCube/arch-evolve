@@ -4,7 +4,7 @@ import com.playground.common.security.jwt.JwtTokenProvider
 import com.playground.user.controller.response.UserLoginResponseDto
 import com.playground.user.controller.response.UserResponseDto
 import com.playground.user.domain.User
-import com.playground.user.exception.InValidPasswordException
+import com.playground.user.exception.InvalidPasswordException
 import com.playground.user.exception.UserNotFoundException
 import com.playground.user.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -30,7 +30,7 @@ class UserService(
         val foundUser = userRepository.findByLoginId(loginId).orElseThrow { UserNotFoundException() }
 
         if (!passwordEncoder.matches(password, foundUser.password)) {
-            throw InValidPasswordException()
+            throw InvalidPasswordException()
         }
 
         val accessToken = jwtTokenProvider.generateToken(foundUser.loginId)
