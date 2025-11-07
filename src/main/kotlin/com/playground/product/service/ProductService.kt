@@ -18,11 +18,13 @@ class ProductService(
         return ProductResponseDto.toResponse(savedProduct)
     }
 
+    @Transactional(readOnly = true)
     fun findById(id: Long): ProductResponseDto {
         val product = productRepository.findById(id).orElseThrow { ProductNotFoundException(id) }
         return ProductResponseDto.toResponse(product)
     }
 
+    @Transactional(readOnly = true)
     fun findAll(): List<ProductResponseDto> = productRepository.findAll()
         .map { ProductResponseDto.toResponse(it) }
 
