@@ -11,9 +11,6 @@ class Product(
     val id: Long? = null,
     var name: String,
     var stock: Int,
-
-    @Version
-    val version: Long = 0L
 ) {
     fun update(name: String, stock: Int) {
         this.name = name
