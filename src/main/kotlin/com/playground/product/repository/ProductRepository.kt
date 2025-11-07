@@ -11,5 +11,5 @@ interface ProductRepository : JpaRepository<Product, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Product p where p.id = :id")
-    fun findByIdWithPerssimisticLock(id: Long): Optional<Product>
+    fun findByIdWithPessimisticLock(id: Long): Optional<Product>
 }
