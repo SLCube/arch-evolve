@@ -21,7 +21,7 @@ class UserLoginApiTest: ApiTest() {
             password = "password123"
         )
 
-        performAndDocument("user-login-success") {
+        performAndDocument("로그인 - 성공") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/login"
             requestBody = loginRequest

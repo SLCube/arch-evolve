@@ -58,7 +58,7 @@ abstract class ApiTest {
     }
 
     @AfterEach
-    fun tearDown() {
+    fun cleanUpUser() {
         userRepository.deleteAll()
     }
 

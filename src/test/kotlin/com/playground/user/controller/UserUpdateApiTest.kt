@@ -23,7 +23,7 @@ class UserUpdateApiTest: ApiTest() {
         val jwtToken = getAccessToken("testuser", "testuser123")
         val updateRequest = UserNicknameUpdateRequestDto("새로운닉네임")
 
-        performAndDocument("user-update-nickname-success") {
+        performAndDocument("닉네임 변경 - 성공") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/{userId}/nickname"
             urlVars = arrayOf(user.id)
@@ -56,7 +56,7 @@ class UserUpdateApiTest: ApiTest() {
         val jwtToken = getAccessToken("user", "user123")
         val updateRequest = UserNicknameUpdateRequestDto("새로운닉네임")
 
-        performAndDocument("user-update-nickname-forbidden") {
+        performAndDocument("닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/{userId}/nickname"
             urlVars = arrayOf(otherUser.id)
@@ -75,7 +75,7 @@ class UserUpdateApiTest: ApiTest() {
         val jwtToken = getAccessToken("user", "user123")
         val updateRequest = UserNicknameUpdateRequestDto(user.nickname) // 현재 닉네임과 동일
 
-        performAndDocument("user-update-nickname-same") {
+        performAndDocument("닉네임 변경 - 실패, 동일 닉네임으로 변경 시도") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/{userId}/nickname"
             urlVars = arrayOf(user.id)
@@ -99,7 +99,7 @@ class UserUpdateApiTest: ApiTest() {
         val jwtToken = getAccessToken("user", "user123")
         val updateRequest = UserNicknameUpdateRequestDto(otherUser.nickname) // 다른 유저의 닉네임
 
-        performAndDocument("user-update-nickname-duplicate") {
+        performAndDocument("닉네임 변경 - 실패, 다른 사용자가 사용 중인 닉네임으로 변경 시도") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/{userId}/nickname"
             urlVars = arrayOf(user.id)
@@ -122,7 +122,7 @@ class UserUpdateApiTest: ApiTest() {
         val jwtToken = getAccessToken("user", "user123")
         val updateRequest = UserNicknameUpdateRequestDto("a") // 닉네임 최소 길이 미달
 
-        performAndDocument("user-update-nickname-invalid") {
+        performAndDocument("닉네임 변경 - 실패, 유효하지 않은 닉네임 (길이)") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/{userId}/nickname"
             urlVars = arrayOf(user.id)

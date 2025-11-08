@@ -39,10 +39,11 @@ fun ApiTest.performAndDocument(
     val builder = ApiTestBuilder().apply(builderBlock)
 
     // URL 경로 변수에 null이 들어오는 것을 방지하여, 테스트 실패 원인을 명확히 함.
-    val nonNullUrlVars = builder.urlVars.map { it ?: throw IllegalArgumentException("URL 변수는 null일 수 없습니다.") }.toTypedArray()
+    val nonNullUrlVars =
+        builder.urlVars.map { it ?: throw IllegalArgumentException("URL 변수는 null일 수 없습니다.") }.toTypedArray()
 
     // Spring REST Docs가 URL 템플릿을 인식할 수 있도록, 표준 MockMvcRequestBuilders가 아닌 RestDocumentationRequestBuilders를 사용.
-    val requestBuilder = when(builder.httpMethod) {
+    val requestBuilder = when (builder.httpMethod) {
         HttpMethod.POST -> RestDocumentationRequestBuilders.post(builder.urlTemplate, *nonNullUrlVars)
         HttpMethod.GET -> RestDocumentationRequestBuilders.get(builder.urlTemplate, *nonNullUrlVars)
         HttpMethod.PUT -> RestDocumentationRequestBuilders.put(builder.urlTemplate, *nonNullUrlVars)
@@ -58,10 +59,11 @@ fun ApiTest.performAndDocument(
     }
 
     requestBuilder.apply {
-        contentType(MediaType.APPLICATION_JSON)
         if (builder.requestBody != null) {
+            contentType(MediaType.APPLICATION_JSON)
             content(objectMapper.writeValueAsString(builder.requestBody))
         }
+        queryParams(builder.queryParamsInternal)
         headers(httpHeaders)
     }
 

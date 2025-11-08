@@ -23,7 +23,7 @@ class UserSignUpApiTest : ApiTest() {
             nickname = "테스트유저"
         )
 
-        performAndDocument("user-sign-up-success") {
+        performAndDocument("회원가입 - 성공") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/sign-up"
             requestBody = signUpRequest
@@ -57,7 +57,7 @@ class UserSignUpApiTest : ApiTest() {
             nickname = "테스트유저"
         )
 
-        performAndDocument("user-sign-up-validation-blank-login-id") {
+        performAndDocument("회원가입 - 실패, loginId가 비어있음") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/sign-up"
             requestBody = signUpRequest
@@ -83,7 +83,7 @@ class UserSignUpApiTest : ApiTest() {
             nickname = "테스트유저"
         )
 
-        performAndDocument("user-sign-up-validation-short-password") {
+        performAndDocument("회원가입 - 실패, password가 8자 미만") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/sign-up"
             requestBody = signUpRequest
