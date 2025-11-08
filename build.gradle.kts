@@ -4,6 +4,7 @@ plugins {
 	kotlin("jvm") version "1.9.23"
 	kotlin("plugin.spring") version "1.9.23"
 	kotlin("plugin.jpa") version "1.9.23"
+	id("org.asciidoctor.jvm.convert") version "4.0.2"
 }
 
 val kotestVersion = "5.8.0"
@@ -38,6 +39,7 @@ dependencies {
 
 	runtimeOnly("com.h2database:h2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 
     // KoTest
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
@@ -57,6 +59,24 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+val snippetsDir = file("build/generated-snippets")
+
+tasks.asciidoctor {
+	sourceDir(file("src/docs/asciidoc"))
+	inputs.dir(snippetsDir)
+	dependsOn(tasks.test)
+	attributes(
+		mapOf("snippets" to snippetsDir)
+	)
+}
+
+tasks.bootJar {
+	dependsOn(tasks.asciidoctor)
+	from(tasks.asciidoctor.get().outputDir) {
+		into("static/docs")
+	}
 }
 
 tasks.withType<JavaCompile> {

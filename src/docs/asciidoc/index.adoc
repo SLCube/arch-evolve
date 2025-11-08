@@ -1,0 +1,46 @@
+= PlayGround API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+[[introduction]]
+== 소개
+
+이 문서는 PlayGround 프로젝트의 API 명세를 제공합니다.
+
+[[user-api]]
+== 사용자 API
+
+[[user-update-nickname]]
+=== 닉네임 변경
+
+`PATCH /users/{userId}/nickname`
+
+사용자의 닉네임을 변경합니다.
+
+==== 요청
+
+===== 경로 변수
+
+include::{snippets}/user-update-nickname-success/path-parameters.adoc[]
+
+===== 요청 본문
+
+include::{snippets}/user-update-nickname-success/request-fields.adoc[]
+
+===== 요청 예시
+
+include::{snippets}/user-update-nickname-success/http-request.adoc[]
+
+==== 응답
+
+===== 응답 본문
+
+include::{snippets}/user-update-nickname-success/response-fields.adoc[]
+
+===== 응답 예시
+
+include::{snippets}/user-update-nickname-success/http-response.adoc[]

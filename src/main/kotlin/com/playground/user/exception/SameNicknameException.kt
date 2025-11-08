@@ -1,0 +1,9 @@
+package com.playground.user.exception
+
+import com.playground.common.error.BusinessException
+import com.playground.common.error.ErrorCode
+
+class SameNicknameException: BusinessException(
+    ErrorCode.SAME_NICKNAME,
+    ErrorCode.SAME_NICKNAME.message()
+)

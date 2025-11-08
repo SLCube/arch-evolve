@@ -2,6 +2,7 @@ package com.playground.user.domain
 
 import com.playground.common.jpa.domain.BaseEntity
 import com.playground.user.enum.UserRole
+import com.playground.user.exception.SameNicknameException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -24,4 +25,12 @@ class User(
 
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
-): BaseEntity()
+): BaseEntity() {
+
+    fun updateNickname(newNickname: String) {
+        if (this.nickname == newNickname) {
+            throw SameNicknameException()
+        }
+        this.nickname = newNickname
+    }
+}

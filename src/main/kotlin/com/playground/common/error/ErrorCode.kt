@@ -11,6 +11,8 @@ enum class ErrorCode(
 
     PRODUCT_NOT_FOUND("PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "id: %s, 상품을 찾을 수 없습니다."),
     INSUFFICIENT_STOCK("INSUFFICIENT_STOCK", HttpStatus.BAD_REQUEST, "재고가 부족합니다. (상품 ID: %s, 현재 재고 : %s, 요청 수량: %s)"),
+    SAME_NICKNAME("SAME_NICKNAME", HttpStatus.BAD_REQUEST, "동일한 닉네임이 존재합니다."),
+    DUPLICATE_NICKNAME("DUPLICATE_NICKNAME", HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
 
     USER_NOT_FOUND("USER_NOT_FOUND", HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     INVALID_PASSWORD("INVALID_PASSWORD", HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
