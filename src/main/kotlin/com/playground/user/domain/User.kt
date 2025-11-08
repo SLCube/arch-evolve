@@ -1,5 +1,6 @@
 package com.playground.user.domain
 
+import com.playground.common.jpa.domain.BaseEntity
 import com.playground.user.enum.UserRole
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -23,4 +24,4 @@ class User(
 
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
-)
+): BaseEntity()

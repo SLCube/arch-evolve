@@ -1,5 +1,6 @@
 package com.playground.product.domain
 
+import com.playground.common.jpa.domain.BaseEntity
 import com.playground.product.exception.InsufficientStockException
 import jakarta.persistence.*
 
@@ -11,7 +12,7 @@ class Product(
     val id: Long? = null,
     var name: String,
     var stock: Int,
-) {
+): BaseEntity() {
     fun update(name: String, stock: Int) {
         this.name = name
         this.stock = stock
