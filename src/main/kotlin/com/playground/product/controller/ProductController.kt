@@ -17,7 +17,7 @@ class ProductController(
 
     @PostMapping
     fun save(@RequestBody @Valid requestDto: ProductSaveRequestDto): ResponseEntity<ProductResponseDto> {
-        val savedProduct = productService.save(requestDto.name, requestDto.stock)
+        val savedProduct = productService.save(requestDto.name, requestDto.stock, requestDto.price)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct)
     }
 
@@ -35,7 +35,7 @@ class ProductController(
 
     @PatchMapping("/{id}")
     fun update(@PathVariable id: Long, @RequestBody @Valid requestDto: ProductUpdateRequestDto): ResponseEntity<ProductResponseDto> {
-        val updatedProduct = productService.update(id, requestDto.name, requestDto.stock)
+        val updatedProduct = productService.update(id, requestDto.name, requestDto.stock, requestDto.price)
         return ResponseEntity.ok(updatedProduct)
     }
 

@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional
 class ProductService(
     private val productRepository: ProductRepository
 ) {
-    fun save(name: String, stock: Int): ProductResponseDto {
-        val product = Product(name = name, stock = stock)
+    fun save(name: String, stock: Int, price: Long): ProductResponseDto {
+        val product = Product(name = name, stock = stock, price = price)
         val savedProduct = productRepository.save(product)
         return ProductResponseDto.toResponse(savedProduct)
     }
@@ -28,9 +28,9 @@ class ProductService(
     fun findAll(): List<ProductResponseDto> = productRepository.findAll()
         .map { ProductResponseDto.toResponse(it) }
 
-    fun update(id: Long, name: String, stock: Int): ProductResponseDto {
+    fun update(id: Long, name: String, stock: Int, price: Long): ProductResponseDto {
         val foundProduct = productRepository.findById(id).orElseThrow { ProductNotFoundException(id) }
-        foundProduct.update(name, stock)
+        foundProduct.update(name, stock, price)
 
         return ProductResponseDto.toResponse(foundProduct)
     }

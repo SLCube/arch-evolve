@@ -32,8 +32,8 @@ class ProductUpdateApiTest(
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `상품 수정 - 성공`() {
-        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10))
-        val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20)
+        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
+        val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20, price = 20000L)
 
         performAndDocument("상품 수정 - 성공") {
             httpMethod = HttpMethod.PATCH
@@ -43,17 +43,20 @@ class ProductUpdateApiTest(
             expectedStatus = status().isOk
             additionalMatchers = arrayOf(
                 jsonPath("$.name").value("상품2"),
-                jsonPath("$.stock").value(20)
+                jsonPath("$.stock").value(20),
+                jsonPath("$.price").value(20000L)
             )
             snippets = arrayOf(
                 requestFields(
                     fieldWithPath("name").description("상품 이름"),
-                    fieldWithPath("stock").description("재고량")
+                    fieldWithPath("stock").description("재고량"),
+                    fieldWithPath("price").description("상품 가격")
                 ),
                 responseFields(
                     fieldWithPath("id").description("상품 ID"),
                     fieldWithPath("name").description("상품 이름"),
-                    fieldWithPath("stock").description("재고량")
+                    fieldWithPath("stock").description("재고량"),
+                    fieldWithPath("price").description("상품 가격")
                 )
             )
         }
@@ -62,7 +65,7 @@ class ProductUpdateApiTest(
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `재고 차감 - 실패, 재고 부족`() {
-        val savedProduct = productRepository.save(Product(name = "테스트 상품", stock = 10))
+        val savedProduct = productRepository.save(Product(name = "테스트 상품", stock = 10, price = 10000L))
         val quantity = 11
 
         performAndDocument("재고 차감 - 실패, 재고 부족") {
@@ -95,8 +98,8 @@ class ProductUpdateApiTest(
     @Test
     @WithMockUser(roles = ["USER"])
     fun `상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
-        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10))
-        val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20)
+        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
+        val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20, price = 20000L)
 
         performAndDocument("상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도") {
             httpMethod = HttpMethod.PATCH
@@ -113,7 +116,7 @@ class ProductUpdateApiTest(
     @Test
     @WithMockUser(roles = ["USER"])
     fun `재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
-        val savedProduct = productRepository.save(Product(name = "테스트 상품", stock = 10))
+        val savedProduct = productRepository.save(Product(name = "테스트 상품", stock = 10, price = 10000L))
         val quantity = 11
 
         performAndDocument("재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도") {

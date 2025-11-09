@@ -12,10 +12,12 @@ class Product(
     val id: Long? = null,
     var name: String,
     var stock: Int,
+    var price: Long
 ): BaseEntity() {
-    fun update(name: String, stock: Int) {
+    fun update(name: String, stock: Int, price: Long) {
         this.name = name
         this.stock = stock
+        this.price = price
     }
 
     fun decreaseStock(quantity: Int) {
@@ -27,5 +29,5 @@ class Product(
         stock -= quantity
     }
 
-    override fun toString(): String = "Product(id=$id, name=$name, stock=$stock)"
+    override fun toString(): String = "Product(id=$id, name=$name, stock=$stock, price=$price)"
 }

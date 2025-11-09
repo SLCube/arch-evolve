@@ -22,7 +22,7 @@ class ProductServiceTest(
 
     @BeforeEach
     fun setUp() {
-        val product = productRepository.save(Product(name = "테스트 상품", stock = 100))
+        val product = productRepository.save(Product(name = "테스트 상품", stock = 100, price = 10000L))
         productId = requireNotNull(product.id) { "Product ID cannot be null in test setup." }
     }
 

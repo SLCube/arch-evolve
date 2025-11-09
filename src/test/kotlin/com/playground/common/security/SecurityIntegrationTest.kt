@@ -95,7 +95,8 @@ class SecurityIntegrationTest(
 
         val requestDto = ProductSaveRequestDto(
             name = "새 상품",
-            stock = 10
+            stock = 10,
+            price = 10000L
         )
 
         mockMvc.post("/products") {

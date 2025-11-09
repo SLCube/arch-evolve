@@ -31,7 +31,7 @@ class ProductGetApiTest(
 
     @Test
     fun `상품 단일 조회 - 성공`() {
-        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10))
+        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
 
         performAndDocument("상품 단일 조회 - 성공") {
             httpMethod = HttpMethod.GET
@@ -41,7 +41,8 @@ class ProductGetApiTest(
             additionalMatchers = arrayOf(
                 jsonPath("$.id").value(savedProduct.id),
                 jsonPath("$.name").value(savedProduct.name),
-                jsonPath("$.stock").value(savedProduct.stock)
+                jsonPath("$.stock").value(savedProduct.stock),
+                jsonPath("$.price").value(savedProduct.price)
             )
             snippets = arrayOf(
                 pathParameters(
@@ -50,7 +51,8 @@ class ProductGetApiTest(
                 responseFields(
                     fieldWithPath("id").description("상품 ID"),
                     fieldWithPath("name").description("상품 이름"),
-                    fieldWithPath("stock").description("재고량")
+                    fieldWithPath("stock").description("재고량"),
+                    fieldWithPath("price").description("상품 가격")
                 )
             )
         }
@@ -77,8 +79,8 @@ class ProductGetApiTest(
 
     @Test
     fun `상품 목록 조회 - 성공`() {
-        productRepository.save(Product(name = "상품1", stock = 10))
-        productRepository.save(Product(name = "상품2", stock = 20))
+        productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
+        productRepository.save(Product(name = "상품2", stock = 20, price = 20000L))
 
         performAndDocument("상품 목록 조회 - 성공") {
             httpMethod = HttpMethod.GET
