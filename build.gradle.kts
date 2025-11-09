@@ -1,10 +1,10 @@
 plugins {
-	id("org.springframework.boot") version "3.3.1"
-	id("io.spring.dependency-management") version "1.1.5"
-	kotlin("jvm") version "1.9.23"
-	kotlin("plugin.spring") version "1.9.23"
-	kotlin("plugin.jpa") version "1.9.23"
-	id("org.asciidoctor.jvm.convert") version "4.0.2"
+    id("org.springframework.boot") version "3.3.1"
+    id("io.spring.dependency-management") version "1.1.5"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
+    kotlin("plugin.jpa") version "1.9.23"
+    id("org.asciidoctor.jvm.convert") version "4.0.2"
 }
 
 val kotestVersion = "5.8.0"
@@ -15,31 +15,31 @@ group = "com.playground"
 version = "0.0.1-SNAPSHOT"
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-	implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
-	runtimeOnly("com.h2database:h2")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    runtimeOnly("com.h2database:h2")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 
     // KoTest
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
@@ -47,36 +47,42 @@ dependencies {
     testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestSpringExtensionVersion")
     testImplementation("org.springframework.security:spring-security-test")
 
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-	kotlinOptions {
-		freeCompilerArgs += "-Xjsr305=strict"
-		jvmTarget = "21"
-	}
+    kotlinOptions {
+        freeCompilerArgs += "-Xjsr305=strict"
+        jvmTarget = "21"
+    }
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 val snippetsDir = file("build/generated-snippets")
 
 tasks.asciidoctor {
-	sourceDir(file("src/docs/asciidoc"))
-	inputs.dir(snippetsDir)
-	dependsOn(tasks.test)
-	attributes(
-		mapOf("snippets" to snippetsDir)
-	)
+    sourceDir(file("src/docs/asciidoc"))
+    inputs.dir(snippetsDir)
+    dependsOn(tasks.test)
+    attributes(
+        mapOf("snippets" to snippetsDir)
+    )
 }
 
+tasks.register("buildDocs") {
+    group = "documentation"
+    description = "Builds the API documentation."
+    dependsOn(tasks.asciidoctor)
+}
+
+
 tasks.bootJar {
-	dependsOn(tasks.asciidoctor)
-	from(tasks.asciidoctor.get().outputDir) {
-		into("static/docs")
-	}
+    from(tasks.asciidoctor.get().outputDir) {
+        into("static/docs")
+    }
 }
 
 tasks.withType<JavaCompile> {
