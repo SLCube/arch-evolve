@@ -1,12 +1,15 @@
 package com.playground.user.application.service
 
-import com.playground.user.presentation.response.UserResponseDto
-import com.playground.user.persistence.entity.User
+import com.playground.user.application.port.`in`.UserUseCase
+import com.playground.user.application.port.`in`.command.SignUpCommand
+import com.playground.user.application.port.`in`.command.UpdateNicknameCommand
+import com.playground.user.application.port.`in`.command.UpdatePasswordCommand
+import com.playground.user.application.port.out.UserCommandPort
+import com.playground.user.application.port.out.UserQueryPort
+import com.playground.user.domain.User
 import com.playground.user.domain.exception.DuplicateLoginIdException
 import com.playground.user.domain.exception.DuplicateNicknameException
 import com.playground.user.domain.exception.PasswordMismatchException
-import com.playground.user.domain.exception.UserNotFoundException
-import com.playground.user.persistence.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -14,46 +17,50 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class UserService(
-    private val userRepository: UserRepository,
+    private val userQueryPort: UserQueryPort,
+    private val userCommandPort: UserCommandPort,
     private val passwordEncoder: PasswordEncoder,
-) {
+): UserUseCase {
 
-    fun signUp(loginId: String, password: String, nickname: String): UserResponseDto {
-        if (userRepository.existsByLoginId(loginId)) {
-            throw DuplicateLoginIdException(loginId)
-        }
-        val encodePassword = passwordEncoder.encode(password)
-        val user = User(loginId = loginId, password = encodePassword, nickname = nickname)
-        val savedUser = userRepository.save(user)
-        return UserResponseDto.toResponse(savedUser)
-    }
-
-    fun updateNickname(userId: Long, newNickname: String): UserResponseDto {
-        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException() }
-
-        if (user.nickname != newNickname) {
-            userRepository.findByNickname(newNickname).ifPresent { foundUser ->
-                if (foundUser.id != userId) {
-                    throw DuplicateNicknameException()
-                }
-            }
+    override fun signUp(command: SignUpCommand): User {
+        if (userQueryPort.existsByLoginId(command.loginId)) {
+            throw DuplicateLoginIdException(command.loginId)
         }
 
-        user.updateNickname(newNickname)
+        if (userQueryPort.existsByNickname(command.nickname)) {
+            throw DuplicateNicknameException()
+        }
 
-        return UserResponseDto.toResponse(user)
+        val user = User(
+            loginId = command.loginId,
+            password = passwordEncoder.encode(command.password),
+            nickname = command.nickname
+        )
+
+        return userCommandPort.save(user)
     }
 
-    fun updatePassword(userId: Long, oldPassword: String, newPassword: String): UserResponseDto {
-        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException() }
+    override fun updateNickname(command: UpdateNicknameCommand): User {
+        if (userQueryPort.existsByNicknameAndIdNot(command.newNickname, command.userId)) {
+            throw DuplicateNicknameException()
+        }
 
-        if (!passwordEncoder.matches(oldPassword, user.password)) {
+        val user = userQueryPort.findById(command.userId)
+
+        user.updateNickname(command.newNickname)
+
+        return userCommandPort.save(user)
+    }
+
+    override fun updatePassword(command: UpdatePasswordCommand): User {
+        val user = userQueryPort.findById(command.userId)
+
+        if (!passwordEncoder.matches(command.oldPassword, user.password)) {
             throw PasswordMismatchException()
         }
 
-        val encodedNewPassword = passwordEncoder.encode(newPassword)
-        user.updatePassword(encodedNewPassword)
+        user.updatePassword(passwordEncoder.encode(command.newPassword))
 
-        return UserResponseDto.toResponse(user)
+        return userCommandPort.save(user)
     }
 }

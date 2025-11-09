@@ -1,0 +1,14 @@
+package com.playground.user.persistence.mapper
+
+import com.playground.user.domain.User
+import com.playground.user.persistence.entity.UserJpaEntity
+
+fun UserJpaEntity.toDomain(): User {
+    return User(
+        id = this.id,
+        loginId = this.loginId,
+        password = this.password,
+        nickname = this.nickname,
+        role = this.role
+    )
+}

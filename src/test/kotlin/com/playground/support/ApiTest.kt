@@ -3,7 +3,7 @@ package com.playground.support
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.auth.presentation.response.AuthTokenResponseDto
 import com.playground.auth.presentation.request.AuthLoginRequestDto
-import com.playground.user.persistence.entity.User
+import com.playground.user.persistence.entity.UserJpaEntity
 import com.playground.user.domain.enum.UserRole
 import com.playground.user.persistence.repository.UserRepository
 import org.junit.jupiter.api.AfterEach
@@ -62,15 +62,15 @@ abstract class ApiTest {
         userRepository.deleteAll()
     }
 
-    protected fun createUser(loginId: String, password: String, nickname: String, role: UserRole = UserRole.USER): User {
-        val user = User(
+    protected fun createUser(loginId: String, password: String, nickname: String, role: UserRole = UserRole.USER): UserJpaEntity {
+        val userJpaEntity = UserJpaEntity(
             loginId = loginId,
             password = passwordEncoder.encode(password),
             nickname = nickname,
             role = role
         )
 
-        return userRepository.save(user)
+        return userRepository.save(userJpaEntity)
     }
 
     protected fun getAccessToken(loginId: String, password: String): String {

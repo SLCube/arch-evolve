@@ -3,7 +3,7 @@ package com.playground.common.security
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.product.presentation.request.ProductSaveRequestDto
 import com.playground.auth.presentation.request.AuthLoginRequestDto
-import com.playground.user.persistence.entity.User
+import com.playground.user.persistence.entity.UserJpaEntity
 import com.playground.user.domain.enum.UserRole
 import com.playground.user.persistence.repository.UserRepository
 import org.junit.jupiter.api.AfterEach
@@ -34,12 +34,12 @@ class SecurityIntegrationTest(
 
     @Test
     fun `실제 JWT 토큰으로 인증 - 성공, 보호된 API에 접근할 수 있다`() {
-        val testUser = User(
+        val testUserJpaEntity = UserJpaEntity(
             loginId = "testUser",
             password = passwordEncoder.encode("password123"),
             nickname = "테스트유저"
         )
-        userRepository.save(testUser)
+        userRepository.save(testUserJpaEntity)
 
         val loginRequest = AuthLoginRequestDto(
             loginId = "testUser",
@@ -72,13 +72,13 @@ class SecurityIntegrationTest(
 
     @Test
     fun `USER 권한으로 ADMIN 전용 API 접근 - 실패, 403 Forbidden을 반환한다`() {
-        val user = User(
+        val userJpaEntity = UserJpaEntity(
             loginId = "user",
             password = passwordEncoder.encode("password123"),
             nickname = "일반유저",
             role = UserRole.USER
         )
-        userRepository.save(user)
+        userRepository.save(userJpaEntity)
 
         val loginRequest = AuthLoginRequestDto(
             loginId = "user",
