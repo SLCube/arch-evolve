@@ -10,4 +10,7 @@ object ValidationConstants {
 
     const val USER_NICKNAME_MIN_SIZE = 2
     const val USER_NICKNAME_MAX_SIZE = 10
+
+    const val ORDER_ORDERITEMS_MIN_SIZE = 1
+    const val ORDERITEM_QUANTITY_MIN_SIZE = 1L
 }

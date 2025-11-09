@@ -339,3 +339,67 @@ include::{snippets}/재고 차감 - 실패, 재고 부족/http-response.adoc[]
 include::{snippets}/재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도/response-fields.adoc[]
 
 include::{snippets}/재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도/http-response.adoc[]
+
+[[order-api]]
+== 주문 API
+
+[[주문-생성]]
+=== 주문 생성
+
+`POST /orders`
+
+새로운 주문을 생성합니다.
+
+==== 요청
+
+===== 헤더
+
+include::{snippets}/주문 생성 - 성공/request-headers.adoc[]
+
+===== 요청 본문
+
+include::{snippets}/주문 생성 - 성공/request-fields.adoc[]
+
+===== 요청 예시
+
+include::{snippets}/주문 생성 - 성공/http-request.adoc[]
+
+==== 응답
+
+===== 성공
+
+include::{snippets}/주문 생성 - 성공/response-fields.adoc[]
+
+include::{snippets}/주문 생성 - 성공/http-response.adoc[]
+
+===== 실패
+
+- 상품이 존재하지 않을 경우
+
+include::{snippets}/주문 생성 - 실패, 상품이 존재하지 않음/response-fields.adoc[]
+
+include::{snippets}/주문 생성 - 실패, 상품이 존재하지 않음/http-response.adoc[]
+
+- 재고가 부족할 경우
+
+include::{snippets}/주문 생성 - 실패, 재고 부족/response-fields.adoc[]
+
+include::{snippets}/주문 생성 - 실패, 재고 부족/http-response.adoc[]
+
+- 주문 상품이 비어있을 경우
+
+include::{snippets}/주문 생성 - 실패, 주문 상품이 비어있음/response-fields.adoc[]
+
+include::{snippets}/주문 생성 - 실패, 주문 상품이 비어있음/http-response.adoc[]
+
+- 주문 수량이 1개 미만일 경우
+
+include::{snippets}/주문 생성 - 실패, 주문 수량이 1개 미만/response-fields.adoc[]
+
+include::{snippets}/주문 생성 - 실패, 주문 수량이 1개 미만/http-response.adoc[]
+
+- 인증되지 않은 사용자가 접근 시도
+
+include::{snippets}/주문 생성 - 실패, 인증되지 않은 사용자가 접근 시도/response-fields.adoc[]
+
+include::{snippets}/주문 생성 - 실패, 인증되지 않은 사용자가 접근 시도/http-response.adoc[]
