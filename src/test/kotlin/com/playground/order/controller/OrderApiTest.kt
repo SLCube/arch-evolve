@@ -4,7 +4,7 @@ import com.playground.common.error.ErrorCode
 import com.playground.order.controller.request.OrderCreateRequestDto
 import com.playground.order.controller.request.OrderItemRequestDto
 import com.playground.order.repository.OrderRepository
-import com.playground.product.persistence.entity.Product
+import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
@@ -36,13 +36,13 @@ class OrderApiTest(
     @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val product1 = productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
-        val product2 = productRepository.save(Product(name = "상품2", stock = 5, price = 5000L))
+        val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000L))
 
         val orderRequest = OrderCreateRequestDto(
             orderItems = listOf(
-                OrderItemRequestDto(productId = product1.id!!, quantity = 2),
-                OrderItemRequestDto(productId = product2.id!!, quantity = 3)
+                OrderItemRequestDto(productId = productJpaEntity1.id!!, quantity = 2),
+                OrderItemRequestDto(productId = productJpaEntity2.id!!, quantity = 3)
             )
         )
 
@@ -56,15 +56,15 @@ class OrderApiTest(
             expectedStatus = status().isCreated
             additionalMatchers = arrayOf(
                 jsonPath("$.userId").value(user.id),
-                jsonPath("$.totalPrice").value(product1.price * 2 + product2.price * 3),
+                jsonPath("$.totalPrice").value(productJpaEntity1.price * 2 + productJpaEntity2.price * 3),
                 jsonPath("$.status").value("PENDING"),
                 jsonPath("$.orderItems.length()").value(2),
-                jsonPath("$.orderItems[0].productId").value(product1.id),
+                jsonPath("$.orderItems[0].productId").value(productJpaEntity1.id),
                 jsonPath("$.orderItems[0].quantity").value(2),
-                jsonPath("$.orderItems[0].price").value(product1.price),
-                jsonPath("$.orderItems[1].productId").value(product2.id),
+                jsonPath("$.orderItems[0].price").value(productJpaEntity1.price),
+                jsonPath("$.orderItems[1].productId").value(productJpaEntity2.id),
                 jsonPath("$.orderItems[1].quantity").value(3),
-                jsonPath("$.orderItems[1].price").value(product2.price),
+                jsonPath("$.orderItems[1].price").value(productJpaEntity2.price),
             )
             snippets = arrayOf(
                 requestFields(
@@ -119,11 +119,11 @@ class OrderApiTest(
     @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 실패, 재고 부족`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val product = productRepository.save(Product(name = "상품1", stock = 5, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 5, price = 10000L))
 
         val orderRequest = OrderCreateRequestDto(
             orderItems = listOf(
-                OrderItemRequestDto(productId = product.id!!, quantity = 10) // 재고보다 많은 수량
+                OrderItemRequestDto(productId = productJpaEntity.id!!, quantity = 10) // 재고보다 많은 수량
             )
         )
         val jwtToken = getAccessToken(user.loginId, "password123")
@@ -138,8 +138,8 @@ class OrderApiTest(
                 jsonPath("$.code").value(ErrorCode.INSUFFICIENT_STOCK.code),
                 jsonPath("$.message").value(
                     ErrorCode.INSUFFICIENT_STOCK.message(
-                        product.id,
-                        product.stock,
+                        productJpaEntity.id,
+                        productJpaEntity.stock,
                         10
                     )
                 )
@@ -183,11 +183,11 @@ class OrderApiTest(
     @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 실패, 주문 수량이 1개 미만`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val product = productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
 
         val orderRequest = OrderCreateRequestDto(
             orderItems = listOf(
-                OrderItemRequestDto(productId = product.id!!, quantity = 0) // 1개 미만 수량
+                OrderItemRequestDto(productId = productJpaEntity.id!!, quantity = 0) // 1개 미만 수량
             )
         )
         val jwtToken = getAccessToken(user.loginId, "password123")

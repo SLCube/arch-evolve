@@ -1,9 +1,11 @@
 package com.playground.product.presentation.web
 
+import com.playground.product.application.port.`in`.ProductUseCase
+import com.playground.product.application.port.`in`.query.GetProductQuery
+import com.playground.product.presentation.mapper.toCommand
 import com.playground.product.presentation.request.ProductSaveRequestDto
 import com.playground.product.presentation.request.ProductUpdateRequestDto
 import com.playground.product.presentation.response.ProductResponseDto
-import com.playground.product.application.service.ProductService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,36 +21,36 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/products")
 class ProductController(
-    private val productService: ProductService
+    private val productUseCase: ProductUseCase
 ) {
 
     @PostMapping
     fun save(@RequestBody @Valid requestDto: ProductSaveRequestDto): ResponseEntity<ProductResponseDto> {
-        val savedProduct = productService.save(requestDto.name, requestDto.stock, requestDto.price)
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduct)
+        val savedProduct = productUseCase.saveProduct(requestDto.toCommand())
+        return ResponseEntity.status(HttpStatus.CREATED).body(ProductResponseDto.toResponse(savedProduct))
     }
 
     @GetMapping("/{id}")
     fun findById(@PathVariable id: Long): ResponseEntity<ProductResponseDto> {
-        val foundProduct = productService.findById(id)
-        return ResponseEntity.ok(foundProduct)
+        val foundProduct = productUseCase.getProduct(GetProductQuery(id))
+        return ResponseEntity.ok(ProductResponseDto.toResponse(foundProduct))
     }
 
     @GetMapping
     fun findAll(): ResponseEntity<List<ProductResponseDto>> {
-        val foundProducts = productService.findAll()
-        return ResponseEntity.ok(foundProducts)
+        val foundProducts = productUseCase.getAllProducts()
+        return ResponseEntity.ok(foundProducts.map { ProductResponseDto.toResponse(it) })
     }
 
     @PatchMapping("/{id}")
     fun update(@PathVariable id: Long, @RequestBody @Valid requestDto: ProductUpdateRequestDto): ResponseEntity<ProductResponseDto> {
-        val updatedProduct = productService.update(id, requestDto.name, requestDto.stock, requestDto.price)
-        return ResponseEntity.ok(updatedProduct)
+        val updatedProduct = productUseCase.updateProduct(requestDto.toCommand(id))
+        return ResponseEntity.ok(ProductResponseDto.toResponse(updatedProduct))
     }
 
     @PostMapping("/{id}/decrease-stock")
     fun decreaseStock(@PathVariable id: Long, @RequestParam quantity: Int): ResponseEntity<ProductResponseDto> {
-        val updatedProduct = productService.decreaseStock(id, quantity)
-        return ResponseEntity.ok(updatedProduct)
+        val updatedProduct = productUseCase.decreaseStock(toCommand(id, quantity))
+        return ResponseEntity.ok(ProductResponseDto.toResponse(updatedProduct))
     }
 }

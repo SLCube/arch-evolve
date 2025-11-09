@@ -1,7 +1,8 @@
 package com.playground.product.service
 
-import com.playground.product.application.service.ProductService
-import com.playground.product.persistence.entity.Product
+import com.playground.product.application.port.`in`.ProductUseCase
+import com.playground.product.application.port.`in`.command.DecreaseStockCommand
+import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.AfterEach
@@ -15,7 +16,7 @@ import java.util.concurrent.Executors
 @Suppress("NonAsciiCharacters")
 @SpringBootTest
 class ProductServiceTest(
-    @param:Autowired private val productService: ProductService,
+    @param:Autowired private val productUseCase: ProductUseCase,
     @param:Autowired private val productRepository: ProductRepository
 ) {
 
@@ -23,8 +24,8 @@ class ProductServiceTest(
 
     @BeforeEach
     fun setUp() {
-        val product = productRepository.save(Product(name = "테스트 상품", stock = 100, price = 10000L))
-        productId = requireNotNull(product.id) { "Product ID cannot be null in test setup." }
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "테스트 상품", stock = 100, price = 10000L))
+        productId = requireNotNull(productJpaEntity.id) { "Product ID cannot be null in test setup." }
     }
 
     @AfterEach
@@ -41,7 +42,7 @@ class ProductServiceTest(
         for (i in 1..threadCount) {
             executorService.submit {
                 try {
-                    productService.decreaseStock(productId, 1)
+                    productUseCase.decreaseStock(DecreaseStockCommand(productId, 1))
                 } finally {
                     latch.countDown()
                 }

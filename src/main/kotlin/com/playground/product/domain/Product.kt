@@ -1,23 +1,13 @@
-package com.playground.product.persistence.entity
+package com.playground.product.domain
 
-import com.playground.common.jpa.domain.BaseEntity
 import com.playground.product.domain.exception.InsufficientStockException
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
 
-@Entity
 class Product(
-    @Id
-    @Column(name = "product_id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
     var name: String,
     var stock: Int,
     var price: Long
-): BaseEntity() {
+) {
     fun update(name: String, stock: Int, price: Long) {
         this.name = name
         this.stock = stock

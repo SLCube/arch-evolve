@@ -1,43 +1,60 @@
 package com.playground.product.application.service
 
-import com.playground.product.persistence.entity.Product
-import com.playground.product.domain.exception.ProductNotFoundException
-import com.playground.product.presentation.response.ProductResponseDto
-import com.playground.product.persistence.repository.ProductRepository
+import com.playground.product.application.port.`in`.ProductUseCase
+import com.playground.product.application.port.`in`.command.DecreaseStockCommand
+import com.playground.product.application.port.`in`.command.SaveProductCommand
+import com.playground.product.application.port.`in`.command.UpdateProductCommand
+import com.playground.product.application.port.`in`.query.GetProductQuery
+import com.playground.product.application.port.out.ProductCommandPort
+import com.playground.product.application.port.out.ProductQueryPort
+import com.playground.product.domain.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
 class ProductService(
-    private val productRepository: ProductRepository
-) {
-    fun save(name: String, stock: Int, price: Long): ProductResponseDto {
-        val product = Product(name = name, stock = stock, price = price)
-        val savedProduct = productRepository.save(product)
-        return ProductResponseDto.toResponse(savedProduct)
+    private val productCommandPort: ProductCommandPort,
+    private val productQueryPort: ProductQueryPort
+): ProductUseCase {
+
+    override fun saveProduct(command: SaveProductCommand): Product {
+        val product = Product(
+            name = command.name,
+            stock = command.stock,
+            price = command.price
+        )
+
+        return productCommandPort.save(product)
+    }
+
+    override fun updateProduct(command: UpdateProductCommand): Product {
+        val product = productQueryPort.findById(command.id)
+
+        product.update(
+            name = command.name,
+            stock = command.stock,
+            price = command.price
+        )
+
+        return productCommandPort.update(product)
     }
 
     @Transactional(readOnly = true)
-    fun findById(id: Long): ProductResponseDto {
-        val product = productRepository.findById(id).orElseThrow { ProductNotFoundException(id) }
-        return ProductResponseDto.toResponse(product)
+    override fun getProduct(query: GetProductQuery): Product {
+        return productQueryPort.findById(query.id)
     }
 
     @Transactional(readOnly = true)
-    fun findAll(): List<ProductResponseDto> = productRepository.findAll()
-        .map { ProductResponseDto.toResponse(it) }
-
-    fun update(id: Long, name: String, stock: Int, price: Long): ProductResponseDto {
-        val foundProduct = productRepository.findById(id).orElseThrow { ProductNotFoundException(id) }
-        foundProduct.update(name, stock, price)
-
-        return ProductResponseDto.toResponse(foundProduct)
+    override fun getAllProducts(): List<Product> {
+        return productQueryPort.findAll()
     }
 
-    fun decreaseStock(id: Long, quantity: Int): ProductResponseDto {
-        val foundProduct = productRepository.findByIdWithPessimisticLock(id).orElseThrow { ProductNotFoundException(id) }
-        foundProduct.decreaseStock(quantity)
-        return ProductResponseDto.toResponse(foundProduct)
+    override fun decreaseStock(command: DecreaseStockCommand): Product {
+        val product = productQueryPort.findByIdWithPessimisticLock(command.id)
+
+        product.decreaseStock(command.quantity)
+
+        return productCommandPort.update(product)
     }
 }

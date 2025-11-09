@@ -1,6 +1,6 @@
 package com.playground.product.presentation.response
 
-import com.playground.product.persistence.entity.Product
+import com.playground.product.domain.Product
 
 data class ProductResponseDto(
     val id: Long,
@@ -9,13 +9,13 @@ data class ProductResponseDto(
     val price: Long
 ) {
     companion object {
-        fun toResponse(product: Product): ProductResponseDto {
-            val productId = requireNotNull(product.id) { "Product ID cannot be null for response creation." }
+        fun toResponse(domain: Product): ProductResponseDto {
+            val productId = requireNotNull(domain.id) { "Product ID cannot be null for response creation." }
             return ProductResponseDto(
                 productId,
-                product.name,
-                product.stock,
-                product.price
+                domain.name,
+                domain.stock,
+                domain.price
             )
         }
     }

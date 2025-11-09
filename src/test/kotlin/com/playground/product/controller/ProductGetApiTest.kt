@@ -1,7 +1,7 @@
 package com.playground.product.controller
 
 import com.playground.common.error.ErrorCode
-import com.playground.product.persistence.entity.Product
+import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
@@ -31,18 +31,18 @@ class ProductGetApiTest(
 
     @Test
     fun `상품 단일 조회 - 성공`() {
-        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
+        val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
 
         performAndDocument("상품 단일 조회 - 성공") {
             httpMethod = HttpMethod.GET
             urlTemplate = "/products/{id}"
-            urlVars = arrayOf(savedProduct.id)
+            urlVars = arrayOf(savedProductJpaEntity.id)
             expectedStatus = status().isOk
             additionalMatchers = arrayOf(
-                jsonPath("$.id").value(savedProduct.id),
-                jsonPath("$.name").value(savedProduct.name),
-                jsonPath("$.stock").value(savedProduct.stock),
-                jsonPath("$.price").value(savedProduct.price)
+                jsonPath("$.id").value(savedProductJpaEntity.id),
+                jsonPath("$.name").value(savedProductJpaEntity.name),
+                jsonPath("$.stock").value(savedProductJpaEntity.stock),
+                jsonPath("$.price").value(savedProductJpaEntity.price)
             )
             snippets = arrayOf(
                 pathParameters(
@@ -79,8 +79,8 @@ class ProductGetApiTest(
 
     @Test
     fun `상품 목록 조회 - 성공`() {
-        productRepository.save(Product(name = "상품1", stock = 10, price = 10000L))
-        productRepository.save(Product(name = "상품2", stock = 20, price = 20000L))
+        productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        productRepository.save(ProductJpaEntity(name = "상품2", stock = 20, price = 20000L))
 
         performAndDocument("상품 목록 조회 - 성공") {
             httpMethod = HttpMethod.GET

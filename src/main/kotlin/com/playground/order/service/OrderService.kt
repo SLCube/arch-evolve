@@ -5,9 +5,9 @@ import com.playground.order.controller.response.OrderResponseDto
 import com.playground.order.domain.Order
 import com.playground.order.domain.OrderItem
 import com.playground.order.repository.OrderRepository
-import com.playground.product.domain.exception.ProductNotFoundException
-import com.playground.product.persistence.repository.ProductRepository
-import com.playground.product.application.service.ProductService
+import com.playground.product.application.port.`in`.ProductUseCase
+import com.playground.product.application.port.`in`.command.DecreaseStockCommand
+import com.playground.product.application.port.`in`.query.GetProductQuery
 import com.playground.user.exception.UserNotFoundException
 import com.playground.user.repository.UserRepository
 import jakarta.transaction.Transactional
@@ -18,8 +18,7 @@ import org.springframework.stereotype.Service
 class OrderService(
     private val orderRepository: OrderRepository,
     private val userRepository: UserRepository,
-    private val productService: ProductService,
-    private val productRepository: ProductRepository,
+    private val productUseCase: ProductUseCase
 ) {
 
     fun createOrder(loginId: String, request: OrderCreateRequestDto): OrderResponseDto {
@@ -29,11 +28,10 @@ class OrderService(
 
         request.orderItems.forEach { orderItemRequest ->
             val productId = orderItemRequest.productId
-            val product = productRepository.findById(productId)
-                .orElseThrow { ProductNotFoundException(productId) }
+            val product = productUseCase.getProduct(GetProductQuery(productId))
 
             val quantity = orderItemRequest.quantity
-            productService.decreaseStock(productId, quantity)
+            productUseCase.decreaseStock(DecreaseStockCommand(productId, quantity))
 
             val orderItem = OrderItem(
                 order = order,
