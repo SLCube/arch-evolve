@@ -1,7 +1,7 @@
 package com.playground.common.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.product.controller.request.ProductSaveRequestDto
+import com.playground.product.presentation.request.ProductSaveRequestDto
 import com.playground.user.controller.request.UserLoginRequestDto
 import com.playground.user.domain.User
 import com.playground.user.enum.UserRole

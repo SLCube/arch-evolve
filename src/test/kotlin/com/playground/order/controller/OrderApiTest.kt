@@ -4,8 +4,8 @@ import com.playground.common.error.ErrorCode
 import com.playground.order.controller.request.OrderCreateRequestDto
 import com.playground.order.controller.request.OrderItemRequestDto
 import com.playground.order.repository.OrderRepository
-import com.playground.product.domain.Product
-import com.playground.product.repository.ProductRepository
+import com.playground.product.persistence.entity.Product
+import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument

@@ -1,9 +1,9 @@
-package com.playground.product.service
+package com.playground.product.application.service
 
-import com.playground.product.controller.response.ProductResponseDto
-import com.playground.product.domain.Product
-import com.playground.product.exception.ProductNotFoundException
-import com.playground.product.repository.ProductRepository
+import com.playground.product.persistence.entity.Product
+import com.playground.product.domain.exception.ProductNotFoundException
+import com.playground.product.presentation.response.ProductResponseDto
+import com.playground.product.persistence.repository.ProductRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

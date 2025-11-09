@@ -5,9 +5,9 @@ import com.playground.order.controller.response.OrderResponseDto
 import com.playground.order.domain.Order
 import com.playground.order.domain.OrderItem
 import com.playground.order.repository.OrderRepository
-import com.playground.product.exception.ProductNotFoundException
-import com.playground.product.repository.ProductRepository
-import com.playground.product.service.ProductService
+import com.playground.product.domain.exception.ProductNotFoundException
+import com.playground.product.persistence.repository.ProductRepository
+import com.playground.product.application.service.ProductService
 import com.playground.user.exception.UserNotFoundException
 import com.playground.user.repository.UserRepository
 import jakarta.transaction.Transactional

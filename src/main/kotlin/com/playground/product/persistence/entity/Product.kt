@@ -1,8 +1,12 @@
-package com.playground.product.domain
+package com.playground.product.persistence.entity
 
 import com.playground.common.jpa.domain.BaseEntity
-import com.playground.product.exception.InsufficientStockException
-import jakarta.persistence.*
+import com.playground.product.domain.exception.InsufficientStockException
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
 
 @Entity
 class Product(

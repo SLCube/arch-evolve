@@ -1,7 +1,8 @@
 package com.playground.product.service
 
-import com.playground.product.domain.Product
-import com.playground.product.repository.ProductRepository
+import com.playground.product.application.service.ProductService
+import com.playground.product.persistence.entity.Product
+import com.playground.product.persistence.repository.ProductRepository
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach

@@ -1,6 +1,6 @@
-package com.playground.product.repository
+package com.playground.product.persistence.repository
 
-import com.playground.product.domain.Product
+import com.playground.product.persistence.entity.Product
 import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock

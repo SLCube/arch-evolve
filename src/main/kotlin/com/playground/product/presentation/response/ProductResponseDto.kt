@@ -1,6 +1,6 @@
-package com.playground.product.controller.response
+package com.playground.product.presentation.response
 
-import com.playground.product.domain.Product
+import com.playground.product.persistence.entity.Product
 
 data class ProductResponseDto(
     val id: Long,
