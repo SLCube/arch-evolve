@@ -2,6 +2,7 @@ package com.playground.user.service
 
 import com.playground.user.controller.response.UserResponseDto
 import com.playground.user.domain.User
+import com.playground.user.exception.DuplicateLoginIdException
 import com.playground.user.exception.DuplicateNicknameException
 import com.playground.user.exception.UserNotFoundException
 import com.playground.user.repository.UserRepository
@@ -17,6 +18,9 @@ class UserService(
 ) {
 
     fun signUp(loginId: String, password: String, nickname: String): UserResponseDto {
+        if (userRepository.existsByLoginId(loginId)) {
+            throw DuplicateLoginIdException(loginId)
+        }
         val encodePassword = passwordEncoder.encode(password)
         val user = User(loginId = loginId, password = encodePassword, nickname = nickname)
         val savedUser = userRepository.save(user)

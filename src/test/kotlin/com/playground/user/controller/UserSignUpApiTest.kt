@@ -1,5 +1,6 @@
 package com.playground.user.controller
 
+import com.playground.common.error.ErrorCode
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
@@ -97,6 +98,34 @@ class UserSignUpApiTest : ApiTest() {
                     commonErrorResponseSnippet() +
                             fieldWithPath("errors.password").description("비밀번호 필드의 에러 메시지")
                 )
+            )
+        }
+    }
+
+    @Test
+    fun `회원가입 - 실패, loginId 중복`() {
+        // Given
+        val existingLoginId = "existingUser"
+        createUser(existingLoginId, "password123", "기존유저")
+
+        val signUpRequest = UserSignUpRequestDto(
+            loginId = existingLoginId,
+            password = "newPassword123",
+            nickname = "새로운유저"
+        )
+
+        // When & Then
+        performAndDocument("회원가입 - 실패, loginId 중복") {
+            httpMethod = HttpMethod.POST
+            urlTemplate = "/users/sign-up"
+            requestBody = signUpRequest
+            expectedStatus = status().isConflict
+            additionalMatchers = arrayOf(
+                jsonPath("$.code").value(ErrorCode.DUPLICATE_LOGIN_ID.code),
+                jsonPath("$.message").value(ErrorCode.DUPLICATE_LOGIN_ID.message(existingLoginId))
+            )
+            snippets = arrayOf(
+                responseFields(commonErrorResponseSnippet())
             )
         }
     }
