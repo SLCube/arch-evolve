@@ -1,9 +1,11 @@
 package com.playground.user.controller
 
+import com.playground.common.error.ErrorCode
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import com.playground.user.controller.request.UserNicknameUpdateRequestDto
+import com.playground.user.controller.request.UserPasswordUpdateRequestDto
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
@@ -138,6 +140,119 @@ class UserUpdateApiTest: ApiTest() {
                     commonErrorResponseSnippet() +
                             fieldWithPath("errors.nickname").description("닉네임 필드의 에러 메시지")
                 )
+            )
+        }
+    }
+
+    @Test
+    fun `비밀번호 변경 - 성공`() {
+        val user = createUser("testuser", "oldpassword123", "테스트유저")
+        val jwtToken = getAccessToken("testuser", "oldpassword123")
+        val updateRequest = UserPasswordUpdateRequestDto(
+            oldPassword = "oldpassword123",
+            newPassword = "newpassword123"
+        )
+
+        performAndDocument("비밀번호 변경 - 성공") {
+            httpMethod = HttpMethod.PATCH
+            urlTemplate = "/users/{userId}/password"
+            urlVars = arrayOf(user.id)
+            requestBody = updateRequest
+            accessToken = jwtToken
+            expectedStatus = status().isOk
+            snippets = arrayOf(
+                pathParameters(
+                    parameterWithName("userId").description("사용자 ID")
+                ),
+                requestFields(
+                    fieldWithPath("oldPassword").description("기존 비밀번호"),
+                    fieldWithPath("newPassword").description("새 비밀번호")
+                ),
+                responseFields(
+                    fieldWithPath("loginId").description("로그인 ID"),
+                    fieldWithPath("nickname").description("닉네임")
+                )
+            )
+        }
+
+        val newAccessToken = getAccessToken("testuser", "newpassword123")
+        newAccessToken shouldNotBe null
+    }
+
+    @Test
+    fun `비밀번호 변경 - 실패, 기존 비밀번호 불일치`() {
+        val user = createUser("testuser", "password123", "테스트유저")
+        val jwtToken = getAccessToken("testuser", "password123")
+        val updateRequest = UserPasswordUpdateRequestDto(
+            oldPassword = "wrongpassword", // 잘못된 기존 비밀번호
+            newPassword = "newpassword123"
+        )
+
+        performAndDocument("비밀번호 변경 - 실패, 기존 비밀번호 불일치") {
+            httpMethod = HttpMethod.PATCH
+            urlTemplate = "/users/{userId}/password"
+            urlVars = arrayOf(user.id)
+            requestBody = updateRequest
+            accessToken = jwtToken
+            expectedStatus = status().isBadRequest
+            additionalMatchers = arrayOf(
+                jsonPath("$.code").value(ErrorCode.PASSWORD_MISMATCH.code),
+                jsonPath("$.message").value(ErrorCode.PASSWORD_MISMATCH.message())
+            )
+            snippets = arrayOf(
+                responseFields(commonErrorResponseSnippet())
+            )
+        }
+    }
+
+    @Test
+    fun `비밀번호 변경 - 실패, 새 비밀번호 유효성 검증 실패 (길이)`() {
+        val user = createUser("testuser", "password123", "테스트유저")
+        val jwtToken = getAccessToken("testuser", "password123")
+        val updateRequest = UserPasswordUpdateRequestDto(
+            oldPassword = "password123",
+            newPassword = "short"
+        )
+
+        performAndDocument("비밀번호 변경 - 실패, 새 비밀번호 유효성 검증 실패 (길이)") {
+            httpMethod = HttpMethod.PATCH
+            urlTemplate = "/users/{userId}/password"
+            urlVars = arrayOf(user.id)
+            requestBody = updateRequest
+            accessToken = jwtToken
+            expectedStatus = status().isBadRequest
+            additionalMatchers = arrayOf(
+                jsonPath("$.message").value("입력값이 유효하지 않습니다."),
+                jsonPath("$.errors.newPassword").value("새 비밀번호는 8자 이상 16자 이하로 입력해주세요.")
+            )
+            snippets = arrayOf(
+                responseFields(
+                    commonErrorResponseSnippet() +
+                            fieldWithPath("errors.newPassword").description("새 비밀번호 필드의 에러 메시지")
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도`() {
+        createUser("user", "user123", "일반유저")
+        val otherUser = createUser("other", "other123", "다른유저")
+        val jwtToken = getAccessToken("user", "user123")
+        val updateRequest = UserPasswordUpdateRequestDto(
+            oldPassword = "other123",
+            newPassword = "newpassword123"
+        )
+
+        performAndDocument("비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도") {
+            httpMethod = HttpMethod.PATCH
+            urlTemplate = "/users/{userId}/password"
+            urlVars = arrayOf(otherUser.id)
+            requestBody = updateRequest
+            accessToken = jwtToken
+            expectedStatus = status().isForbidden
+            snippets = arrayOf(
+                responseFields(commonErrorResponseSnippet())
             )
         }
     }

@@ -33,4 +33,8 @@ class User(
         }
         this.nickname = newNickname
     }
+
+    fun updatePassword(encodedNewPassword: String) {
+        this.password = encodedNewPassword
+    }
 }

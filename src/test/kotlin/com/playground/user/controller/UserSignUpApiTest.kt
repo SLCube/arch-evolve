@@ -104,7 +104,6 @@ class UserSignUpApiTest : ApiTest() {
 
     @Test
     fun `회원가입 - 실패, loginId 중복`() {
-        // Given
         val existingLoginId = "existingUser"
         createUser(existingLoginId, "password123", "기존유저")
 
@@ -114,7 +113,6 @@ class UserSignUpApiTest : ApiTest() {
             nickname = "새로운유저"
         )
 
-        // When & Then
         performAndDocument("회원가입 - 실패, loginId 중복") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/sign-up"

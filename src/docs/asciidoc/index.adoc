@@ -137,6 +137,59 @@ include::{snippets}/닉네임 변경 - 실패, 유효하지 않은 닉네임 (�
 
 include::{snippets}/닉네임 변경 - 실패, 유효하지 않은 닉네임 (길이)/http-response.adoc[]
 
+[[비밀번호-변경]]
+=== 비밀번호 변경
+
+`PATCH /users/{userId}/password`
+
+사용자의 비밀번호를 변경합니다.
+
+==== 요청
+
+===== 헤더
+
+include::{snippets}/비밀번호 변경 - 성공/request-headers.adoc[]
+
+===== 경로 변수
+
+include::{snippets}/비밀번호 변경 - 성공/path-parameters.adoc[]
+
+===== 요청 본문
+
+include::{snippets}/비밀번호 변경 - 성공/request-fields.adoc[]
+
+===== 요청 예시
+
+include::{snippets}/비밀번호 변경 - 성공/http-request.adoc[]
+
+==== 응답
+
+===== 성공
+
+include::{snippets}/비밀번호 변경 - 성공/response-fields.adoc[]
+
+include::{snippets}/비밀번호 변경 - 성공/http-response.adoc[]
+
+===== 실패
+
+- 기존 비밀번호 불일치
+
+include::{snippets}/비밀번호 변경 - 실패, 기존 비밀번호 불일치/response-fields.adoc[]
+
+include::{snippets}/비밀번호 변경 - 실패, 기존 비밀번호 불일치/http-response.adoc[]
+
+- 새 비밀번호 유효성 검증 실패 (길이)
+
+include::{snippets}/비밀번호 변경 - 실패, 새 비밀번호 유효성 검증 실패 (길이)/response-fields.adoc[]
+
+include::{snippets}/비밀번호 변경 - 실패, 새 비밀번호 유효성 검증 실패 (길이)/http-response.adoc[]
+
+- USER 권한으로 다른 사용자의 비밀번호 변경 시도
+
+include::{snippets}/비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도/response-fields.adoc[]
+
+include::{snippets}/비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도/http-response.adoc[]
+
 [[product-api]]
 == 상품 API
 

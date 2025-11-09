@@ -2,6 +2,7 @@ package com.playground.user.controller
 
 import com.playground.common.security.annotation.CheckIsOwner
 import com.playground.user.controller.request.UserNicknameUpdateRequestDto
+import com.playground.user.controller.request.UserPasswordUpdateRequestDto
 import com.playground.user.controller.request.UserSignUpRequestDto
 import com.playground.user.controller.response.UserResponseDto
 import com.playground.user.service.UserService
@@ -26,6 +27,13 @@ class UserController(
     @PatchMapping("/{userId}/nickname")
     fun updateNickname(@PathVariable userId: Long, @RequestBody @Valid request: UserNicknameUpdateRequestDto): ResponseEntity<UserResponseDto> {
         val updatedUser = userService.updateNickname(userId, request.nickname)
+        return ResponseEntity.ok(updatedUser)
+    }
+
+    @CheckIsOwner
+    @PatchMapping("/{userId}/password")
+    fun updatePassword(@PathVariable userId: Long, @RequestBody @Valid request: UserPasswordUpdateRequestDto): ResponseEntity<UserResponseDto> {
+        val updatedUser = userService.updatePassword(userId, request.oldPassword, request.newPassword)
         return ResponseEntity.ok(updatedUser)
     }
 }
