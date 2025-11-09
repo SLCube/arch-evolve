@@ -178,7 +178,7 @@ class ProductControllerTest(
         val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20)
 
         performAndDocument("상품 수정 - 성공") {
-            httpMethod = HttpMethod.PUT
+            httpMethod = HttpMethod.PATCH
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(savedProduct.id)
             requestBody = updateRequest

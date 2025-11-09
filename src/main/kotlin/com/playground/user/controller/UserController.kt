@@ -22,8 +22,8 @@ class UserController(
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser)
     }
 
-    @PatchMapping("/{userId}/nickname")
     @CheckIsOwner
+    @PatchMapping("/{userId}/nickname")
     fun updateNickname(@PathVariable userId: Long, @RequestBody @Valid request: UserNicknameUpdateRequestDto): ResponseEntity<UserResponseDto> {
         val updatedUser = userService.updateNickname(userId, request.nickname)
         return ResponseEntity.ok(updatedUser)
