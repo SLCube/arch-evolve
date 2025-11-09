@@ -1,15 +1,20 @@
-package com.playground.user.controller
+package com.playground.user.presentation.web
 
 import com.playground.common.security.annotation.CheckIsOwner
-import com.playground.user.controller.request.UserNicknameUpdateRequestDto
-import com.playground.user.controller.request.UserPasswordUpdateRequestDto
-import com.playground.user.controller.request.UserSignUpRequestDto
-import com.playground.user.controller.response.UserResponseDto
-import com.playground.user.service.UserService
+import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
+import com.playground.user.presentation.request.UserPasswordUpdateRequestDto
+import com.playground.user.presentation.request.UserSignUpRequestDto
+import com.playground.user.presentation.response.UserResponseDto
+import com.playground.user.application.service.UserService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/users")

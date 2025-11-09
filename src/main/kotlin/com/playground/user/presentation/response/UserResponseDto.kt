@@ -1,6 +1,6 @@
-package com.playground.user.controller.response
+package com.playground.user.presentation.response
 
-import com.playground.user.domain.User
+import com.playground.user.persistence.entity.User
 
 data class UserResponseDto(
     val loginId: String,

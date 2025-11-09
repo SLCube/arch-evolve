@@ -2,7 +2,7 @@ package com.playground.user.controller
 
 import com.playground.support.ApiTest
 import com.playground.support.docs.performAndDocument
-import com.playground.user.controller.request.UserLoginRequestDto
+import com.playground.user.presentation.request.UserLoginRequestDto
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.*

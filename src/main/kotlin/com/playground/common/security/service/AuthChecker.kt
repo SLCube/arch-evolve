@@ -1,6 +1,6 @@
 package com.playground.common.security.service
 
-import com.playground.user.repository.UserRepository
+import com.playground.user.persistence.repository.UserRepository
 import org.springframework.stereotype.Component
 
 @Component

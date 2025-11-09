@@ -4,8 +4,8 @@ import com.playground.common.error.ErrorCode
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
-import com.playground.user.controller.request.UserNicknameUpdateRequestDto
-import com.playground.user.controller.request.UserPasswordUpdateRequestDto
+import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
+import com.playground.user.presentation.request.UserPasswordUpdateRequestDto
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test

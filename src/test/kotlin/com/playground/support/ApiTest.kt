@@ -2,10 +2,10 @@ package com.playground.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.common.security.response.AuthTokenResponseDto
-import com.playground.user.controller.request.UserLoginRequestDto
-import com.playground.user.domain.User
-import com.playground.user.enum.UserRole
-import com.playground.user.repository.UserRepository
+import com.playground.user.presentation.request.UserLoginRequestDto
+import com.playground.user.persistence.entity.User
+import com.playground.user.domain.enum.UserRole
+import com.playground.user.persistence.repository.UserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith

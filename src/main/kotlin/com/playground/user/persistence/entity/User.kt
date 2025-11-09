@@ -1,8 +1,8 @@
-package com.playground.user.domain
+package com.playground.user.persistence.entity
 
 import com.playground.common.jpa.domain.BaseEntity
-import com.playground.user.enum.UserRole
-import com.playground.user.exception.SameNicknameException
+import com.playground.user.domain.enum.UserRole
+import com.playground.user.domain.exception.SameNicknameException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType

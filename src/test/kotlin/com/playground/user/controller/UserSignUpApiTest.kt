@@ -4,7 +4,7 @@ import com.playground.common.error.ErrorCode
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
-import com.playground.user.controller.request.UserSignUpRequestDto
+import com.playground.user.presentation.request.UserSignUpRequestDto
 import io.kotest.matchers.shouldNotBe
 import org.hamcrest.Matchers.matchesPattern
 import org.junit.jupiter.api.Test

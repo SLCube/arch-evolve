@@ -1,6 +1,6 @@
-package com.playground.user.repository
+package com.playground.user.persistence.repository
 
-import com.playground.user.domain.User
+import com.playground.user.persistence.entity.User
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.Optional
 

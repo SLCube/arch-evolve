@@ -1,7 +1,7 @@
 package com.playground.common.security.filter
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.user.controller.request.UserLoginRequestDto
+import com.playground.user.presentation.request.UserLoginRequestDto
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.AuthenticationManager

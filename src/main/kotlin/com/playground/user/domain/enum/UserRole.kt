@@ -1,4 +1,4 @@
-package com.playground.user.enum
+package com.playground.user.domain.enum
 
 enum class UserRole {
     USER,

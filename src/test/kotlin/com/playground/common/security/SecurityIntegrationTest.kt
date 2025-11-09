@@ -2,10 +2,10 @@ package com.playground.common.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.product.presentation.request.ProductSaveRequestDto
-import com.playground.user.controller.request.UserLoginRequestDto
-import com.playground.user.domain.User
-import com.playground.user.enum.UserRole
-import com.playground.user.repository.UserRepository
+import com.playground.user.presentation.request.UserLoginRequestDto
+import com.playground.user.persistence.entity.User
+import com.playground.user.domain.enum.UserRole
+import com.playground.user.persistence.repository.UserRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired

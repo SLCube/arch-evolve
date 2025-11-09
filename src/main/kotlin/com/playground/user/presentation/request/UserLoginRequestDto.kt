@@ -1,4 +1,4 @@
-package com.playground.user.controller.request
+package com.playground.user.presentation.request
 
 import jakarta.validation.constraints.NotBlank
 

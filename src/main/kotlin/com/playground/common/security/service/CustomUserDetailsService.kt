@@ -1,7 +1,7 @@
 package com.playground.common.security.service
 
-import com.playground.user.exception.UserNotFoundException
-import com.playground.user.repository.UserRepository
+import com.playground.user.domain.exception.UserNotFoundException
+import com.playground.user.persistence.repository.UserRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails

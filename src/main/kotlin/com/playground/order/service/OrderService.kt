@@ -8,8 +8,8 @@ import com.playground.order.repository.OrderRepository
 import com.playground.product.application.port.`in`.ProductUseCase
 import com.playground.product.application.port.`in`.command.DecreaseStockCommand
 import com.playground.product.application.port.`in`.query.GetProductQuery
-import com.playground.user.exception.UserNotFoundException
-import com.playground.user.repository.UserRepository
+import com.playground.user.domain.exception.UserNotFoundException
+import com.playground.user.persistence.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 

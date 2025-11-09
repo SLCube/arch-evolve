@@ -1,12 +1,12 @@
-package com.playground.user.service
+package com.playground.user.application.service
 
-import com.playground.user.controller.response.UserResponseDto
-import com.playground.user.domain.User
-import com.playground.user.exception.DuplicateLoginIdException
-import com.playground.user.exception.DuplicateNicknameException
-import com.playground.user.exception.PasswordMismatchException
-import com.playground.user.exception.UserNotFoundException
-import com.playground.user.repository.UserRepository
+import com.playground.user.presentation.response.UserResponseDto
+import com.playground.user.persistence.entity.User
+import com.playground.user.domain.exception.DuplicateLoginIdException
+import com.playground.user.domain.exception.DuplicateNicknameException
+import com.playground.user.domain.exception.PasswordMismatchException
+import com.playground.user.domain.exception.UserNotFoundException
+import com.playground.user.persistence.repository.UserRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
