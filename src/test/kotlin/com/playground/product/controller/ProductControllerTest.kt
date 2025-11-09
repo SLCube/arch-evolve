@@ -233,4 +233,58 @@ class ProductControllerTest(
             )
         }
     }
+
+    @Test
+    @WithMockUser(roles = ["USER"])
+    fun `상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
+        val request = ProductSaveRequestDto(name = "상품1", stock = 10)
+
+        performAndDocument("상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도") {
+            httpMethod = HttpMethod.POST
+            urlTemplate = "/products"
+            requestBody = request
+            expectedStatus = status().isForbidden // 403 Forbidden 기대
+            snippets = arrayOf(
+                responseFields(commonErrorResponseSnippet())
+            )
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"])
+    fun `상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
+        val savedProduct = productRepository.save(Product(name = "상품1", stock = 10))
+        val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20)
+
+        performAndDocument("상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도") {
+            httpMethod = HttpMethod.PATCH
+            urlTemplate = "/products/{id}"
+            urlVars = arrayOf(savedProduct.id)
+            requestBody = updateRequest
+            expectedStatus = status().isForbidden // 403 Forbidden 기대
+            snippets = arrayOf(
+                responseFields(commonErrorResponseSnippet())
+            )
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"])
+    fun `재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
+        val savedProduct = productRepository.save(Product(name = "테스트 상품", stock = 10))
+        val quantity = 11
+
+        performAndDocument("재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도") {
+            httpMethod = HttpMethod.POST
+            urlTemplate = "/products/{id}/decrease-stock"
+            urlVars = arrayOf(savedProduct.id)
+            queryParams {
+                add("quantity", quantity.toString())
+            }
+            expectedStatus = status().isForbidden // 403 Forbidden 기대
+            snippets = arrayOf(
+                responseFields(commonErrorResponseSnippet())
+            )
+        }
+    }
 }

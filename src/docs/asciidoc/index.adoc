@@ -179,6 +179,12 @@ include::{snippets}/상품 등록 - 실패, 재고가 0보다 작음/response-fi
 
 include::{snippets}/상품 등록 - 실패, 재고가 0보다 작음/http-response.adoc[]
 
+- USER 권한으로 ADMIN API 접근 시도
+
+include::{snippets}/상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도/response-fields.adoc[]
+
+include::{snippets}/상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도/http-response.adoc[]
+
 [[상품-단일-조회]]
 === 상품 단일 조회
 
@@ -240,6 +246,14 @@ include::{snippets}/상품 수정 - 성공/response-fields.adoc[]
 
 include::{snippets}/상품 수정 - 성공/http-response.adoc[]
 
+===== 실패
+
+- USER 권한으로 ADMIN API 접근 시도
+
+include::{snippets}/상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도/response-fields.adoc[]
+
+include::{snippets}/상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도/http-response.adoc[]
+
 [[재고-차감]]
 === 재고 차감
 
@@ -266,3 +280,9 @@ include::{snippets}/재고 차감 - 실패, 재고 부족/http-request.adoc[]
 include::{snippets}/재고 차감 - 실패, 재고 부족/response-fields.adoc[]
 
 include::{snippets}/재고 차감 - 실패, 재고 부족/http-response.adoc[]
+
+- USER 권한으로 ADMIN API 접근 시도
+
+include::{snippets}/재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도/response-fields.adoc[]
+
+include::{snippets}/재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도/http-response.adoc[]
