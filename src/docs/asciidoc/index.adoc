@@ -113,11 +113,11 @@ include::{snippets}/닉네임 변경 - 성공/http-response.adoc[]
 
 ===== 실패
 
-- 다른 사용자가 사용 중인 닉네임일 경우
+- USER 권한으로 다른 사용자의 닉네임 변경 시도
 
-include::{snippets}/닉네임 변경 - 실패, 다른 사용자가 사용 중인 닉네임으로 변경 시도/response-fields.adoc[]
+include::{snippets}/닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도/response-fields.adoc[]
 
-include::{snippets}/닉네임 변경 - 실패, 다른 사용자가 사용 중인 닉네임으로 변경 시도/http-response.adoc[]
+include::{snippets}/닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도/http-response.adoc[]
 
 - 동일 닉네임으로 변경 시도할 경우
 
@@ -125,17 +125,17 @@ include::{snippets}/닉네임 변경 - 실패, 동일 닉네임으로 변경 시
 
 include::{snippets}/닉네임 변경 - 실패, 동일 닉네임으로 변경 시도/http-response.adoc[]
 
+- 다른 사용자가 사용 중인 닉네임으로 변경 시도할 경우
+
+include::{snippets}/닉네임 변경 - 실패, 다른 사용자가 사용 중인 닉네임으로 변경 시도/response-fields.adoc[]
+
+include::{snippets}/닉네임 변경 - 실패, 다른 사용자가 사용 중인 닉네임으로 변경 시도/http-response.adoc[]
+
 - 유효하지 않은 닉네임(길이)일 경우
 
 include::{snippets}/닉네임 변경 - 실패, 유효하지 않은 닉네임 (길이)/response-fields.adoc[]
 
 include::{snippets}/닉네임 변경 - 실패, 유효하지 않은 닉네임 (길이)/http-response.adoc[]
-
-- 권한이 없을 경우
-
-include::{snippets}/닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도/response-fields.adoc[]
-
-include::{snippets}/닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도/http-response.adoc[]
 
 [[product-api]]
 == 상품 API
@@ -251,7 +251,7 @@ include::{snippets}/상품 수정 - 성공/http-response.adoc[]
 
 ===== 쿼리 파라미터
 
-include::{snippets}/재고 차감 - 실패, 재고 부족/request-parameters.adoc[]
+include::{snippets}/재고 차감 - 실패, 재고 부족/query-parameters.adoc[]
 
 ===== 요청 예시
 
