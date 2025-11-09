@@ -1,8 +1,8 @@
-package com.playground.user.presentation.request
+package com.playground.auth.presentation.request
 
 import jakarta.validation.constraints.NotBlank
 
-data class UserLoginRequestDto(
+data class AuthLoginRequestDto(
     @field:NotBlank(message = "{user.loginId.not-blank}")
     val loginId: String,
     @field:NotBlank(message = "{user.password.not-blank}")

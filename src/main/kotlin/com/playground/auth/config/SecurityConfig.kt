@@ -1,14 +1,14 @@
-package com.playground.common.security.config
+package com.playground.auth.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.common.constant.ApiConstants
-import com.playground.common.security.filter.JsonAuthenticationFilter
-import com.playground.common.security.handler.CustomAccessDeniedHandler
-import com.playground.common.security.handler.CustomAuthenticationEntryPoint
-import com.playground.common.security.handler.LoginFailureHandler
-import com.playground.common.security.handler.LoginSuccessHandler
-import com.playground.common.security.jwt.JwtAuthenticationFilter
-import com.playground.common.security.jwt.JwtTokenProvider
+import com.playground.auth.filter.JsonAuthenticationFilter
+import com.playground.auth.handler.CustomAccessDeniedHandler
+import com.playground.auth.handler.CustomAuthenticationEntryPoint
+import com.playground.auth.handler.LoginFailureHandler
+import com.playground.auth.handler.LoginSuccessHandler
+import com.playground.auth.jwt.JwtAuthenticationFilter
+import com.playground.auth.jwt.JwtTokenProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod

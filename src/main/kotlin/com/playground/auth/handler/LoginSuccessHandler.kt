@@ -1,8 +1,8 @@
-package com.playground.common.security.handler
+package com.playground.auth.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.common.security.jwt.JwtTokenProvider
-import com.playground.common.security.response.AuthTokenResponseDto
+import com.playground.auth.jwt.JwtTokenProvider
+import com.playground.auth.presentation.response.AuthTokenResponseDto
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.MediaType

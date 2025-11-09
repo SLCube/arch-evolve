@@ -1,8 +1,8 @@
 package com.playground.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.common.security.response.AuthTokenResponseDto
-import com.playground.user.presentation.request.UserLoginRequestDto
+import com.playground.auth.presentation.response.AuthTokenResponseDto
+import com.playground.auth.presentation.request.AuthLoginRequestDto
 import com.playground.user.persistence.entity.User
 import com.playground.user.domain.enum.UserRole
 import com.playground.user.persistence.repository.UserRepository
@@ -74,7 +74,7 @@ abstract class ApiTest {
     }
 
     protected fun getAccessToken(loginId: String, password: String): String {
-        val loginRequest = UserLoginRequestDto(loginId, password)
+        val loginRequest = AuthLoginRequestDto(loginId, password)
         val loginResult = mockMvc.post("/users/login") {
             contentType = MediaType.APPLICATION_JSON
             content = objectMapper.writeValueAsString(loginRequest)

@@ -1,4 +1,4 @@
-package com.playground.common.security.jwt
+package com.playground.auth.jwt
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest

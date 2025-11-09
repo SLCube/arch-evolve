@@ -2,7 +2,7 @@ package com.playground.common.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.product.presentation.request.ProductSaveRequestDto
-import com.playground.user.presentation.request.UserLoginRequestDto
+import com.playground.auth.presentation.request.AuthLoginRequestDto
 import com.playground.user.persistence.entity.User
 import com.playground.user.domain.enum.UserRole
 import com.playground.user.persistence.repository.UserRepository
@@ -41,7 +41,7 @@ class SecurityIntegrationTest(
         )
         userRepository.save(testUser)
 
-        val loginRequest = UserLoginRequestDto(
+        val loginRequest = AuthLoginRequestDto(
             loginId = "testUser",
             password = "password123"
         )
@@ -80,7 +80,7 @@ class SecurityIntegrationTest(
         )
         userRepository.save(user)
 
-        val loginRequest = UserLoginRequestDto(
+        val loginRequest = AuthLoginRequestDto(
             loginId = "user",
             password = "password123"
         )

@@ -1,7 +1,7 @@
-package com.playground.common.security.filter
+package com.playground.auth.filter
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.user.presentation.request.UserLoginRequestDto
+import com.playground.auth.presentation.request.AuthLoginRequestDto
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.AuthenticationManager
@@ -24,7 +24,7 @@ class JsonAuthenticationFilter(
             return super.attemptAuthentication(request, response)
         }
 
-        val loginRequest = objectMapper.readValue(request.inputStream, UserLoginRequestDto::class.java)
+        val loginRequest = objectMapper.readValue(request.inputStream, AuthLoginRequestDto::class.java)
 
         val authenticationToken = UsernamePasswordAuthenticationToken(loginRequest.loginId, loginRequest.password)
 

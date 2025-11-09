@@ -1,6 +1,6 @@
-package com.playground.common.security.config
+package com.playground.auth.config
 
-import com.playground.common.security.jwt.JwtProperties
+import com.playground.auth.jwt.JwtProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 

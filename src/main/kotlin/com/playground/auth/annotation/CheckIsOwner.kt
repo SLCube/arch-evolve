@@ -1,4 +1,4 @@
-package com.playground.common.security.annotation
+package com.playground.auth.annotation
 
 import org.springframework.security.access.prepost.PreAuthorize
 

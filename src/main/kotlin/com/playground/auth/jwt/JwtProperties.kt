@@ -1,4 +1,4 @@
-package com.playground.common.security.jwt
+package com.playground.auth.jwt
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

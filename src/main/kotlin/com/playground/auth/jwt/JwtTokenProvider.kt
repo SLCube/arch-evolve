@@ -1,4 +1,4 @@
-package com.playground.common.security.jwt
+package com.playground.auth.jwt
 
 import com.playground.common.utils.logger
 import io.jsonwebtoken.Claims

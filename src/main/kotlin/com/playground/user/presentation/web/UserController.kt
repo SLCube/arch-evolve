@@ -1,6 +1,6 @@
 package com.playground.user.presentation.web
 
-import com.playground.common.security.annotation.CheckIsOwner
+import com.playground.auth.annotation.CheckIsOwner
 import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
 import com.playground.user.presentation.request.UserPasswordUpdateRequestDto
 import com.playground.user.presentation.request.UserSignUpRequestDto

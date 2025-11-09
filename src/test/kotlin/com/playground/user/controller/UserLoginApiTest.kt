@@ -2,7 +2,7 @@ package com.playground.user.controller
 
 import com.playground.support.ApiTest
 import com.playground.support.docs.performAndDocument
-import com.playground.user.presentation.request.UserLoginRequestDto
+import com.playground.auth.presentation.request.AuthLoginRequestDto
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.*
@@ -16,7 +16,7 @@ class UserLoginApiTest: ApiTest() {
     fun `로그인 - 성공`() {
         createUser("testUser", "password123", "테스트유저")
 
-        val loginRequest = UserLoginRequestDto(
+        val loginRequest = AuthLoginRequestDto(
             loginId = "testUser",
             password = "password123"
         )
