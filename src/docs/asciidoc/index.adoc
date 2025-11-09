@@ -185,8 +185,8 @@ include::{snippets}/상품 등록 - 실패, USER 권한으로 ADMIN API 접근 �
 
 include::{snippets}/상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도/http-response.adoc[]
 
-[[상품-단일-조회]]
-=== 상품 단일 조회
+[[상품-조회]]
+=== 상품 조회
 
 `GET /products/{id}`
 
