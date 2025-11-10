@@ -4,12 +4,14 @@ plugins {
     kotlin("jvm") version "1.9.23"
     kotlin("plugin.spring") version "1.9.23"
     kotlin("plugin.jpa") version "1.9.23"
+    id("com.google.devtools.ksp") version "1.9.23-1.0.20"
     id("org.asciidoctor.jvm.convert") version "4.0.2"
 }
 
 val kotestVersion = "5.8.0"
 val kotestSpringExtensionVersion = "1.1.3"
 val jjwtVersion = "0.12.5"
+val queryDslVersion = "7.1"
 
 group = "com.playground"
 version = "0.0.1-SNAPSHOT"
@@ -32,6 +34,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    // QueryDSL
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:$queryDslVersion")
+    ksp("io.github.openfeign.querydsl:querydsl-ksp-codegen:$queryDslVersion")
+
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
@@ -48,6 +54,12 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+sourceSets {
+    main {
+        kotlin.srcDirs("$buildDir/generated/ksp/main/kotlin")
+    }
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
