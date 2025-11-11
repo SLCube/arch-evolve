@@ -10,6 +10,7 @@ import com.playground.user.domain.User
 import com.playground.user.domain.exception.DuplicateLoginIdException
 import com.playground.user.domain.exception.DuplicateNicknameException
 import com.playground.user.domain.exception.PasswordMismatchException
+import com.playground.user.domain.exception.UserNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,11 +24,12 @@ class UserService(
 ): UserUseCase {
 
     override fun signUp(command: SignUpCommand): User {
-        if (userQueryPort.existsByLoginId(command.loginId)) {
+
+        if (userQueryPort.findByLoginId(command.loginId).isPresent) {
             throw DuplicateLoginIdException(command.loginId)
         }
 
-        if (userQueryPort.existsByNickname(command.nickname)) {
+        if (userQueryPort.findByNickname(command.nickname).isPresent) {
             throw DuplicateNicknameException()
         }
 
@@ -41,13 +43,15 @@ class UserService(
     }
 
     override fun updateNickname(command: UpdateNicknameCommand): User {
-        val foundUserByNickname = userQueryPort.findByNickname(command.newNickname)
 
-        if (foundUserByNickname.id != command.userId) {
-            throw DuplicateNicknameException()
+        userQueryPort.findByNickname(command.newNickname).ifPresent { foundUser ->
+            if (foundUser.id != command.userId) {
+                throw DuplicateNicknameException()
+            }
         }
 
         val user = userQueryPort.findById(command.userId)
+            .orElseThrow { UserNotFoundException() }
 
         user.updateNickname(command.newNickname)
 
@@ -56,6 +60,7 @@ class UserService(
 
     override fun updatePassword(command: UpdatePasswordCommand): User {
         val user = userQueryPort.findById(command.userId)
+            .orElseThrow { UserNotFoundException() }
 
         if (!passwordEncoder.matches(command.oldPassword, user.password)) {
             throw PasswordMismatchException()

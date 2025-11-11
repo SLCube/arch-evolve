@@ -1,10 +1,10 @@
 package com.playground.user.application.port.out
 
 import com.playground.user.domain.User
+import java.util.Optional
 
 interface UserQueryPort {
-    fun findById(userId: Long): User
-    fun findByNickname(nickname: String): User
-    fun existsByLoginId(loginId: String): Boolean
-    fun existsByNickname(nickname: String): Boolean
+    fun findById(userId: Long): Optional<User>
+    fun findByLoginId(loginId: String): Optional<User>
+    fun findByNickname(nickname: String): Optional<User>
 }
