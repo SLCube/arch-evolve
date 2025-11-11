@@ -24,11 +24,11 @@ class UserService(
 ): UserUseCase {
 
     override fun signUp(command: SignUpCommand): User {
-        if (userQueryPort.findByLoginId(command.loginId).isPresent) {
+        userQueryPort.findByLoginId(command.loginId).ifPresent {
             throw DuplicateLoginIdException(command.loginId)
         }
 
-        if (userQueryPort.findByNickname(command.nickname).isPresent) {
+        userQueryPort.findByNickname(command.nickname).ifPresent {
             throw DuplicateNicknameException()
         }
 
