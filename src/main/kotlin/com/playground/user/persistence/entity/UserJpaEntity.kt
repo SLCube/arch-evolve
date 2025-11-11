@@ -30,4 +30,10 @@ class UserJpaEntity(
             )
         }
     }
+
+    fun update(loginId: String, password: String, nickname: String) {
+        this.loginId = loginId
+        this.password = password
+        this.nickname = nickname
+    }
 }

@@ -41,7 +41,9 @@ class UserService(
     }
 
     override fun updateNickname(command: UpdateNicknameCommand): User {
-        if (userQueryPort.existsByNicknameAndIdNot(command.newNickname, command.userId)) {
+        val foundUserByNickname = userQueryPort.findByNickname(command.newNickname)
+
+        if (foundUserByNickname.id != command.userId) {
             throw DuplicateNicknameException()
         }
 
@@ -49,7 +51,7 @@ class UserService(
 
         user.updateNickname(command.newNickname)
 
-        return userCommandPort.save(user)
+        return userCommandPort.update(user)
     }
 
     override fun updatePassword(command: UpdatePasswordCommand): User {
@@ -61,6 +63,6 @@ class UserService(
 
         user.updatePassword(passwordEncoder.encode(command.newPassword))
 
-        return userCommandPort.save(user)
+        return userCommandPort.update(user)
     }
 }

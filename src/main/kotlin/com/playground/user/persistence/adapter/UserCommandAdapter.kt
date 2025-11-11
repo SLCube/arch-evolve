@@ -16,4 +16,16 @@ class UserCommandAdapter(
         val savedEntity = userRepository.save(userJpaEntity)
         return savedEntity.toDomain()
     }
+
+    override fun update(user: User): User {
+        val userJpaEntity = UserJpaEntity.toJpaEntity(user)
+
+        userJpaEntity.update(
+            loginId = user.loginId,
+            password = user.password,
+            nickname = user.nickname
+        )
+
+        return userJpaEntity.toDomain()
+    }
 }

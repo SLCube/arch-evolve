@@ -2,6 +2,7 @@ package com.playground.user.application.port.out
 
 import com.playground.user.domain.User
 
-fun interface UserCommandPort {
+interface UserCommandPort {
     fun save(user: User): User
+    fun update(user: User): User
 }

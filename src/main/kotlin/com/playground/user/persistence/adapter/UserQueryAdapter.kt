@@ -17,15 +17,17 @@ class UserQueryAdapter(
             .toDomain()
     }
 
+    override fun findByNickname(nickname: String): User {
+        return userRepository.findByNickname(nickname)
+            .orElseThrow { UserNotFoundException() }
+            .toDomain()
+    }
+
     override fun existsByLoginId(loginId: String): Boolean {
         return userRepository.findByLoginId(loginId).isPresent
     }
 
     override fun existsByNickname(nickname: String): Boolean {
         return userRepository.findByNickname(nickname).isPresent
-    }
-
-    override fun existsByNicknameAndIdNot(nickname: String, userId: Long): Boolean {
-        return userRepository.findByNicknameAndIdNot(nickname, userId).isPresent
     }
 }
