@@ -24,7 +24,6 @@ class UserService(
 ): UserUseCase {
 
     override fun signUp(command: SignUpCommand): User {
-
         if (userQueryPort.findByLoginId(command.loginId).isPresent) {
             throw DuplicateLoginIdException(command.loginId)
         }
@@ -43,7 +42,6 @@ class UserService(
     }
 
     override fun updateNickname(command: UpdateNicknameCommand): User {
-
         userQueryPort.findByNickname(command.newNickname).ifPresent { foundUser ->
             if (foundUser.id != command.userId) {
                 throw DuplicateNicknameException()
