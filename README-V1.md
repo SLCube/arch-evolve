@@ -34,7 +34,7 @@
 - **Controller Layer:** 클라이언트의 요청을 받아 Service Layer로 전달하고 응답을 반환합니다. 인증/인가 처리 및 요청 DTO 유효성 검증을 담당합니다.
 - **Service Layer:** 비즈니스 로직을 처리하고 트랜잭션을 관리합니다. 여러 Repository를 조합하여 상위 수준의 비즈니스 흐름을 정의합니다.
 - **Repository Layer:** 데이터베이스 접근을 담당하며, Spring Data JPA를 활용합니다.
-- **Domain Layer:** 핵심 비즈니스 엔티티(JPA Entity)와 그 엔티티가 가지는 비즈니스 로직(메소드)을 포함합니다.
+- **Domain Layer:** 핵심 비즈니스 엔티티(JPA Entity)와 그 엔티티가 가지는 비즈니스 로직을 포함합니다.
 
 **특징:**
 - JPA Entity가 도메인 엔티티의 역할을 겸하고 있습니다. (Fat JPA Domain의 가능성)
