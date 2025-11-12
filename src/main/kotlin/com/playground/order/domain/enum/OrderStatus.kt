@@ -1,4 +1,4 @@
-package com.playground.order.enum
+package com.playground.order.domain.enum
 
 enum class OrderStatus {
     PENDING,

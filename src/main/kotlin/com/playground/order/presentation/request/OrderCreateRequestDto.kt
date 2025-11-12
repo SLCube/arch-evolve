@@ -1,4 +1,4 @@
-package com.playground.order.controller.request
+package com.playground.order.presentation.request
 
 import com.playground.common.constant.ValidationConstants
 import jakarta.validation.Valid

@@ -1,10 +1,10 @@
-package com.playground.order.service
+package com.playground.order.application.service
 
-import com.playground.order.controller.request.OrderCreateRequestDto
-import com.playground.order.controller.response.OrderResponseDto
-import com.playground.order.domain.Order
-import com.playground.order.domain.OrderItem
-import com.playground.order.repository.OrderRepository
+import com.playground.order.persistence.entity.OrderJpaEntity
+import com.playground.order.persistence.entity.OrderProductJpaEntity
+import com.playground.order.presentation.request.OrderCreateRequestDto
+import com.playground.order.presentation.response.OrderResponseDto
+import com.playground.order.persistence.repository.OrderRepository
 import com.playground.product.application.port.`in`.ProductUseCase
 import com.playground.product.application.port.`in`.command.DecreaseStockCommand
 import com.playground.product.application.port.`in`.query.GetProductQuery
@@ -24,7 +24,7 @@ class OrderService(
     fun createOrder(loginId: String, request: OrderCreateRequestDto): OrderResponseDto {
         val user = userRepository.findByLoginId(loginId).orElseThrow { UserNotFoundException() }
 
-        val order = Order(userId = user.id!!, totalPrice = 0)
+        val orderJpaEntity = OrderJpaEntity(userId = user.id!!, totalPrice = 0)
 
         request.orderItems.forEach { orderItemRequest ->
             val productId = orderItemRequest.productId
@@ -33,20 +33,20 @@ class OrderService(
             val quantity = orderItemRequest.quantity
             productUseCase.decreaseStock(DecreaseStockCommand(productId, quantity))
 
-            val orderItem = OrderItem(
-                order = order,
+            val orderProductJpaEntity = OrderProductJpaEntity(
+                orderJpaEntity = orderJpaEntity,
                 productId = productId,
                 quantity = quantity,
                 price = product.price
             )
 
-            order.addOrderItem(orderItem)
+            orderJpaEntity.addOrderItem(orderProductJpaEntity)
         }
 
-        order.calculateTotalPrice()
+        orderJpaEntity.calculateTotalPrice()
 
-        val savedOrder = orderRepository.save(order)
+        val savedOrder = orderRepository.save(orderJpaEntity)
 
-        return OrderResponseDto.toResponse(savedOrder)
+        return OrderResponseDto.Companion.toResponse(savedOrder)
     }
 }

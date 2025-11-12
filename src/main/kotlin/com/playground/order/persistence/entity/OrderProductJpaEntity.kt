@@ -1,4 +1,4 @@
-package com.playground.order.domain
+package com.playground.order.persistence.entity
 
 import com.playground.common.jpa.domain.BaseEntity
 import jakarta.persistence.Column
@@ -12,8 +12,8 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "order_items")
-class OrderItem(
+@Table(name = "order_products")
+class OrderProductJpaEntity(
     @Id
     @Column(name = "order_item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ class OrderItem(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    var order: Order,
+    var orderJpaEntity: OrderJpaEntity,
 
     @Column(nullable = false)
     val productId: Long,

@@ -1,9 +1,9 @@
 package com.playground.order.controller
 
 import com.playground.common.error.ErrorCode
-import com.playground.order.controller.request.OrderCreateRequestDto
-import com.playground.order.controller.request.OrderItemRequestDto
-import com.playground.order.repository.OrderRepository
+import com.playground.order.presentation.request.OrderCreateRequestDto
+import com.playground.order.presentation.request.OrderItemRequestDto
+import com.playground.order.persistence.repository.OrderRepository
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.ApiTest

@@ -1,8 +1,8 @@
-package com.playground.order.controller
+package com.playground.order.presentation.web
 
-import com.playground.order.controller.request.OrderCreateRequestDto
-import com.playground.order.controller.response.OrderResponseDto
-import com.playground.order.service.OrderService
+import com.playground.order.presentation.request.OrderCreateRequestDto
+import com.playground.order.presentation.response.OrderResponseDto
+import com.playground.order.application.service.OrderService
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
