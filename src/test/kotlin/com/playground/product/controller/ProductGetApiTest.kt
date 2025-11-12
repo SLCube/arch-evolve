@@ -6,7 +6,6 @@ import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
@@ -23,11 +22,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class ProductGetApiTest(
     @param:Autowired private val productRepository: ProductRepository
 ) : ApiTest() {
-
-    @AfterEach
-    fun cleanUpProduct() {
-        productRepository.deleteAll()
-    }
 
     @Test
     fun `상품 단일 조회 - 성공`() {

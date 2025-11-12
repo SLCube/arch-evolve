@@ -1,12 +1,11 @@
 package com.playground.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.auth.presentation.response.AuthTokenResponseDto
 import com.playground.auth.presentation.request.AuthLoginRequestDto
-import com.playground.user.persistence.entity.UserJpaEntity
+import com.playground.auth.presentation.response.AuthTokenResponseDto
 import com.playground.user.domain.enum.UserRole
+import com.playground.user.persistence.entity.UserJpaEntity
 import com.playground.user.persistence.repository.UserRepository
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,9 +21,11 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.context.WebApplicationContext
 
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
 @ExtendWith(RestDocumentationExtension::class)
 abstract class ApiTest {
@@ -55,11 +56,6 @@ abstract class ApiTest {
                 apply<DefaultMockMvcBuilder>(springSecurity())
             }
             .build()
-    }
-
-    @AfterEach
-    fun cleanUpUser() {
-        userRepository.deleteAll()
     }
 
     protected fun createUser(loginId: String, password: String, nickname: String, role: UserRole = UserRole.USER): UserJpaEntity {

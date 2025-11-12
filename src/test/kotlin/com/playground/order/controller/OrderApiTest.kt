@@ -1,15 +1,14 @@
 package com.playground.order.controller
 
 import com.playground.common.error.ErrorCode
+import com.playground.order.persistence.repository.OrderRepository
 import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
-import com.playground.order.persistence.repository.OrderRepository
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
@@ -24,13 +23,6 @@ class OrderApiTest(
     @param:Autowired private val orderRepository: OrderRepository,
     @param:Autowired private val productRepository: ProductRepository,
 ) : ApiTest() {
-
-    @AfterEach
-    fun cleanUp() {
-        orderRepository.deleteAll()
-        productRepository.deleteAll()
-        userRepository.deleteAll()
-    }
 
     @Test
     @WithMockUser(roles = ["USER"], username = "1")
@@ -58,29 +50,28 @@ class OrderApiTest(
                 jsonPath("$.userId").value(user.id),
                 jsonPath("$.totalPrice").value(productJpaEntity1.price * 2 + productJpaEntity2.price * 3),
                 jsonPath("$.status").value("PENDING"),
-                jsonPath("$.orderItems.length()").value(2),
-                jsonPath("$.orderItems[0].productId").value(productJpaEntity1.id),
-                jsonPath("$.orderItems[0].quantity").value(2),
-                jsonPath("$.orderItems[0].price").value(productJpaEntity1.price),
-                jsonPath("$.orderItems[1].productId").value(productJpaEntity2.id),
-                jsonPath("$.orderItems[1].quantity").value(3),
-                jsonPath("$.orderItems[1].price").value(productJpaEntity2.price),
+                jsonPath("$.orderProducts.length()").value(2),
+                jsonPath("$.orderProducts[0].productId").value(productJpaEntity1.id),
+                jsonPath("$.orderProducts[0].quantity").value(2),
+                jsonPath("$.orderProducts[0].price").value(productJpaEntity1.price),
+                jsonPath("$.orderProducts[1].productId").value(productJpaEntity2.id),
+                jsonPath("$.orderProducts[1].quantity").value(3),
+                jsonPath("$.orderProducts[1].price").value(productJpaEntity2.price),
             )
             snippets = arrayOf(
                 requestFields(
-                    fieldWithPath("orderItems[].productId").description("주문 상품 ID"),
-                    fieldWithPath("orderItems[].quantity").description("주문 수량")
+                    fieldWithPath("orderProducts[].productId").description("주문 상품 ID"),
+                    fieldWithPath("orderProducts[].quantity").description("주문 수량")
                 ),
                 responseFields(
                     fieldWithPath("id").description("주문 ID"),
                     fieldWithPath("userId").description("주문 사용자 ID"),
                     fieldWithPath("totalPrice").description("총 주문 금액"),
                     fieldWithPath("status").description("주문 상태"),
-                    fieldWithPath("orderDate").description("주문 일시"),
-                    fieldWithPath("orderItems[].id").description("주문 상품 ID"),
-                    fieldWithPath("orderItems[].productId").description("상품 ID"),
-                    fieldWithPath("orderItems[].quantity").description("주문 수량"),
-                    fieldWithPath("orderItems[].price").description("주문 당시 상품 단가")
+                    fieldWithPath("orderProducts[].id").description("주문 상품 ID"),
+                    fieldWithPath("orderProducts[].productId").description("상품 ID"),
+                    fieldWithPath("orderProducts[].quantity").description("주문 수량"),
+                    fieldWithPath("orderProducts[].price").description("주문 당시 상품 단가")
                 )
             )
         }
@@ -168,12 +159,12 @@ class OrderApiTest(
             expectedStatus = status().isBadRequest
             additionalMatchers = arrayOf(
                 jsonPath("$.message").value("입력값이 유효하지 않습니다."),
-                jsonPath("$.errors.orderItems").value("주문 상품은 최소 1개 이상이어야 합니다.")
+                jsonPath("$.errors.orderProducts").value("주문 상품은 최소 1개 이상이어야 합니다.")
             )
             snippets = arrayOf(
                 responseFields(
                     commonErrorResponseSnippet() +
-                            fieldWithPath("errors.orderItems").description("주문 상품 목록 필드의 에러 메시지")
+                            fieldWithPath("errors.orderProducts").description("주문 상품 목록 필드의 에러 메시지")
                 )
             )
         }
@@ -200,12 +191,12 @@ class OrderApiTest(
             expectedStatus = status().isBadRequest
             additionalMatchers = arrayOf(
                 jsonPath("$.message").value("입력값이 유효하지 않습니다."),
-                jsonPath("$.errors.['orderItems[0].quantity']").value("주문 수량은 1개 이상이어야 합니다.")
+                jsonPath("$.errors.['orderProducts[0].quantity']").value("주문 수량은 1개 이상이어야 합니다.")
             )
             snippets = arrayOf(
                 responseFields(
                     commonErrorResponseSnippet() +
-                            fieldWithPath("errors.['orderItems[0].quantity']").description("주문 수량 필드의 에러 메시지")
+                            fieldWithPath("errors.['orderProducts[0].quantity']").description("주문 수량 필드의 에러 메시지")
                 )
             )
         }

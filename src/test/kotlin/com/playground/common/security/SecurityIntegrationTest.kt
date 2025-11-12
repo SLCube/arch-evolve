@@ -1,12 +1,11 @@
 package com.playground.common.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.product.presentation.request.ProductSaveRequestDto
 import com.playground.auth.presentation.request.AuthLoginRequestDto
-import com.playground.user.persistence.entity.UserJpaEntity
+import com.playground.product.presentation.request.ProductSaveRequestDto
 import com.playground.user.domain.enum.UserRole
+import com.playground.user.persistence.entity.UserJpaEntity
 import com.playground.user.persistence.repository.UserRepository
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -16,9 +15,11 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
+import org.springframework.transaction.annotation.Transactional
 
 @Suppress("NonAsciiCharacters")
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
 class SecurityIntegrationTest(
     @param:Autowired private val mockMvc: MockMvc,
@@ -26,11 +27,6 @@ class SecurityIntegrationTest(
     @param:Autowired private val userRepository: UserRepository,
     @param:Autowired private val passwordEncoder: PasswordEncoder
 ) {
-
-    @AfterEach
-    fun tearDown() {
-        userRepository.deleteAll()
-    }
 
     @Test
     fun `실제 JWT 토큰으로 인증 - 성공, 보호된 API에 접근할 수 있다`() {
