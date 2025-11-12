@@ -19,6 +19,7 @@ class CustomUserDetailsService(
         return AuthUser(
             userId = user.id!!,
             loginId = user.loginId,
+            password = user.password,
             authorities = setOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
         )
     }
