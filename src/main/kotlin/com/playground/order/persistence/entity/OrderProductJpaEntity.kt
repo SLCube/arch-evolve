@@ -1,6 +1,7 @@
 package com.playground.order.persistence.entity
 
 import com.playground.common.jpa.domain.BaseEntity
+import com.playground.order.domain.model.OrderProduct
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -31,4 +32,16 @@ class OrderProductJpaEntity(
 
     @Column(nullable = false)
     val price: Long
-): BaseEntity()
+): BaseEntity() {
+    companion object {
+        fun toJpaEntity(domain: OrderProduct, orderJpaEntity: OrderJpaEntity): OrderProductJpaEntity {
+            return OrderProductJpaEntity(
+                id = domain.id,
+                orderJpaEntity = orderJpaEntity,
+                productId = domain.productId,
+                quantity = domain.quantity,
+                price = domain.price
+            )
+        }
+    }
+}

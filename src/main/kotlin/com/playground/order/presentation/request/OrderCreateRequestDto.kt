@@ -8,14 +8,14 @@ import jakarta.validation.constraints.Size
 
 data class OrderCreateRequestDto(
     @field:Valid
-    @field:Size(min = ValidationConstants.ORDER_ORDERITEMS_MIN_SIZE, message = "{order.orderItems.size}")
-    val orderItems: List<OrderItemRequestDto>
+    @field:Size(min = ValidationConstants.ORDER_ORDERPRODUCTS_MIN_SIZE, message = "{order.orderItems.size}")
+    val orderProducts: List<OrderProductRequestDto>
 )
 
-data class OrderItemRequestDto(
+data class OrderProductRequestDto(
     @field:NotNull(message = "{orderItem.productId.not-null}")
     val productId: Long,
 
-    @field:Min(value = ValidationConstants.ORDERITEM_QUANTITY_MIN_SIZE, message = "{orderItem.quantity.min}")
+    @field:Min(value = ValidationConstants.ORDERPRODUCT_QUANTITY_MIN_SIZE, message = "{orderItem.quantity.min}")
     val quantity: Int
 )

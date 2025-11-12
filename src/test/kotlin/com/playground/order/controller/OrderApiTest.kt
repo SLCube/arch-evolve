@@ -2,7 +2,7 @@ package com.playground.order.controller
 
 import com.playground.common.error.ErrorCode
 import com.playground.order.presentation.request.OrderCreateRequestDto
-import com.playground.order.presentation.request.OrderItemRequestDto
+import com.playground.order.presentation.request.OrderProductRequestDto
 import com.playground.order.persistence.repository.OrderRepository
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
@@ -40,9 +40,9 @@ class OrderApiTest(
         val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000L))
 
         val orderRequest = OrderCreateRequestDto(
-            orderItems = listOf(
-                OrderItemRequestDto(productId = productJpaEntity1.id!!, quantity = 2),
-                OrderItemRequestDto(productId = productJpaEntity2.id!!, quantity = 3)
+            orderProducts = listOf(
+                OrderProductRequestDto(productId = productJpaEntity1.id!!, quantity = 2),
+                OrderProductRequestDto(productId = productJpaEntity2.id!!, quantity = 3)
             )
         )
 
@@ -93,8 +93,8 @@ class OrderApiTest(
         val nonExistingProductId = 999L
 
         val orderRequest = OrderCreateRequestDto(
-            orderItems = listOf(
-                OrderItemRequestDto(productId = nonExistingProductId, quantity = 1)
+            orderProducts = listOf(
+                OrderProductRequestDto(productId = nonExistingProductId, quantity = 1)
             )
         )
         val jwtToken = getAccessToken(user.loginId, "password123")
@@ -122,8 +122,8 @@ class OrderApiTest(
         val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 5, price = 10000L))
 
         val orderRequest = OrderCreateRequestDto(
-            orderItems = listOf(
-                OrderItemRequestDto(productId = productJpaEntity.id!!, quantity = 10) // 재고보다 많은 수량
+            orderProducts = listOf(
+                OrderProductRequestDto(productId = productJpaEntity.id!!, quantity = 10) // 재고보다 많은 수량
             )
         )
         val jwtToken = getAccessToken(user.loginId, "password123")
@@ -156,7 +156,7 @@ class OrderApiTest(
         val user = createUser("testUser", "password123", "테스트유저")
 
         val orderRequest = OrderCreateRequestDto(
-            orderItems = listOf() // 비어있는 주문 상품 목록
+            orderProducts = listOf() // 비어있는 주문 상품 목록
         )
         val jwtToken = getAccessToken(user.loginId, "password123")
 
@@ -186,8 +186,8 @@ class OrderApiTest(
         val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
 
         val orderRequest = OrderCreateRequestDto(
-            orderItems = listOf(
-                OrderItemRequestDto(productId = productJpaEntity.id!!, quantity = 0) // 1개 미만 수량
+            orderProducts = listOf(
+                OrderProductRequestDto(productId = productJpaEntity.id!!, quantity = 0) // 1개 미만 수량
             )
         )
         val jwtToken = getAccessToken(user.loginId, "password123")

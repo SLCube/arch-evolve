@@ -1,25 +1,22 @@
 package com.playground.order.presentation.response
 
-import com.playground.order.persistence.entity.OrderJpaEntity
-import com.playground.order.persistence.entity.OrderProductJpaEntity
 import com.playground.order.domain.enum.OrderStatus
-import java.time.LocalDateTime
+import com.playground.order.domain.model.Order
+import com.playground.order.domain.model.OrderProduct
 
 data class OrderResponseDto(
     val id: Long,
     val userId: Long,
     val totalPrice: Long,
     val status: OrderStatus,
-    val orderDate: LocalDateTime,
 ) {
     companion object {
-        fun toResponse(orderJpaEntity: OrderJpaEntity): OrderResponseDto {
+        fun toResponse(order: Order): OrderResponseDto {
             return OrderResponseDto(
-                id = orderJpaEntity.id!!,
-                userId = orderJpaEntity.userId,
-                totalPrice = orderJpaEntity.totalPrice,
-                status = orderJpaEntity.status,
-                orderDate = orderJpaEntity.createdAt
+                id = order.id!!,
+                userId = order.userId,
+                totalPrice = order.totalPrice,
+                status = order.status
             )
         }
     }
@@ -32,12 +29,12 @@ data class OrderItemResponseDto(
     val price: Long
 ) {
     companion object {
-        fun toResponse(orderProductJpaEntity: OrderProductJpaEntity): OrderItemResponseDto {
+        fun toResponse(orderProduct: OrderProduct): OrderItemResponseDto {
             return OrderItemResponseDto(
-                id = orderProductJpaEntity.id!!,
-                productId = orderProductJpaEntity.productId,
-                quantity = orderProductJpaEntity.quantity,
-                price = orderProductJpaEntity.price
+                id = orderProduct.id!!,
+                productId = orderProduct.productId,
+                quantity = orderProduct.quantity,
+                price = orderProduct.price
             )
         }
     }

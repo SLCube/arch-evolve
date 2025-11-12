@@ -9,7 +9,7 @@ class Order(
     var status: OrderStatus = OrderStatus.PENDING,
     val orderProducts: MutableList<OrderProduct> = mutableListOf()
 ) {
-    fun addOrderItem(orderProduct: OrderProduct) {
+    fun addOrderProduct(orderProduct: OrderProduct) {
         orderProducts.add(orderProduct)
     }
 

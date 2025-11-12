@@ -1,52 +1,55 @@
 package com.playground.order.application.service
 
-import com.playground.order.persistence.entity.OrderJpaEntity
-import com.playground.order.persistence.entity.OrderProductJpaEntity
-import com.playground.order.presentation.request.OrderCreateRequestDto
-import com.playground.order.presentation.response.OrderResponseDto
-import com.playground.order.persistence.repository.OrderRepository
+import com.playground.order.application.port.`in`.OrderUseCase
+import com.playground.order.application.port.`in`.command.OrderCreateCommand
+import com.playground.order.application.port.out.OrderCommandPort
+import com.playground.order.application.port.out.OrderQueryPort
+import com.playground.order.domain.model.Order
+import com.playground.order.domain.model.OrderProduct
 import com.playground.product.application.port.`in`.ProductUseCase
 import com.playground.product.application.port.`in`.command.DecreaseStockCommand
 import com.playground.product.application.port.`in`.query.GetProductQuery
+import com.playground.user.application.port.out.UserQueryPort
 import com.playground.user.domain.exception.UserNotFoundException
-import com.playground.user.persistence.repository.UserRepository
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
 class OrderService(
-    private val orderRepository: OrderRepository,
-    private val userRepository: UserRepository,
+    private val orderCommandPort: OrderCommandPort,
+    private val orderQueryPort: OrderQueryPort,
+    private val userQueryPort: UserQueryPort,
     private val productUseCase: ProductUseCase
-) {
+): OrderUseCase {
 
-    fun createOrder(loginId: String, request: OrderCreateRequestDto): OrderResponseDto {
-        val user = userRepository.findByLoginId(loginId).orElseThrow { UserNotFoundException() }
+    override fun createOrder(command: OrderCreateCommand): Order {
+        userQueryPort.findById(command.userId)
+            .orElseThrow { UserNotFoundException() }
 
-        val orderJpaEntity = OrderJpaEntity(userId = user.id!!, totalPrice = 0)
+        val order = Order(
+            userId = command.userId,
+            totalPrice = 0
+        )
 
-        request.orderItems.forEach { orderItemRequest ->
-            val productId = orderItemRequest.productId
+        command.orderProducts.forEach { orderProductCommand ->
+            val productId = orderProductCommand.productId
+            val quantity = orderProductCommand.quantity
+
             val product = productUseCase.getProduct(GetProductQuery(productId))
-
-            val quantity = orderItemRequest.quantity
             productUseCase.decreaseStock(DecreaseStockCommand(productId, quantity))
 
-            val orderProductJpaEntity = OrderProductJpaEntity(
-                orderJpaEntity = orderJpaEntity,
+            val orderProduct = OrderProduct(
                 productId = productId,
                 quantity = quantity,
                 price = product.price
             )
 
-            orderJpaEntity.addOrderItem(orderProductJpaEntity)
+            order.addOrderProduct(orderProduct)
         }
 
-        orderJpaEntity.calculateTotalPrice()
+        order.calculateTotalPrice()
 
-        val savedOrder = orderRepository.save(orderJpaEntity)
-
-        return OrderResponseDto.Companion.toResponse(savedOrder)
+        return orderCommandPort.save(order)
     }
 }
