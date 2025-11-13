@@ -3,11 +3,12 @@ package com.playground.order.application.service
 import com.playground.order.application.port.`in`.OrderUseCase
 import com.playground.order.application.port.`in`.command.OrderCreateCommand
 import com.playground.order.application.port.out.OrderCommandPort
+import com.playground.order.application.port.out.OrderEventPort
 import com.playground.order.application.port.out.OrderQueryPort
+import com.playground.order.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
 import com.playground.product.application.port.`in`.ProductUseCase
-import com.playground.product.application.port.`in`.command.DecreaseStockCommand
 import com.playground.product.application.port.`in`.query.GetProductQuery
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 class OrderService(
     private val orderCommandPort: OrderCommandPort,
     private val orderQueryPort: OrderQueryPort,
+    private val orderEventPort: OrderEventPort,
     private val productUseCase: ProductUseCase
 ): OrderUseCase {
 
@@ -31,7 +33,6 @@ class OrderService(
             val quantity = orderProductCommand.quantity
 
             val product = productUseCase.getProduct(GetProductQuery(productId))
-            productUseCase.decreaseStock(DecreaseStockCommand(productId, quantity))
 
             val orderProduct = OrderProduct(
                 productId = productId,
@@ -43,6 +44,16 @@ class OrderService(
         }
 
         order.calculateTotalPrice()
+
+        val orderProductDetails = order.orderProducts.map {
+            OrderCreatedEvent.OrderProductDetail(
+                productId = it.productId,
+                quantity = it.quantity
+            )
+        }
+
+        val orderCreatedEvent = OrderCreatedEvent(orderProductDetails)
+        orderEventPort.publish(orderCreatedEvent)
 
         return orderCommandPort.save(order)
     }
