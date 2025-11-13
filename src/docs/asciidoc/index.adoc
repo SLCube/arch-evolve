@@ -307,39 +307,6 @@ include::{snippets}/상품 수정 - 실패, USER 권한으로 ADMIN API 접근 �
 
 include::{snippets}/상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도/http-response.adoc[]
 
-[[재고-차감]]
-=== 재고 차감
-
-`POST /products/{id}/decrease-stock`
-
-상품의 재고를 차감합니다. (ADMIN 권한 필요)
-
-==== 요청
-
-===== 쿼리 파라미터
-
-include::{snippets}/재고 차감 - 실패, 재고 부족/query-parameters.adoc[]
-
-===== 요청 예시
-
-include::{snippets}/재고 차감 - 실패, 재고 부족/http-request.adoc[]
-
-==== 응답
-
-===== 실패
-
-- 재고가 부족할 경우
-
-include::{snippets}/재고 차감 - 실패, 재고 부족/response-fields.adoc[]
-
-include::{snippets}/재고 차감 - 실패, 재고 부족/http-response.adoc[]
-
-- USER 권한으로 ADMIN API 접근 시도
-
-include::{snippets}/재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도/response-fields.adoc[]
-
-include::{snippets}/재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도/http-response.adoc[]
-
 [[order-api]]
 == 주문 API
 

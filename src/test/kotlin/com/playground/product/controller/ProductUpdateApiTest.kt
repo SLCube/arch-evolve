@@ -1,6 +1,5 @@
 package com.playground.product.controller
 
-import com.playground.common.error.ErrorCode
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.product.presentation.request.ProductUpdateRequestDto
@@ -11,8 +10,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.*
-import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
-import org.springframework.restdocs.request.RequestDocumentation.queryParameters
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -57,39 +54,6 @@ class ProductUpdateApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["ADMIN"])
-    fun `재고 차감 - 실패, 재고 부족`() {
-        val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "테스트 상품", stock = 10, price = 10000L))
-        val quantity = 11
-
-        performAndDocument("재고 차감 - 실패, 재고 부족") {
-            httpMethod = HttpMethod.POST
-            urlTemplate = "/products/{id}/decrease-stock"
-            urlVars = arrayOf(savedProductJpaEntity.id)
-            queryParams {
-                add("quantity", quantity.toString())
-            }
-            expectedStatus = status().isBadRequest
-            additionalMatchers = arrayOf(
-                jsonPath("$.code").value(ErrorCode.INSUFFICIENT_STOCK.code),
-                jsonPath("$.message").value(
-                    ErrorCode.INSUFFICIENT_STOCK.message(
-                        savedProductJpaEntity.id,
-                        savedProductJpaEntity.stock,
-                        quantity
-                    )
-                )
-            )
-            snippets = arrayOf(
-                queryParameters(
-                    parameterWithName("quantity").description("차감할 재고 수량")
-                ),
-                responseFields(commonErrorResponseSnippet())
-            )
-        }
-    }
-
-    @Test
     @WithMockUser(roles = ["USER"])
     fun `상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
         val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
@@ -100,26 +64,6 @@ class ProductUpdateApiTest(
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(savedProductJpaEntity.id)
             requestBody = updateRequest
-            expectedStatus = status().isForbidden // 403 Forbidden 기대
-            snippets = arrayOf(
-                responseFields(commonErrorResponseSnippet())
-            )
-        }
-    }
-
-    @Test
-    @WithMockUser(roles = ["USER"])
-    fun `재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
-        val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "테스트 상품", stock = 10, price = 10000L))
-        val quantity = 11
-
-        performAndDocument("재고 차감 - 실패, USER 권한으로 ADMIN API 접근 시도") {
-            httpMethod = HttpMethod.POST
-            urlTemplate = "/products/{id}/decrease-stock"
-            urlVars = arrayOf(savedProductJpaEntity.id)
-            queryParams {
-                add("quantity", quantity.toString())
-            }
             expectedStatus = status().isForbidden // 403 Forbidden 기대
             snippets = arrayOf(
                 responseFields(commonErrorResponseSnippet())
