@@ -4,12 +4,12 @@ import com.playground.order.application.port.`in`.OrderUseCase
 import com.playground.order.application.port.`in`.command.OrderCreateCommand
 import com.playground.order.application.port.out.OrderCommandPort
 import com.playground.order.application.port.out.OrderEventPort
-import com.playground.order.application.port.out.OrderProductQueryPort
 import com.playground.order.application.port.out.OrderQueryPort
+import com.playground.order.application.provider.OrderProductProvider
 import com.playground.order.domain.event.OrderCreatedEvent
-import com.playground.order.domain.exception.OrderableProductNotFoundException
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
+import com.playground.order.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,26 +19,32 @@ class OrderService(
     private val orderCommandPort: OrderCommandPort,
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
-    private val orderProductQueryPort: OrderProductQueryPort,
-): OrderUseCase {
+    private val orderProductProvider: OrderProductProvider,
+) : OrderUseCase {
 
     override fun createOrder(command: OrderCreateCommand): Order {
 
-        val productIds = command.orderProducts.map { it.productId }
-        val productInfoMap = orderProductQueryPort.getProductInfos(productIds)
+        val productInfoMap = orderProductProvider.getVerifiedProductInfos(command)
+        val order = createOrderAggregate(command, productInfoMap)
 
+        val savedOrder = orderCommandPort.save(order)
+
+        publishOrderCreationEvent(order)
+
+        return savedOrder
+    }
+
+    private fun createOrderAggregate(command: OrderCreateCommand, productInfoMap: Map<Long, ProductInfo>): Order {
         val order = Order(
             userId = command.userId,
             totalPrice = 0
         )
 
         val orderProducts = command.orderProducts.map { orderProductCommand ->
-            val productId = orderProductCommand.productId
-            val productInfo = productInfoMap[productId]
-                ?: throw OrderableProductNotFoundException(productId)
+            val productInfo = productInfoMap.getValue(orderProductCommand.productId)
 
             OrderProduct(
-                productId = productId,
+                productId = orderProductCommand.productId,
                 quantity = orderProductCommand.quantity,
                 price = productInfo.price
             )
@@ -46,7 +52,10 @@ class OrderService(
 
         orderProducts.forEach(order::addOrderProduct)
         order.calculateTotalPrice()
+        return order
+    }
 
+    private fun publishOrderCreationEvent(order: Order) {
         val orderProductDetails = order.orderProducts.map {
             OrderCreatedEvent.OrderProductDetail(
                 productId = it.productId,
@@ -54,11 +63,7 @@ class OrderService(
             )
         }
 
-        val savedOrder = orderCommandPort.save(order)
-
         val orderCreatedEvent = OrderCreatedEvent(orderProductDetails)
         orderEventPort.publish(orderCreatedEvent)
-
-        return savedOrder
     }
 }
