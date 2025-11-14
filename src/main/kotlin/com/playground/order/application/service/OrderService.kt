@@ -4,12 +4,12 @@ import com.playground.order.application.port.`in`.OrderUseCase
 import com.playground.order.application.port.`in`.command.OrderCreateCommand
 import com.playground.order.application.port.out.OrderCommandPort
 import com.playground.order.application.port.out.OrderEventPort
+import com.playground.order.application.port.out.OrderProductQueryPort
 import com.playground.order.application.port.out.OrderQueryPort
 import com.playground.order.domain.event.OrderCreatedEvent
+import com.playground.order.domain.exception.OrderableProductNotFoundException
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
-import com.playground.product.application.port.`in`.ProductUseCase
-import com.playground.product.application.port.`in`.query.GetProductQuery
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,30 +19,32 @@ class OrderService(
     private val orderCommandPort: OrderCommandPort,
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
-    private val productUseCase: ProductUseCase
+    private val orderProductQueryPort: OrderProductQueryPort,
 ): OrderUseCase {
 
     override fun createOrder(command: OrderCreateCommand): Order {
+
+        val productIds = command.orderProducts.map { it.productId }
+        val productInfoMap = orderProductQueryPort.getProductInfos(productIds)
+
         val order = Order(
             userId = command.userId,
             totalPrice = 0
         )
 
-        command.orderProducts.forEach { orderProductCommand ->
+        val orderProducts = command.orderProducts.map { orderProductCommand ->
             val productId = orderProductCommand.productId
-            val quantity = orderProductCommand.quantity
+            val productInfo = productInfoMap[productId]
+                ?: throw OrderableProductNotFoundException(productId)
 
-            val product = productUseCase.getProduct(GetProductQuery(productId))
-
-            val orderProduct = OrderProduct(
+            OrderProduct(
                 productId = productId,
-                quantity = quantity,
-                price = product.price
+                quantity = orderProductCommand.quantity,
+                price = productInfo.price
             )
-
-            order.addOrderProduct(orderProduct)
         }
 
+        orderProducts.forEach(order::addOrderProduct)
         order.calculateTotalPrice()
 
         val orderProductDetails = order.orderProducts.map {
@@ -52,9 +54,11 @@ class OrderService(
             )
         }
 
+        val savedOrder = orderCommandPort.save(order)
+
         val orderCreatedEvent = OrderCreatedEvent(orderProductDetails)
         orderEventPort.publish(orderCreatedEvent)
 
-        return orderCommandPort.save(order)
+        return savedOrder
     }
 }

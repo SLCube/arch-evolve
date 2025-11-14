@@ -1,7 +1,6 @@
 package com.playground.order.controller
 
 import com.playground.common.error.ErrorCode
-import com.playground.order.persistence.repository.OrderRepository
 import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
 import com.playground.product.persistence.entity.ProductJpaEntity
@@ -20,7 +19,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Suppress("NonAsciiCharacters")
 @WithMockUser
 class OrderApiTest(
-    @param:Autowired private val orderRepository: OrderRepository,
     @param:Autowired private val productRepository: ProductRepository,
 ) : ApiTest() {
 
@@ -97,8 +95,8 @@ class OrderApiTest(
             accessToken = jwtToken
             expectedStatus = status().isNotFound
             additionalMatchers = arrayOf(
-                jsonPath("$.code").value(ErrorCode.PRODUCT_NOT_FOUND.code),
-                jsonPath("$.message").value(ErrorCode.PRODUCT_NOT_FOUND.message(nonExistingProductId))
+                jsonPath("$.code").value(ErrorCode.ORDERABLE_PRODUCT_NOT_FOUND.code),
+                jsonPath("$.message").value(ErrorCode.ORDERABLE_PRODUCT_NOT_FOUND.message(nonExistingProductId))
             )
             snippets = arrayOf(
                 responseFields(commonErrorResponseSnippet())
