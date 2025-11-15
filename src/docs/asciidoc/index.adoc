@@ -78,6 +78,14 @@ include::{snippets}/로그인 - 성공/response-fields.adoc[]
 
 include::{snippets}/로그인 - 성공/http-response.adoc[]
 
+===== 실패
+
+- 존재하지 않는 사용자 또는 비밀번호 불일치
+
+include::{snippets}/로그인 - 실패 (존재하지 않는 사용자)/response-fields.adoc[]
+
+include::{snippets}/로그인 - 실패 (존재하지 않는 사용자)/http-response.adoc[]
+
 [[닉네임-변경]]
 === 닉네임 변경
 

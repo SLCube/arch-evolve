@@ -7,7 +7,9 @@ import com.playground.common.log.utils.logger
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.MediaType
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.stereotype.Component
 import java.nio.charset.StandardCharsets
@@ -30,10 +32,20 @@ class LoginFailureHandler(
         response.characterEncoding = StandardCharsets.UTF_8.name()
 
         val errorResponse =
-            ErrorResponse(
-                code = ErrorCode.UNAUTHORIZED.code,
-                message = ErrorCode.UNAUTHORIZED.message(),
-            )
+            when (exception) {
+                is BadCredentialsException, is UsernameNotFoundException -> {
+                    ErrorResponse(
+                        code = ErrorCode.BAD_CREDENTIALS.code,
+                        message = ErrorCode.BAD_CREDENTIALS.message(),
+                    )
+                }
+                else -> {
+                    ErrorResponse(
+                        code = ErrorCode.UNAUTHORIZED.code,
+                        message = ErrorCode.UNAUTHORIZED.message(),
+                    )
+                }
+            }
 
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
     }
