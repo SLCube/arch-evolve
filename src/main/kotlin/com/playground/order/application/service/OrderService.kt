@@ -69,7 +69,7 @@ class OrderService(
 
         val orderCreatedEvent =
             OrderCreatedEvent(
-                orderId = requireNotNull(order.id),
+                orderId = order.id!!,
                 userId = order.userId,
                 orderProductDetails,
             )

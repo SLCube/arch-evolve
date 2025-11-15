@@ -34,7 +34,7 @@ class ProductService(
 
         val event =
             ProductCreatedEvent(
-                productId = requireNotNull(savedProduct.id),
+                productId = savedProduct.id!!,
                 name = savedProduct.name,
                 stock = savedProduct.stock,
                 price = savedProduct.price,
@@ -61,7 +61,7 @@ class ProductService(
 
         val event =
             ProductUpdatedEvent(
-                productId = requireNotNull(updatedProduct.id),
+                productId = updatedProduct.id!!,
                 oldName = oldName,
                 newName = updatedProduct.name,
                 oldStock = oldStock,
@@ -92,7 +92,7 @@ class ProductService(
 
         val event =
             ProductStockDecreasedEvent(
-                productId = requireNotNull(updatedProduct.id),
+                productId = updatedProduct.id!!,
                 productName = updatedProduct.name,
                 oldStock = oldStock,
                 decreasedQuantity = decreasedQuantity,

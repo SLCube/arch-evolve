@@ -10,7 +10,7 @@ data class ProductResponseDto(
 ) {
     companion object {
         fun toResponse(domain: Product): ProductResponseDto {
-            val productId = requireNotNull(domain.id) { "Product ID cannot be null for response creation." }
+            val productId = domain.id!!
             return ProductResponseDto(
                 productId,
                 domain.name,

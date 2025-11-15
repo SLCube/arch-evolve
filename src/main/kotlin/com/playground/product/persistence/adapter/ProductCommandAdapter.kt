@@ -19,7 +19,7 @@ class ProductCommandAdapter(
     }
 
     override fun update(product: Product): Product {
-        val productId = requireNotNull(product.id) { "Product ID must not be null for update" }
+        val productId = product.id!!
 
         val productJpaEntity =
             productRepository

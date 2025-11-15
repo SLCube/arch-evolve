@@ -13,8 +13,8 @@ class OrderProductQueryAdapter(
         val products = productQueryPort.findAllByIds(productIds)
 
         return products.associateBy(
-            keySelector = { requireNotNull(it.id) },
-            valueTransform = { ProductInfo(productId = requireNotNull(it.id), price = it.price) },
+            keySelector = { it.id!! },
+            valueTransform = { ProductInfo(productId = it.id!!, price = it.price) },
         )
     }
 }

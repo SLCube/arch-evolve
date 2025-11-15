@@ -41,7 +41,7 @@ class UserService(
 
         userEventPort.publish(
             UserSignedUpEvent(
-                userId = requireNotNull(savedUser.id),
+                userId = savedUser.id!!,
                 loginId = savedUser.loginId,
             ),
         )
@@ -61,7 +61,7 @@ class UserService(
 
         userEventPort.publish(
             UserNicknameUpdatedEvent(
-                userId = requireNotNull(updatedUser.id),
+                userId = updatedUser.id!!,
                 loginId = updatedUser.loginId,
                 oldNickname = oldNickname,
                 newNickname = updatedUser.nickname,
@@ -82,7 +82,7 @@ class UserService(
 
         userEventPort.publish(
             UserPasswordUpdatedEvent(
-                userId = requireNotNull(updatedUser.id),
+                userId = updatedUser.id!!,
                 loginId = updatedUser.loginId,
             ),
         )

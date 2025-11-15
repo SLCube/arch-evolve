@@ -19,7 +19,7 @@ class UserCommandAdapter(
     }
 
     override fun update(user: User): User {
-        val userId = requireNotNull(user.id) { "User ID must not be null for update" }
+        val userId = user.id!!
 
         val userJpaEntity =
             userRepository
