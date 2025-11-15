@@ -7,14 +7,12 @@ import com.playground.user.application.port.`in`.command.UpdatePasswordCommand
 import com.playground.user.application.port.out.UserCommandPort
 import com.playground.user.application.port.out.UserEventPort
 import com.playground.user.application.port.out.UserQueryPort
+import com.playground.user.application.validator.UserValidator
 import com.playground.user.domain.event.UserNicknameUpdatedEvent
 import com.playground.user.domain.event.UserPasswordUpdatedEvent
 import com.playground.user.domain.event.UserSignedUpEvent
-import com.playground.user.domain.model.User
-import com.playground.user.domain.exception.DuplicateLoginIdException
-import com.playground.user.domain.exception.DuplicateNicknameException
-import com.playground.user.domain.exception.PasswordMismatchException
 import com.playground.user.domain.exception.UserNotFoundException
+import com.playground.user.domain.model.User
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,18 +22,14 @@ import org.springframework.transaction.annotation.Transactional
 class UserService(
     private val userQueryPort: UserQueryPort,
     private val userCommandPort: UserCommandPort,
-    private val passwordEncoder: PasswordEncoder,
-    private val userEventPort: UserEventPort
+    private val userEventPort: UserEventPort,
+    private val userValidator: UserValidator,
+    private val passwordEncoder: PasswordEncoder
 ): UserUseCase {
 
     override fun signUp(command: SignUpCommand): User {
-        userQueryPort.findByLoginId(command.loginId).ifPresent {
-            throw DuplicateLoginIdException(command.loginId)
-        }
-
-        userQueryPort.findByNickname(command.nickname).ifPresent {
-            throw DuplicateNicknameException()
-        }
+        userValidator.validateDuplicateLoginId(command.loginId)
+        userValidator.validateDuplicateNickname(command.nickname)
 
         val user = User(
             loginId = command.loginId,
@@ -45,59 +39,59 @@ class UserService(
 
         val savedUser = userCommandPort.save(user)
 
-        val event = UserSignedUpEvent(
-            userId = requireNotNull(savedUser.id),
-            loginId = savedUser.loginId
+        userEventPort.publish(
+            UserSignedUpEvent(
+                userId = requireNotNull(savedUser.id),
+                loginId = savedUser.loginId
+            )
         )
-        userEventPort.publish(event)
 
         return savedUser
     }
 
     override fun updateNickname(command: UpdateNicknameCommand): User {
-        userQueryPort.findByNickname(command.newNickname).ifPresent { foundUser ->
-            if (foundUser.id != command.userId) {
-                throw DuplicateNicknameException()
-            }
-        }
+        userValidator.validateDuplicateNickname(command.newNickname, command.userId)
 
-        val user = userQueryPort.findById(command.userId)
-            .orElseThrow { UserNotFoundException() }
+        val user = findUserById(command.userId)
 
         val oldNickname = user.nickname
         user.updateNickname(command.newNickname)
 
         val updatedUser = userCommandPort.update(user)
 
-        val event = UserNicknameUpdatedEvent(
-            userId = requireNotNull(updatedUser.id),
-            loginId = updatedUser.loginId,
-            oldNickname = oldNickname,
-            newNickname = updatedUser.nickname
+        userEventPort.publish(
+            UserNicknameUpdatedEvent(
+                userId = requireNotNull(updatedUser.id),
+                loginId = updatedUser.loginId,
+                oldNickname = oldNickname,
+                newNickname = updatedUser.nickname
+            )
         )
-        userEventPort.publish(event)
 
         return updatedUser
     }
 
     override fun updatePassword(command: UpdatePasswordCommand): User {
-        val user = userQueryPort.findById(command.userId)
-            .orElseThrow { UserNotFoundException() }
+        val user = findUserById(command.userId)
 
-        if (!passwordEncoder.matches(command.oldPassword, user.password)) {
-            throw PasswordMismatchException()
-        }
+        userValidator.validateOldPassword(command.oldPassword, user.password)
 
         user.updatePassword(passwordEncoder.encode(command.newPassword))
 
         val updatedUser = userCommandPort.update(user)
 
-        val event = UserPasswordUpdatedEvent(
-            userId = requireNotNull(updatedUser.id),
-            loginId = updatedUser.loginId
+        userEventPort.publish(
+            UserPasswordUpdatedEvent(
+                userId = requireNotNull(updatedUser.id),
+                loginId = updatedUser.loginId
+            )
         )
-        userEventPort.publish(event)
 
         return updatedUser
+    }
+
+    private fun findUserById(userId: Long): User {
+        return userQueryPort.findById(userId)
+            .orElseThrow { UserNotFoundException() }
     }
 }
