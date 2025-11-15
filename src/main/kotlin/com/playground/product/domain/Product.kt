@@ -17,7 +17,7 @@ class Product(
     fun decreaseStock(quantity: Int) {
         val currentId = requireNotNull(id) { "재고 차감을 위한 Product의 Id가 존재하지 않습니다." }
         if(stock - quantity < 0) {
-            throw InsufficientStockException(currentId, stock, quantity)
+            throw InsufficientStockException(currentId, stock, quantity) // orderId 파라미터 제거
         }
 
         stock -= quantity

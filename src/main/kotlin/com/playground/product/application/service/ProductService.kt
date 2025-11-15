@@ -6,8 +6,12 @@ import com.playground.product.application.port.`in`.command.SaveProductCommand
 import com.playground.product.application.port.`in`.command.UpdateProductCommand
 import com.playground.product.application.port.`in`.query.GetProductQuery
 import com.playground.product.application.port.out.ProductCommandPort
+import com.playground.product.application.port.out.ProductEventPort
 import com.playground.product.application.port.out.ProductQueryPort
 import com.playground.product.domain.Product
+import com.playground.product.domain.event.ProductCreatedEvent
+import com.playground.product.domain.event.ProductStockDecreasedEvent
+import com.playground.product.domain.event.ProductUpdatedEvent
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class ProductService(
     private val productCommandPort: ProductCommandPort,
-    private val productQueryPort: ProductQueryPort
+    private val productQueryPort: ProductQueryPort,
+    private val productEventPort: ProductEventPort
 ): ProductUseCase {
 
     override fun saveProduct(command: SaveProductCommand): Product {
@@ -25,11 +30,25 @@ class ProductService(
             price = command.price
         )
 
-        return productCommandPort.save(product)
+        val savedProduct = productCommandPort.save(product)
+
+        val event = ProductCreatedEvent(
+            productId = requireNotNull(savedProduct.id),
+            name = savedProduct.name,
+            stock = savedProduct.stock,
+            price = savedProduct.price
+        )
+        productEventPort.publish(event)
+
+        return savedProduct
     }
 
     override fun updateProduct(command: UpdateProductCommand): Product {
         val product = productQueryPort.findById(command.id)
+
+        val oldName = product.name
+        val oldStock = product.stock
+        val oldPrice = product.price
 
         product.update(
             name = command.name,
@@ -37,7 +56,20 @@ class ProductService(
             price = command.price
         )
 
-        return productCommandPort.update(product)
+        val updatedProduct = productCommandPort.update(product)
+
+        val event = ProductUpdatedEvent(
+            productId = requireNotNull(updatedProduct.id),
+            oldName = oldName,
+            newName = updatedProduct.name,
+            oldStock = oldStock,
+            newStock = updatedProduct.stock,
+            oldPrice = oldPrice,
+            newPrice = updatedProduct.price
+        )
+        productEventPort.publish(event)
+
+        return updatedProduct
     }
 
     @Transactional(readOnly = true)
@@ -53,8 +85,22 @@ class ProductService(
     override fun decreaseStock(command: DecreaseStockCommand): Product {
         val product = productQueryPort.findByIdWithPessimisticLock(command.id)
 
-        product.decreaseStock(command.quantity)
+        val oldStock = product.stock
+        val decreasedQuantity = command.quantity
 
-        return productCommandPort.update(product)
+        product.decreaseStock(decreasedQuantity)
+
+        val updatedProduct = productCommandPort.update(product)
+
+        val event = ProductStockDecreasedEvent(
+            productId = requireNotNull(updatedProduct.id),
+            productName = updatedProduct.name,
+            oldStock = oldStock,
+            decreasedQuantity = decreasedQuantity,
+            newStock = updatedProduct.stock
+        )
+        productEventPort.publish(event)
+
+        return updatedProduct
     }
 }
