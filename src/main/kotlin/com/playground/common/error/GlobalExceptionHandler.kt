@@ -1,6 +1,6 @@
 package com.playground.common.error
 
-import com.playground.common.utils.logger
+import com.playground.common.log.utils.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.FieldError

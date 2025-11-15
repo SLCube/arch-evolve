@@ -7,4 +7,8 @@ data class AuthLoginRequestDto(
     val loginId: String,
     @field:NotBlank(message = "{user.password.not-blank}")
     val password: String,
-)
+) {
+    override fun toString(): String {
+        return "AuthLoginRequestDto(loginId='$loginId', password='****')"
+    }
+}

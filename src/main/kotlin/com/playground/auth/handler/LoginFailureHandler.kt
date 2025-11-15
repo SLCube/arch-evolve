@@ -3,7 +3,7 @@ package com.playground.auth.handler
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.common.error.ErrorCode
 import com.playground.common.error.ErrorResponse
-import com.playground.common.utils.logger
+import com.playground.common.log.utils.logger
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.MediaType

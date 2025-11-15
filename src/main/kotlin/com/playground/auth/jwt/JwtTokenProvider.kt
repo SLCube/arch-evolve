@@ -1,6 +1,6 @@
 package com.playground.auth.jwt
 
-import com.playground.common.utils.logger
+import com.playground.common.log.utils.logger
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts

@@ -26,4 +26,8 @@ class Order(
         require(this.status == OrderStatus.PENDING || this.status == OrderStatus.COMPLETED) { "주문 상태가 PENDING 또는 COMPLETED일 때만 취소할 수 있습니다." }
         this.status = OrderStatus.CANCELLED
     }
+
+    override fun toString(): String {
+        return "Order(id=$id, userId=$userId, totalPrice=$totalPrice, status=$status, orderProductsCount=${orderProducts.size})"
+    }
 }

@@ -21,4 +21,8 @@ class User(
     fun updatePassword(encodedNewPassword: String) {
         this.password = encodedNewPassword
     }
+
+    override fun toString(): String {
+        return "User(id=$id, loginId='$loginId', password='****', nickname='$nickname', role=$role)"
+    }
 }

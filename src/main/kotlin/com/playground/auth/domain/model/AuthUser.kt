@@ -14,4 +14,8 @@ data class AuthUser(
     override fun getPassword(): String = password
 
     override fun getUsername(): String = this.loginId
+
+    override fun toString(): String {
+        return "AuthUser(userId=$userId, loginId='$loginId', password='****', authorities=$authorities)"
+    }
 }

@@ -1,4 +1,4 @@
-package com.playground.common.utils
+package com.playground.common.log.utils
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
