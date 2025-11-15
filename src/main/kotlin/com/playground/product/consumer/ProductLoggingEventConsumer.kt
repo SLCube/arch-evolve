@@ -13,7 +13,7 @@ class ProductLoggingEventConsumer {
     private val log = logger()
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleProductCreatedEvent(event: ProductCreatedEvent) { // 메소드 이름 변경
+    fun handleProductCreatedEvent(event: ProductCreatedEvent) {
         log.info(
             "Product created. productId={}, name={}, stock={}, price={}",
             event.productId,
@@ -24,7 +24,7 @@ class ProductLoggingEventConsumer {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleProductUpdatedEvent(event: ProductUpdatedEvent) { // 메소드 이름 변경
+    fun handleProductUpdatedEvent(event: ProductUpdatedEvent) {
         log.info(
             "Product updated. productId={}, oldName={}, newName={}, oldStock={}, newStock={}, oldPrice={}, newPrice={}",
             event.productId,
@@ -38,7 +38,7 @@ class ProductLoggingEventConsumer {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    fun handleProductStockDecreasedEvent(event: ProductStockDecreasedEvent) { // 메소드 이름 변경
+    fun handleProductStockDecreasedEvent(event: ProductStockDecreasedEvent) {
         log.info(
             "Product stock decreased. productId={}, productName={}, oldStock={}, decreasedQuantity={}, newStock={}",
             event.productId,

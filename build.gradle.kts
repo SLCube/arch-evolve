@@ -17,6 +17,7 @@ plugins {
     kotlin("plugin.jpa")
     id("org.asciidoctor.jvm.convert")
     id("org.jlleitschuh.gradle.ktlint")
+    id("jacoco")
 }
 
 group = "com.playground"
@@ -33,34 +34,21 @@ repositories {
 }
 
 dependencies {
-    // Spring Boot Starters
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-aop")
-
-    // Kotlin & Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-
-    // Kotlin JDSL
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$kotlinJdslVersion")
     implementation("com.linecorp.kotlin-jdsl:jpql-render:$kotlinJdslVersion")
     implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$kotlinJdslVersion")
-
-    // JWT
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
-
-    // Database
     runtimeOnly("org.postgresql:postgresql")
-
-    // Docker Compose Support (for local development)
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-
-    // Test Dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("org.springframework.security:spring-security-test")
@@ -126,4 +114,41 @@ ktlint {
         exclude("**/generated/**")
         include("**/kotlin/**")
     }
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+    classDirectories.setFrom(
+        fileTree(
+            layout.buildDirectory.dir("classes/kotlin/main"),
+        ) {
+            exclude(
+                "**/com/playground/PlayGroundApplication*",
+                "**/com/playground/common/**",
+                "**/com/playground/auth/config/**",
+                "**/com/playground/auth/jwt/JwtProperties*",
+                "**/com/playground/support/**",
+                "**/com/playground/*/presentation/request/*",
+                "**/com/playground/*/presentation/response/*",
+                "**/com/playground/*/consumer/*",
+                "**/com/playground/*/domain/exception/*",
+            )
+        },
+    )
+}
+
+tasks.check {
+}
+
+tasks.build {
+    dependsOn(tasks.jacocoTestReport)
 }
