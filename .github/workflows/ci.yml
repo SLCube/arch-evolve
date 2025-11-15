@@ -28,4 +28,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION_HOURS: ${{ secrets.JWT_EXPIRATION_HOURS }}
         run: ./gradlew build

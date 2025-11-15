@@ -1,3 +1,7 @@
+jwt:
+  secret: ${jwt.secret}
+  expiration-hours: ${jwt.expiration-hours}
+
 spring:
   profiles:
     include: secret
