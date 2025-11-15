@@ -1,10 +1,43 @@
 spring:
   profiles:
     include: secret
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/playground
+    username: ${db.username}
+    password: ${db.password}
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
 
 logging:
   level:
     root: info
     com.playground: info
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%-7.7thread] [%-40.40logger{39}] - %msg%n"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+logging:
+  level:
+    com.playground: info
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+logging:
+  level:
+    com.playground: debug

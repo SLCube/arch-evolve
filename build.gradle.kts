@@ -44,7 +44,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
-    runtimeOnly("com.h2database:h2")
+    // PostgreSQL
+    runtimeOnly("org.postgresql:postgresql")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
 
@@ -53,6 +55,9 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestSpringExtensionVersion")
     testImplementation("org.springframework.security:spring-security-test")
+
+    // H2 Database (테스트 환경에서만 사용)
+    testRuntimeOnly("com.h2database:h2")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
