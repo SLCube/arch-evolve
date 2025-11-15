@@ -26,11 +26,14 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot Starters
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+
+    // Kotlin & Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
@@ -44,21 +47,20 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
 
-    // PostgreSQL
+    // Database
     runtimeOnly("org.postgresql:postgresql")
 
+    // Docker Compose Support (for local development)
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+
+    // Test Dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-
-    // KoTest
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestSpringExtensionVersion")
-    testImplementation("org.springframework.security:spring-security-test")
-
-    // H2 Database (테스트 환경에서만 사용)
     testRuntimeOnly("com.h2database:h2")
-
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
