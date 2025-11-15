@@ -29,7 +29,7 @@ class OrderService(
 
         val savedOrder = orderCommandPort.save(order)
 
-        publishOrderCreationEvent(order)
+        publishOrderCreationEvent(savedOrder)
 
         return savedOrder
     }
@@ -63,7 +63,11 @@ class OrderService(
             )
         }
 
-        val orderCreatedEvent = OrderCreatedEvent(orderProductDetails)
+        val orderCreatedEvent = OrderCreatedEvent(
+            orderId = requireNotNull(order.id),
+            userId = order.userId,
+            orderProductDetails
+        )
         orderEventPort.publish(orderCreatedEvent)
     }
 }
