@@ -7,25 +7,22 @@ import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
 import com.playground.user.presentation.request.UserPasswordUpdateRequestDto
 import com.playground.user.presentation.request.UserSignUpRequestDto
 
-fun UserSignUpRequestDto.toCommand(): SignUpCommand {
-    return SignUpCommand(
+fun UserSignUpRequestDto.toCommand(): SignUpCommand =
+    SignUpCommand(
         loginId = this.loginId,
         password = this.password,
-        nickname = this.nickname
+        nickname = this.nickname,
     )
-}
 
-fun UserPasswordUpdateRequestDto.toCommand(userId: Long): UpdatePasswordCommand {
-    return UpdatePasswordCommand(
+fun UserPasswordUpdateRequestDto.toCommand(userId: Long): UpdatePasswordCommand =
+    UpdatePasswordCommand(
         userId = userId,
         oldPassword = this.oldPassword,
-        newPassword = this.newPassword
+        newPassword = this.newPassword,
     )
-}
 
-fun UserNicknameUpdateRequestDto.toCommand(userId: Long): UpdateNicknameCommand {
-    return UpdateNicknameCommand(
+fun UserNicknameUpdateRequestDto.toCommand(userId: Long): UpdateNicknameCommand =
+    UpdateNicknameCommand(
         userId = userId,
-        newNickname = this.nickname
+        newNickname = this.nickname,
     )
-}

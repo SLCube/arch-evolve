@@ -9,7 +9,9 @@ import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
-import org.springframework.restdocs.payload.PayloadDocumentation.*
+import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
+import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
+import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -17,9 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Suppress("NonAsciiCharacters")
 @WithMockUser
 class ProductUpdateApiTest(
-    @param:Autowired private val productRepository: ProductRepository
+    @param:Autowired private val productRepository: ProductRepository,
 ) : ApiTest() {
-
     @Test
     @WithMockUser(roles = ["ADMIN"])
     fun `상품 수정 - 성공`() {
@@ -32,24 +33,26 @@ class ProductUpdateApiTest(
             urlVars = arrayOf(savedProductJpaEntity.id)
             requestBody = updateRequest
             expectedStatus = status().isOk
-            additionalMatchers = arrayOf(
-                jsonPath("$.name").value("상품2"),
-                jsonPath("$.stock").value(20),
-                jsonPath("$.price").value(20000L)
-            )
-            snippets = arrayOf(
-                requestFields(
-                    fieldWithPath("name").description("상품 이름"),
-                    fieldWithPath("stock").description("재고량"),
-                    fieldWithPath("price").description("상품 가격")
-                ),
-                responseFields(
-                    fieldWithPath("id").description("상품 ID"),
-                    fieldWithPath("name").description("상품 이름"),
-                    fieldWithPath("stock").description("재고량"),
-                    fieldWithPath("price").description("상품 가격")
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.name").value("상품2"),
+                    jsonPath("$.stock").value(20),
+                    jsonPath("$.price").value(20000L),
                 )
-            )
+            snippets =
+                arrayOf(
+                    requestFields(
+                        fieldWithPath("name").description("상품 이름"),
+                        fieldWithPath("stock").description("재고량"),
+                        fieldWithPath("price").description("상품 가격"),
+                    ),
+                    responseFields(
+                        fieldWithPath("id").description("상품 ID"),
+                        fieldWithPath("name").description("상품 이름"),
+                        fieldWithPath("stock").description("재고량"),
+                        fieldWithPath("price").description("상품 가격"),
+                    ),
+                )
         }
     }
 
@@ -65,9 +68,10 @@ class ProductUpdateApiTest(
             urlVars = arrayOf(savedProductJpaEntity.id)
             requestBody = updateRequest
             expectedStatus = status().isForbidden // 403 Forbidden 기대
-            snippets = arrayOf(
-                responseFields(commonErrorResponseSnippet())
-            )
+            snippets =
+                arrayOf(
+                    responseFields(commonErrorResponseSnippet()),
+                )
         }
     }
 }

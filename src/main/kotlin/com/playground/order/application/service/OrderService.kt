@@ -21,9 +21,7 @@ class OrderService(
     private val orderEventPort: OrderEventPort,
     private val orderProductProvider: OrderProductProvider,
 ) : OrderUseCase {
-
     override fun createOrder(command: OrderCreateCommand): Order {
-
         val productInfoMap = orderProductProvider.getVerifiedProductInfos(command)
         val order = createOrderAggregate(command, productInfoMap)
 
@@ -34,21 +32,26 @@ class OrderService(
         return savedOrder
     }
 
-    private fun createOrderAggregate(command: OrderCreateCommand, productInfoMap: Map<Long, ProductInfo>): Order {
-        val order = Order(
-            userId = command.userId,
-            totalPrice = 0
-        )
-
-        val orderProducts = command.orderProducts.map { orderProductCommand ->
-            val productInfo = productInfoMap.getValue(orderProductCommand.productId)
-
-            OrderProduct(
-                productId = orderProductCommand.productId,
-                quantity = orderProductCommand.quantity,
-                price = productInfo.price
+    private fun createOrderAggregate(
+        command: OrderCreateCommand,
+        productInfoMap: Map<Long, ProductInfo>,
+    ): Order {
+        val order =
+            Order(
+                userId = command.userId,
+                totalPrice = 0,
             )
-        }
+
+        val orderProducts =
+            command.orderProducts.map { orderProductCommand ->
+                val productInfo = productInfoMap.getValue(orderProductCommand.productId)
+
+                OrderProduct(
+                    productId = orderProductCommand.productId,
+                    quantity = orderProductCommand.quantity,
+                    price = productInfo.price,
+                )
+            }
 
         orderProducts.forEach(order::addOrderProduct)
         order.calculateTotalPrice()
@@ -56,18 +59,20 @@ class OrderService(
     }
 
     private fun publishOrderCreationEvent(order: Order) {
-        val orderProductDetails = order.orderProducts.map {
-            OrderCreatedEvent.OrderProductDetail(
-                productId = it.productId,
-                quantity = it.quantity
-            )
-        }
+        val orderProductDetails =
+            order.orderProducts.map {
+                OrderCreatedEvent.OrderProductDetail(
+                    productId = it.productId,
+                    quantity = it.quantity,
+                )
+            }
 
-        val orderCreatedEvent = OrderCreatedEvent(
-            orderId = requireNotNull(order.id),
-            userId = order.userId,
-            orderProductDetails
-        )
+        val orderCreatedEvent =
+            OrderCreatedEvent(
+                orderId = requireNotNull(order.id),
+                userId = order.userId,
+                orderProductDetails,
+            )
         orderEventPort.publish(orderCreatedEvent)
     }
 }

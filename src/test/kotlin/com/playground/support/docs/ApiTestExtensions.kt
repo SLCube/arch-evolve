@@ -9,7 +9,9 @@ import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
-import org.springframework.restdocs.operation.preprocess.Preprocessors.*
+import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest
+import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse
+import org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint
 import org.springframework.restdocs.snippet.Snippet
 import org.springframework.test.web.servlet.ResultActions
 
@@ -34,7 +36,7 @@ import org.springframework.test.web.servlet.ResultActions
  */
 fun ApiTest.performAndDocument(
     identifier: String,
-    builderBlock: ApiTestBuilder.() -> Unit
+    builderBlock: ApiTestBuilder.() -> Unit,
 ) {
     val builder = ApiTestBuilder().apply(builderBlock)
 
@@ -43,14 +45,15 @@ fun ApiTest.performAndDocument(
         builder.urlVars.map { it ?: throw IllegalArgumentException("URL 변수는 null일 수 없습니다.") }.toTypedArray()
 
     // Spring REST Docs가 URL 템플릿을 인식할 수 있도록, 표준 MockMvcRequestBuilders가 아닌 RestDocumentationRequestBuilders를 사용.
-    val requestBuilder = when (builder.httpMethod) {
-        HttpMethod.POST -> RestDocumentationRequestBuilders.post(builder.urlTemplate, *nonNullUrlVars)
-        HttpMethod.GET -> RestDocumentationRequestBuilders.get(builder.urlTemplate, *nonNullUrlVars)
-        HttpMethod.PUT -> RestDocumentationRequestBuilders.put(builder.urlTemplate, *nonNullUrlVars)
-        HttpMethod.DELETE -> RestDocumentationRequestBuilders.delete(builder.urlTemplate, *nonNullUrlVars)
-        HttpMethod.PATCH -> RestDocumentationRequestBuilders.patch(builder.urlTemplate, *nonNullUrlVars)
-        else -> throw IllegalArgumentException("Unsupported HTTP method: $builder.httpMethod")
-    }
+    val requestBuilder =
+        when (builder.httpMethod) {
+            HttpMethod.POST -> RestDocumentationRequestBuilders.post(builder.urlTemplate, *nonNullUrlVars)
+            HttpMethod.GET -> RestDocumentationRequestBuilders.get(builder.urlTemplate, *nonNullUrlVars)
+            HttpMethod.PUT -> RestDocumentationRequestBuilders.put(builder.urlTemplate, *nonNullUrlVars)
+            HttpMethod.DELETE -> RestDocumentationRequestBuilders.delete(builder.urlTemplate, *nonNullUrlVars)
+            HttpMethod.PATCH -> RestDocumentationRequestBuilders.patch(builder.urlTemplate, *nonNullUrlVars)
+            else -> throw IllegalArgumentException("Unsupported HTTP method: $builder.httpMethod")
+        }
 
     val httpHeaders = HttpHeaders()
     // accessToken이 제공되면, Bearer 토큰 헤더를 자동으로 설정.
@@ -67,8 +70,10 @@ fun ApiTest.performAndDocument(
         headers(httpHeaders)
     }
 
-    val resultActions = restDocsMockMvc.perform(requestBuilder)
-        .andExpect(builder.expectedStatus)
+    val resultActions =
+        restDocsMockMvc
+            .perform(requestBuilder)
+            .andExpect(builder.expectedStatus)
 
     // 추가적인 검증 로직(jsonPath 등)을 동적으로 적용.
     builder.additionalMatchers.forEach { matcher ->
@@ -76,13 +81,15 @@ fun ApiTest.performAndDocument(
     }
 
     // accessToken이 제공된 경우, Authorization 헤더에 대한 문서 스니펫을 자동으로 추가.
-    val allSnippets = if (builder.accessToken != null) {
-        builder.snippets + requestHeaders(
-            headerWithName(HttpHeaders.AUTHORIZATION).description("인증 토큰 (Bearer)")
-        )
-    } else {
-        builder.snippets
-    }
+    val allSnippets =
+        if (builder.accessToken != null) {
+            builder.snippets +
+                requestHeaders(
+                    headerWithName(HttpHeaders.AUTHORIZATION).description("인증 토큰 (Bearer)"),
+                )
+        } else {
+            builder.snippets
+        }
 
     resultActions.andDocument(identifier, *allSnippets)
 }
@@ -91,13 +98,15 @@ fun ApiTest.performAndDocument(
  * ResultActions에 대한 확장 함수.
  * andDo(document(...))와 prettyPrint()를 한번에 처리하여 보일러플레이트를 줄임.
  */
-fun ResultActions.andDocument(identifier: String, vararg snippets: Snippet): ResultActions {
-    return this.andDo(
+fun ResultActions.andDocument(
+    identifier: String,
+    vararg snippets: Snippet,
+): ResultActions =
+    this.andDo(
         document(
             identifier,
             preprocessRequest(prettyPrint()),
             preprocessResponse(prettyPrint()),
-            *snippets
-        )
+            *snippets,
+        ),
     )
-}

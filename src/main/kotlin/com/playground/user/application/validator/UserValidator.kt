@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 @Component
 class UserValidator(
     private val userQueryPort: UserQueryPort,
-    private val passwordEncoder: PasswordEncoder
+    private val passwordEncoder: PasswordEncoder,
 ) {
     fun validateDuplicateLoginId(loginId: String) {
         userQueryPort.findByLoginId(loginId).ifPresent {
@@ -18,7 +18,10 @@ class UserValidator(
         }
     }
 
-    fun validateDuplicateNickname(nickname: String, currentUserId: Long? = null) {
+    fun validateDuplicateNickname(
+        nickname: String,
+        currentUserId: Long? = null,
+    ) {
         userQueryPort.findByNickname(nickname).ifPresent { foundUser ->
             if (currentUserId == null || foundUser.id != currentUserId) {
                 throw DuplicateNicknameException()
@@ -26,7 +29,10 @@ class UserValidator(
         }
     }
 
-    fun validateOldPassword(rawOldPassword: String, storedHashedPassword: String) {
+    fun validateOldPassword(
+        rawOldPassword: String,
+        storedHashedPassword: String,
+    ) {
         if (!passwordEncoder.matches(rawOldPassword, storedHashedPassword)) {
             throw PasswordMismatchException()
         }

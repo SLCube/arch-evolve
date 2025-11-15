@@ -17,9 +17,8 @@ import java.util.concurrent.Executors
 @SpringBootTest
 class ProductServiceTest(
     @param:Autowired private val productUseCase: ProductUseCase,
-    @param:Autowired private val productRepository: ProductRepository
+    @param:Autowired private val productRepository: ProductRepository,
 ) {
-
     private var productId: Long = 0L
 
     @BeforeEach

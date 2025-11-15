@@ -1,7 +1,6 @@
 package com.playground.common.constant
 
 object ValidationConstants {
-
     const val USER_LOGIN_ID_MIN_SIZE = 4
     const val USER_LOGIN_ID_MAX_SIZE = 20
 

@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus
 enum class ErrorCode(
     val code: String,
     val httpStatus: HttpStatus,
-    private val messageFormat: String
+    private val messageFormat: String,
 ) {
     // Common
     INVALID_INPUT("INVALID_INPUT", HttpStatus.BAD_REQUEST, "입력값이 유효하지 않습니다."),
@@ -25,10 +25,8 @@ enum class ErrorCode(
     INSUFFICIENT_STOCK("INSUFFICIENT_STOCK", HttpStatus.BAD_REQUEST, "재고가 부족합니다. (상품 ID: %d, 현재 재고: %d, 요청 수량: %d)"),
 
     // Order
-    ORDERABLE_PRODUCT_NOT_FOUND("ORDERABLE_PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "주문하려는 상품을 찾을 수 없습니다. (상품 ID: %d)")
+    ORDERABLE_PRODUCT_NOT_FOUND("ORDERABLE_PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "주문하려는 상품을 찾을 수 없습니다. (상품 ID: %d)"),
     ;
 
-    fun message(vararg args: Any?): String {
-        return String.format(messageFormat, *args)
-    }
+    fun message(vararg args: Any?): String = String.format(messageFormat, *args)
 }

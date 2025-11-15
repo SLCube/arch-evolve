@@ -7,13 +7,12 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 
 class JwtAuthenticationFilter(
-    private val jwtTokenProvider: JwtTokenProvider
-): OncePerRequestFilter() {
-
+    private val jwtTokenProvider: JwtTokenProvider,
+) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val token = resolveToken(request)
 
@@ -27,7 +26,7 @@ class JwtAuthenticationFilter(
 
     private fun resolveToken(request: HttpServletRequest): String? {
         val bearerToken = request.getHeader("Authorization")
-        if(bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7)
         }
         return null

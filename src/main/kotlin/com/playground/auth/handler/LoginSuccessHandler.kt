@@ -14,15 +14,13 @@ import java.nio.charset.StandardCharsets
 @Component
 class LoginSuccessHandler(
     private val jwtTokenProvider: JwtTokenProvider,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) : AuthenticationSuccessHandler {
-
     override fun onAuthenticationSuccess(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authentication: Authentication
+        authentication: Authentication,
     ) {
-
         val accessToken = jwtTokenProvider.generateToken(authentication)
 
         response.status = HttpServletResponse.SC_OK

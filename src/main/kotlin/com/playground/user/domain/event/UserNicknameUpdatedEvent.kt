@@ -6,5 +6,5 @@ data class UserNicknameUpdatedEvent(
     val userId: Long,
     val loginId: String,
     val oldNickname: String,
-    val newNickname: String
+    val newNickname: String,
 ) : DomainEvent

@@ -9,17 +9,17 @@ import org.springframework.transaction.annotation.Transactional
 
 @Component
 class ProductEventConsumer(
-    private val productUseCase: ProductUseCase
+    private val productUseCase: ProductUseCase,
 ) {
-
     @EventListener
     @Transactional
     fun handleOrderCreatedEvent(event: OrderCreatedEvent) {
         event.products.forEach { productDetail ->
-            val command = DecreaseStockCommand(
-                id = productDetail.productId,
-                quantity = productDetail.quantity
-            )
+            val command =
+                DecreaseStockCommand(
+                    id = productDetail.productId,
+                    quantity = productDetail.quantity,
+                )
 
             productUseCase.decreaseStock(command)
         }

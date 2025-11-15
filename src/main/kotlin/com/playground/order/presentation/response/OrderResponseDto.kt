@@ -9,18 +9,17 @@ data class OrderResponseDto(
     val userId: Long,
     val totalPrice: Long,
     val status: OrderStatus,
-    val orderProducts: List<OrderProductResponseDto>
+    val orderProducts: List<OrderProductResponseDto>,
 ) {
     companion object {
-        fun toResponse(order: Order): OrderResponseDto {
-            return OrderResponseDto(
+        fun toResponse(order: Order): OrderResponseDto =
+            OrderResponseDto(
                 id = order.id!!,
                 userId = order.userId,
                 totalPrice = order.totalPrice,
                 status = order.status,
-                orderProducts = order.orderProducts.map { OrderProductResponseDto.toResponse(it) }
+                orderProducts = order.orderProducts.map { OrderProductResponseDto.toResponse(it) },
             )
-        }
     }
 }
 
@@ -28,16 +27,15 @@ data class OrderProductResponseDto(
     val id: Long,
     val productId: Long,
     val quantity: Int,
-    val price: Long
+    val price: Long,
 ) {
     companion object {
-        fun toResponse(orderProduct: OrderProduct): OrderProductResponseDto {
-            return OrderProductResponseDto(
+        fun toResponse(orderProduct: OrderProduct): OrderProductResponseDto =
+            OrderProductResponseDto(
                 id = orderProduct.id!!,
                 productId = orderProduct.productId,
                 quantity = orderProduct.quantity,
-                price = orderProduct.price
+                price = orderProduct.price,
             )
-        }
     }
 }

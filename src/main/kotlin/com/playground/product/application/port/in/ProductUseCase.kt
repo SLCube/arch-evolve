@@ -8,8 +8,12 @@ import com.playground.product.domain.Product
 
 interface ProductUseCase {
     fun saveProduct(command: SaveProductCommand): Product
+
     fun updateProduct(command: UpdateProductCommand): Product
+
     fun getProduct(query: GetProductQuery): Product
+
     fun getAllProducts(): List<Product>
+
     fun decreaseStock(command: DecreaseStockCommand): Product
 }

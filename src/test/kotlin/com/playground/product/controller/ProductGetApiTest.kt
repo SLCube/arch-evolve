@@ -20,9 +20,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Suppress("NonAsciiCharacters")
 @WithMockUser
 class ProductGetApiTest(
-    @param:Autowired private val productRepository: ProductRepository
+    @param:Autowired private val productRepository: ProductRepository,
 ) : ApiTest() {
-
     @Test
     fun `상품 단일 조회 - 성공`() {
         val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
@@ -32,23 +31,25 @@ class ProductGetApiTest(
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(savedProductJpaEntity.id)
             expectedStatus = status().isOk
-            additionalMatchers = arrayOf(
-                jsonPath("$.id").value(savedProductJpaEntity.id),
-                jsonPath("$.name").value(savedProductJpaEntity.name),
-                jsonPath("$.stock").value(savedProductJpaEntity.stock),
-                jsonPath("$.price").value(savedProductJpaEntity.price)
-            )
-            snippets = arrayOf(
-                pathParameters(
-                    parameterWithName("id").description("상품 ID")
-                ),
-                responseFields(
-                    fieldWithPath("id").description("상품 ID"),
-                    fieldWithPath("name").description("상품 이름"),
-                    fieldWithPath("stock").description("재고량"),
-                    fieldWithPath("price").description("상품 가격")
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.id").value(savedProductJpaEntity.id),
+                    jsonPath("$.name").value(savedProductJpaEntity.name),
+                    jsonPath("$.stock").value(savedProductJpaEntity.stock),
+                    jsonPath("$.price").value(savedProductJpaEntity.price),
                 )
-            )
+            snippets =
+                arrayOf(
+                    pathParameters(
+                        parameterWithName("id").description("상품 ID"),
+                    ),
+                    responseFields(
+                        fieldWithPath("id").description("상품 ID"),
+                        fieldWithPath("name").description("상품 이름"),
+                        fieldWithPath("stock").description("재고량"),
+                        fieldWithPath("price").description("상품 가격"),
+                    ),
+                )
         }
     }
 
@@ -61,13 +62,15 @@ class ProductGetApiTest(
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(nonExistingId)
             expectedStatus = status().isNotFound
-            additionalMatchers = arrayOf(
-                jsonPath("$.code").value(ErrorCode.PRODUCT_NOT_FOUND.code),
-                jsonPath("$.message").value(ErrorCode.PRODUCT_NOT_FOUND.message(nonExistingId))
-            )
-            snippets = arrayOf(
-                responseFields(commonErrorResponseSnippet())
-            )
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.code").value(ErrorCode.PRODUCT_NOT_FOUND.code),
+                    jsonPath("$.message").value(ErrorCode.PRODUCT_NOT_FOUND.message(nonExistingId)),
+                )
+            snippets =
+                arrayOf(
+                    responseFields(commonErrorResponseSnippet()),
+                )
         }
     }
 
@@ -80,9 +83,10 @@ class ProductGetApiTest(
             httpMethod = HttpMethod.GET
             urlTemplate = "/products"
             expectedStatus = status().isOk
-            additionalMatchers = arrayOf(
-                jsonPath("$.length()").value(2)
-            )
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.length()").value(2),
+                )
         }
     }
 }

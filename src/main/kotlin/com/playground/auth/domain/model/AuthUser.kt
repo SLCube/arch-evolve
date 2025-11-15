@@ -7,15 +7,13 @@ data class AuthUser(
     val userId: Long,
     private val loginId: String,
     private val password: String,
-    private val authorities: Collection<GrantedAuthority>
-): UserDetails {
+    private val authorities: Collection<GrantedAuthority>,
+) : UserDetails {
     override fun getAuthorities(): Collection<GrantedAuthority?> = this.authorities
 
     override fun getPassword(): String = password
 
     override fun getUsername(): String = this.loginId
 
-    override fun toString(): String {
-        return "AuthUser(userId=$userId, loginId='$loginId', password='****', authorities=$authorities)"
-    }
+    override fun toString(): String = "AuthUser(userId=$userId, loginId='$loginId', password='****', authorities=$authorities)"
 }

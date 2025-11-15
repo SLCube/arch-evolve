@@ -20,24 +20,25 @@ import org.springframework.transaction.annotation.Transactional
 class ProductService(
     private val productCommandPort: ProductCommandPort,
     private val productQueryPort: ProductQueryPort,
-    private val productEventPort: ProductEventPort
-): ProductUseCase {
-
+    private val productEventPort: ProductEventPort,
+) : ProductUseCase {
     override fun saveProduct(command: SaveProductCommand): Product {
-        val product = Product(
-            name = command.name,
-            stock = command.stock,
-            price = command.price
-        )
+        val product =
+            Product(
+                name = command.name,
+                stock = command.stock,
+                price = command.price,
+            )
 
         val savedProduct = productCommandPort.save(product)
 
-        val event = ProductCreatedEvent(
-            productId = requireNotNull(savedProduct.id),
-            name = savedProduct.name,
-            stock = savedProduct.stock,
-            price = savedProduct.price
-        )
+        val event =
+            ProductCreatedEvent(
+                productId = requireNotNull(savedProduct.id),
+                name = savedProduct.name,
+                stock = savedProduct.stock,
+                price = savedProduct.price,
+            )
         productEventPort.publish(event)
 
         return savedProduct
@@ -53,34 +54,31 @@ class ProductService(
         product.update(
             name = command.name,
             stock = command.stock,
-            price = command.price
+            price = command.price,
         )
 
         val updatedProduct = productCommandPort.update(product)
 
-        val event = ProductUpdatedEvent(
-            productId = requireNotNull(updatedProduct.id),
-            oldName = oldName,
-            newName = updatedProduct.name,
-            oldStock = oldStock,
-            newStock = updatedProduct.stock,
-            oldPrice = oldPrice,
-            newPrice = updatedProduct.price
-        )
+        val event =
+            ProductUpdatedEvent(
+                productId = requireNotNull(updatedProduct.id),
+                oldName = oldName,
+                newName = updatedProduct.name,
+                oldStock = oldStock,
+                newStock = updatedProduct.stock,
+                oldPrice = oldPrice,
+                newPrice = updatedProduct.price,
+            )
         productEventPort.publish(event)
 
         return updatedProduct
     }
 
     @Transactional(readOnly = true)
-    override fun getProduct(query: GetProductQuery): Product {
-        return productQueryPort.findById(query.id)
-    }
+    override fun getProduct(query: GetProductQuery): Product = productQueryPort.findById(query.id)
 
     @Transactional(readOnly = true)
-    override fun getAllProducts(): List<Product> {
-        return productQueryPort.findAll()
-    }
+    override fun getAllProducts(): List<Product> = productQueryPort.findAll()
 
     override fun decreaseStock(command: DecreaseStockCommand): Product {
         val product = productQueryPort.findByIdWithPessimisticLock(command.id)
@@ -92,13 +90,14 @@ class ProductService(
 
         val updatedProduct = productCommandPort.update(product)
 
-        val event = ProductStockDecreasedEvent(
-            productId = requireNotNull(updatedProduct.id),
-            productName = updatedProduct.name,
-            oldStock = oldStock,
-            decreasedQuantity = decreasedQuantity,
-            newStock = updatedProduct.stock
-        )
+        val event =
+            ProductStockDecreasedEvent(
+                productId = requireNotNull(updatedProduct.id),
+                productName = updatedProduct.name,
+                oldStock = oldStock,
+                decreasedQuantity = decreasedQuantity,
+                newStock = updatedProduct.stock,
+            )
         productEventPort.publish(event)
 
         return updatedProduct

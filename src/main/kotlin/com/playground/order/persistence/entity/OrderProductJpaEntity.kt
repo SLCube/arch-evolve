@@ -19,29 +19,27 @@ class OrderProductJpaEntity(
     @Column(name = "order_item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     var orderJpaEntity: OrderJpaEntity,
-
     @Column(nullable = false)
     val productId: Long,
-
     @Column(nullable = false)
     val quantity: Int,
-
     @Column(nullable = false)
-    val price: Long
-): BaseEntity() {
+    val price: Long,
+) : BaseEntity() {
     companion object {
-        fun toJpaEntity(domain: OrderProduct, orderJpaEntity: OrderJpaEntity): OrderProductJpaEntity {
-            return OrderProductJpaEntity(
+        fun toJpaEntity(
+            domain: OrderProduct,
+            orderJpaEntity: OrderJpaEntity,
+        ): OrderProductJpaEntity =
+            OrderProductJpaEntity(
                 id = domain.id,
                 orderJpaEntity = orderJpaEntity,
                 productId = domain.productId,
                 quantity = domain.quantity,
-                price = domain.price
+                price = domain.price,
             )
-        }
     }
 }

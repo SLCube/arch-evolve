@@ -10,7 +10,6 @@ import org.springframework.transaction.event.TransactionalEventListener
 
 @Component
 class ProductLoggingEventConsumer {
-
     private val log = logger()
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -20,7 +19,7 @@ class ProductLoggingEventConsumer {
             event.productId,
             event.name,
             event.stock,
-            event.price
+            event.price,
         )
     }
 
@@ -34,7 +33,7 @@ class ProductLoggingEventConsumer {
             event.oldStock,
             event.newStock,
             event.oldPrice,
-            event.newPrice
+            event.newPrice,
         )
     }
 
@@ -46,7 +45,7 @@ class ProductLoggingEventConsumer {
             event.productName,
             event.oldStock,
             event.decreasedQuantity,
-            event.newStock
+            event.newStock,
         )
     }
 }

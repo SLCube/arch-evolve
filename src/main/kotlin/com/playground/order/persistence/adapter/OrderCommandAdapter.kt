@@ -12,21 +12,23 @@ import org.springframework.stereotype.Component
 @Component
 class OrderCommandAdapter(
     private val orderRepository: OrderRepository,
-    private val orderProductRepository: OrderProductRepository
-): OrderCommandPort {
+    private val orderProductRepository: OrderProductRepository,
+) : OrderCommandPort {
     override fun save(order: Order): Order {
         val orderJpaEntity = OrderJpaEntity.toJpaEntity(order)
         val savedOrderJpaEntity = orderRepository.save(orderJpaEntity)
 
-        val orderProductJpaEntities = order.orderProducts.map { orderProduct ->
-            OrderProductJpaEntity.toJpaEntity(orderProduct, savedOrderJpaEntity)
-        }
+        val orderProductJpaEntities =
+            order.orderProducts.map { orderProduct ->
+                OrderProductJpaEntity.toJpaEntity(orderProduct, savedOrderJpaEntity)
+            }
 
         val savedOrderProductJpaEntities = orderProductRepository.saveAll(orderProductJpaEntities)
 
-        val orderProducts = savedOrderProductJpaEntities.map { orderProductJpaEntity ->
-            orderProductJpaEntity.toDomain()
-        }
+        val orderProducts =
+            savedOrderProductJpaEntities.map { orderProductJpaEntity ->
+                orderProductJpaEntity.toDomain()
+            }
 
         return savedOrderJpaEntity.toDomain(orderProducts.toMutableList())
     }

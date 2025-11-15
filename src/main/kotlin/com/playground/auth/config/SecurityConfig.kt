@@ -1,7 +1,6 @@
 package com.playground.auth.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.common.constant.ApiConstants
 import com.playground.auth.filter.JsonAuthenticationFilter
 import com.playground.auth.handler.CustomAccessDeniedHandler
 import com.playground.auth.handler.CustomAuthenticationEntryPoint
@@ -9,6 +8,7 @@ import com.playground.auth.handler.LoginFailureHandler
 import com.playground.auth.handler.LoginSuccessHandler
 import com.playground.auth.jwt.JwtAuthenticationFilter
 import com.playground.auth.jwt.JwtTokenProvider
+import com.playground.common.constant.ApiConstants
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -32,13 +32,10 @@ class SecurityConfig(
     private val accessDeniedHandler: CustomAccessDeniedHandler,
     private val authenticationEntryPoint: CustomAuthenticationEntryPoint,
     private val objectMapper: ObjectMapper,
-    private val authenticationConfiguration: AuthenticationConfiguration
+    private val authenticationConfiguration: AuthenticationConfiguration,
 ) {
-
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -53,25 +50,27 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/users/sign-up", "/users/login").permitAll()
-                    .requestMatchers(HttpMethod.GET, ApiConstants.PRODUCT_API_BASE_PATH).hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(HttpMethod.POST, ApiConstants.PRODUCT_API_BASE_PATH).hasAnyRole("ADMIN")
-                    .requestMatchers(HttpMethod.PATCH, ApiConstants.PRODUCT_API_BASE_PATH).hasAnyRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, ApiConstants.PRODUCT_API_BASE_PATH).hasAnyRole("ADMIN")
-                    .anyRequest().authenticated()
-            }
-            .addFilterBefore(
+                    .requestMatchers("/users/sign-up", "/users/login")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, ApiConstants.PRODUCT_API_BASE_PATH)
+                    .hasAnyRole("USER", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, ApiConstants.PRODUCT_API_BASE_PATH)
+                    .hasAnyRole("ADMIN")
+                    .requestMatchers(HttpMethod.PATCH, ApiConstants.PRODUCT_API_BASE_PATH)
+                    .hasAnyRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, ApiConstants.PRODUCT_API_BASE_PATH)
+                    .hasAnyRole("ADMIN")
+                    .anyRequest()
+                    .authenticated()
+            }.addFilterBefore(
                 JwtAuthenticationFilter(jwtTokenProvider),
-                UsernamePasswordAuthenticationFilter::class.java
-            )
-            .addFilterAt(
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).addFilterAt(
                 jsonAuthenticationFilter,
-                UsernamePasswordAuthenticationFilter::class.java
-            )
-            .exceptionHandling {
+                UsernamePasswordAuthenticationFilter::class.java,
+            ).exceptionHandling {
                 it.authenticationEntryPoint(authenticationEntryPoint)
                 it.accessDeniedHandler(accessDeniedHandler)
-            }
-            .build()
+            }.build()
     }
 }

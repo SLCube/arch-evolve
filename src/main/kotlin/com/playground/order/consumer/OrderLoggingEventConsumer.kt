@@ -7,7 +7,6 @@ import org.springframework.transaction.event.TransactionalEventListener
 
 @Component
 class OrderLoggingEventConsumer {
-
     private val log = logger()
 
     @TransactionalEventListener
@@ -16,7 +15,7 @@ class OrderLoggingEventConsumer {
             "New order created. orderId={}, userId={}, productsCount={}",
             event.orderId,
             event.userId,
-            event.products.size
+            event.products.size,
         )
     }
 }

@@ -5,6 +5,7 @@ plugins {
     kotlin("plugin.spring") version "1.9.22"
     kotlin("plugin.jpa") version "1.9.22"
     id("org.asciidoctor.jvm.convert") version "4.0.2"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 val kotestVersion = "5.8.0"
@@ -82,7 +83,7 @@ tasks.asciidoctor {
     inputs.dir(snippetsDir)
     dependsOn(tasks.test)
     attributes(
-        mapOf("snippets" to snippetsDir)
+        mapOf("snippets" to snippetsDir),
     )
 }
 
@@ -91,7 +92,6 @@ tasks.register("buildDocs") {
     description = "Builds the API documentation."
     dependsOn(tasks.asciidoctor)
 }
-
 
 tasks.bootJar {
     from(tasks.asciidoctor.get().outputDir) {
@@ -105,4 +105,19 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<ProcessResources> {
     filteringCharset = "UTF-8"
+}
+
+ktlint {
+    version.set("1.3.1")
+    verbose.set(true)
+    android.set(false)
+    outputToConsole.set(true)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+    }
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
+    }
 }

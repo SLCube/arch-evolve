@@ -9,5 +9,5 @@ data class ProductUpdateRequestDto(
     @field:PositiveOrZero(message = "{product.stock.positive-or-zero}")
     val stock: Int,
     @field:PositiveOrZero(message = "{product.price.positive-or-zero}")
-    val price: Long
+    val price: Long,
 )

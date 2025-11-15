@@ -9,7 +9,6 @@ import org.springframework.transaction.event.TransactionalEventListener
 
 @Component
 class UserLoggingEventConsumer {
-
     private val log = logger()
 
     @TransactionalEventListener
@@ -24,7 +23,7 @@ class UserLoggingEventConsumer {
             event.userId,
             event.loginId,
             event.oldNickname,
-            event.newNickname
+            event.newNickname,
         )
     }
 

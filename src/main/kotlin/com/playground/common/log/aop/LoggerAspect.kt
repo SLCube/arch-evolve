@@ -12,7 +12,6 @@ import java.util.Optional
 @Aspect
 @Component
 class LoggerAspect {
-
     private val log = logger()
 
     @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
@@ -39,15 +38,19 @@ class LoggerAspect {
     }
 
     @AfterReturning(pointcut = "controller() || service() || adapter()", returning = "result")
-    fun logMethodEnd(joinPoint: JoinPoint, result: Any?) {
+    fun logMethodEnd(
+        joinPoint: JoinPoint,
+        result: Any?,
+    ) {
         val signature = joinPoint.signature
         val methodName = signature.toShortString()
 
-        val resultValue = if (result is Optional<*>) {
-            result.map { it.toString() }.orElse("empty")
-        } else {
-            result.toString()
-        }
+        val resultValue =
+            if (result is Optional<*>) {
+                result.map { it.toString() }.orElse("empty")
+            } else {
+                result.toString()
+            }
 
         log.debug("<== Method End: {} with result: [{}]", methodName, resultValue)
     }

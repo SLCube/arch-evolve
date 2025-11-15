@@ -8,9 +8,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class OrderProductProvider(
-    private val orderProductQueryPort: OrderProductQueryPort
+    private val orderProductQueryPort: OrderProductQueryPort,
 ) {
-
     fun getVerifiedProductInfos(command: OrderCreateCommand): Map<Long, ProductInfo> {
         val productIds = command.orderProducts.map { it.productId }
         val productInfoMap = orderProductQueryPort.getProductInfos(productIds)

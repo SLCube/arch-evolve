@@ -9,5 +9,5 @@ data class ProductUpdatedEvent(
     val oldStock: Int,
     val newStock: Int,
     val oldPrice: Long,
-    val newPrice: Long
+    val newPrice: Long,
 ) : DomainEvent

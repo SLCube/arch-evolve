@@ -5,9 +5,12 @@ import org.springframework.stereotype.Component
 
 @Component
 class AuthChecker(
-    private val authInfoPort: AuthInfoPort
+    private val authInfoPort: AuthInfoPort,
 ) {
-    fun isOwner(username: String, userId: Long): Boolean {
+    fun isOwner(
+        username: String,
+        userId: Long,
+    ): Boolean {
         val loginId = authInfoPort.getLoginIdById(userId) ?: return false
         return loginId == username
     }

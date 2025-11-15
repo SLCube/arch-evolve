@@ -14,15 +14,14 @@ import java.nio.charset.StandardCharsets
 
 @Component
 class LoginFailureHandler(
-    private val objectMapper: ObjectMapper
-): AuthenticationFailureHandler {
-
+    private val objectMapper: ObjectMapper,
+) : AuthenticationFailureHandler {
     private val log = logger()
 
     override fun onAuthenticationFailure(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        exception: AuthenticationException
+        exception: AuthenticationException,
     ) {
         log.warn("Authentication failed: {}", exception.message)
 
@@ -30,10 +29,11 @@ class LoginFailureHandler(
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.characterEncoding = StandardCharsets.UTF_8.name()
 
-        val errorResponse = ErrorResponse(
-            code = ErrorCode.UNAUTHORIZED.code,
-            message = ErrorCode.UNAUTHORIZED.message(),
-        )
+        val errorResponse =
+            ErrorResponse(
+                code = ErrorCode.UNAUTHORIZED.code,
+                message = ErrorCode.UNAUTHORIZED.message(),
+            )
 
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
     }

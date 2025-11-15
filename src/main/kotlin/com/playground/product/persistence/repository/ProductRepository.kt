@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query
 import java.util.Optional
 
 interface ProductRepository : JpaRepository<ProductJpaEntity, Long> {
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from ProductJpaEntity p where p.id = :id")
     fun findByIdWithPessimisticLock(id: Long): Optional<ProductJpaEntity>

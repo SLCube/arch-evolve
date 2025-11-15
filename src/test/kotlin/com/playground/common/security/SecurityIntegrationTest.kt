@@ -25,42 +25,47 @@ class SecurityIntegrationTest(
     @param:Autowired private val mockMvc: MockMvc,
     @param:Autowired private val objectMapper: ObjectMapper,
     @param:Autowired private val userRepository: UserRepository,
-    @param:Autowired private val passwordEncoder: PasswordEncoder
+    @param:Autowired private val passwordEncoder: PasswordEncoder,
 ) {
-
     @Test
     fun `실제 JWT 토큰으로 인증 - 성공, 보호된 API에 접근할 수 있다`() {
-        val testUserJpaEntity = UserJpaEntity(
-            loginId = "testUser",
-            password = passwordEncoder.encode("password123"),
-            nickname = "테스트유저"
-        )
+        val testUserJpaEntity =
+            UserJpaEntity(
+                loginId = "testUser",
+                password = passwordEncoder.encode("password123"),
+                nickname = "테스트유저",
+            )
         userRepository.save(testUserJpaEntity)
 
-        val loginRequest = AuthLoginRequestDto(
-            loginId = "testUser",
-            password = "password123"
-        )
+        val loginRequest =
+            AuthLoginRequestDto(
+                loginId = "testUser",
+                password = "password123",
+            )
 
-        val loginResult = mockMvc.post("/users/login") {
-            contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(loginRequest)
-        }.andExpect {
-            status { isOk() }
-        }.andReturn()
+        val loginResult =
+            mockMvc
+                .post("/users/login") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(loginRequest)
+                }.andExpect {
+                    status { isOk() }
+                }.andReturn()
 
         val accessToken = objectMapper.readTree(loginResult.response.contentAsString).get("accessToken").asText()
 
-        mockMvc.get("/products") {
-            header("Authorization", "Bearer $accessToken")
-        }.andExpect {
-            status { isOk() }
-        }
+        mockMvc
+            .get("/products") {
+                header("Authorization", "Bearer $accessToken")
+            }.andExpect {
+                status { isOk() }
+            }
     }
 
     @Test
     fun `인증 없이 보호된 API에 접근 - 실패, 401 Unauthorized를 반환한다`() {
-        mockMvc.get("/products")
+        mockMvc
+            .get("/products")
             .andExpect {
                 status { isUnauthorized() }
             }
@@ -68,39 +73,45 @@ class SecurityIntegrationTest(
 
     @Test
     fun `USER 권한으로 ADMIN 전용 API 접근 - 실패, 403 Forbidden을 반환한다`() {
-        val userJpaEntity = UserJpaEntity(
-            loginId = "user",
-            password = passwordEncoder.encode("password123"),
-            nickname = "일반유저",
-            role = UserRole.USER
-        )
+        val userJpaEntity =
+            UserJpaEntity(
+                loginId = "user",
+                password = passwordEncoder.encode("password123"),
+                nickname = "일반유저",
+                role = UserRole.USER,
+            )
         userRepository.save(userJpaEntity)
 
-        val loginRequest = AuthLoginRequestDto(
-            loginId = "user",
-            password = "password123"
-        )
-        val loginResult = mockMvc.post("/users/login") {
-            contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(loginRequest)
-        }.andExpect {
-            status { isOk() }
-        }.andReturn()
+        val loginRequest =
+            AuthLoginRequestDto(
+                loginId = "user",
+                password = "password123",
+            )
+        val loginResult =
+            mockMvc
+                .post("/users/login") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(loginRequest)
+                }.andExpect {
+                    status { isOk() }
+                }.andReturn()
 
         val accessToken = objectMapper.readTree(loginResult.response.contentAsString).get("accessToken").asText()
 
-        val requestDto = ProductSaveRequestDto(
-            name = "새 상품",
-            stock = 10,
-            price = 10000L
-        )
+        val requestDto =
+            ProductSaveRequestDto(
+                name = "새 상품",
+                stock = 10,
+                price = 10000L,
+            )
 
-        mockMvc.post("/products") {
-            header("Authorization", "Bearer $accessToken")
-            contentType = MediaType.APPLICATION_JSON
-            content = requestDto
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .post("/products") {
+                header("Authorization", "Bearer $accessToken")
+                contentType = MediaType.APPLICATION_JSON
+                content = requestDto
+            }.andExpect {
+                status { isForbidden() }
+            }
     }
 }

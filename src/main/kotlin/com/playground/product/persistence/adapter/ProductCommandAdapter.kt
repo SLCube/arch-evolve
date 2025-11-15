@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class ProductCommandAdapter(
-    private val productRepository: ProductRepository
-): ProductCommandPort {
+    private val productRepository: ProductRepository,
+) : ProductCommandPort {
     override fun save(product: Product): Product {
         val productJpaEntity = ProductJpaEntity.toJpaEntity(product)
         val savedEntity = productRepository.save(productJpaEntity)
@@ -19,11 +19,12 @@ class ProductCommandAdapter(
     }
 
     override fun update(product: Product): Product {
-
         val productId = requireNotNull(product.id) { "Product ID must not be null for update" }
 
-        val productJpaEntity = productRepository.findById(productId)
-            .orElseThrow { ProductNotFoundException(productId) }
+        val productJpaEntity =
+            productRepository
+                .findById(productId)
+                .orElseThrow { ProductNotFoundException(productId) }
 
         productJpaEntity.updateFromDomain(product)
 

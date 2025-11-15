@@ -5,9 +5,7 @@ import com.playground.order.domain.model.Order
 import org.springframework.stereotype.Component
 
 @Component
-class OrderQueryAdapter(
-
-): OrderQueryPort {
+class OrderQueryAdapter : OrderQueryPort {
     override fun findById(orderId: Long): Order {
         TODO("Not yet implemented")
     }

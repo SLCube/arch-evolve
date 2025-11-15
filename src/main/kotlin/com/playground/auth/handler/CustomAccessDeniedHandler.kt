@@ -14,15 +14,14 @@ import java.nio.charset.StandardCharsets
 
 @Component
 class CustomAccessDeniedHandler(
-    private val objectMapper: ObjectMapper
-): AccessDeniedHandler {
-
+    private val objectMapper: ObjectMapper,
+) : AccessDeniedHandler {
     private val log = logger()
 
     override fun handle(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        accessDeniedException: AccessDeniedException
+        accessDeniedException: AccessDeniedException,
     ) {
         log.warn("Access denied: {}", accessDeniedException.message)
 
@@ -30,10 +29,11 @@ class CustomAccessDeniedHandler(
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.characterEncoding = StandardCharsets.UTF_8.name()
 
-        val errorResponse = ErrorResponse(
-            code = ErrorCode.FORBIDDEN.code,
-            message = ErrorCode.FORBIDDEN.message(),
-        )
+        val errorResponse =
+            ErrorResponse(
+                code = ErrorCode.FORBIDDEN.code,
+                message = ErrorCode.FORBIDDEN.message(),
+            )
 
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
     }

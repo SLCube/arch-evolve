@@ -6,5 +6,5 @@ data class ProductCreatedEvent(
     val productId: Long,
     val name: String,
     val stock: Int,
-    val price: Long
+    val price: Long,
 ) : DomainEvent

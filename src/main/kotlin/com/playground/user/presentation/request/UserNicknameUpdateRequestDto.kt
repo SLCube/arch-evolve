@@ -6,6 +6,10 @@ import jakarta.validation.constraints.Size
 
 data class UserNicknameUpdateRequestDto(
     @field:NotBlank(message = "{user.nickname.not-blank}")
-    @field:Size(min = ValidationConstants.USER_NICKNAME_MIN_SIZE, max = ValidationConstants.USER_NICKNAME_MAX_SIZE, message = "{user.nickname.size}")
-    val nickname: String
+    @field:Size(
+        min = ValidationConstants.USER_NICKNAME_MIN_SIZE,
+        max = ValidationConstants.USER_NICKNAME_MAX_SIZE,
+        message = "{user.nickname.size}",
+    )
+    val nickname: String,
 )

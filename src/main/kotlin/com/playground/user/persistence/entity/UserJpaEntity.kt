@@ -1,9 +1,16 @@
 package com.playground.user.persistence.entity
 
 import com.playground.common.jpa.domain.BaseEntity
-import com.playground.user.domain.model.User
 import com.playground.user.domain.enum.UserRole
-import jakarta.persistence.*
+import com.playground.user.domain.model.User
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
 @Table(name = "users")
@@ -15,23 +22,25 @@ class UserJpaEntity(
     var loginId: String,
     var password: String,
     var nickname: String,
-
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
-): BaseEntity() {
+) : BaseEntity() {
     companion object {
-        fun toJpaEntity(domain: User): UserJpaEntity {
-            return UserJpaEntity(
+        fun toJpaEntity(domain: User): UserJpaEntity =
+            UserJpaEntity(
                 id = domain.id,
                 loginId = domain.loginId,
                 password = domain.password,
                 nickname = domain.nickname,
-                role = domain.role
+                role = domain.role,
             )
-        }
     }
 
-    fun update(loginId: String, password: String, nickname: String) {
+    fun update(
+        loginId: String,
+        password: String,
+        nickname: String,
+    ) {
         this.loginId = loginId
         this.password = password
         this.nickname = nickname

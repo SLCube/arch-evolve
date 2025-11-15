@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserEventAdapter(
-    private val applicationEventPublisher: ApplicationEventPublisher
+    private val applicationEventPublisher: ApplicationEventPublisher,
 ) : UserEventPort {
     override fun publish(event: DomainEvent) {
         applicationEventPublisher.publishEvent(event)

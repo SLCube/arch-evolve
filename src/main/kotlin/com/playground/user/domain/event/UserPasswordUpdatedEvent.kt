@@ -4,5 +4,5 @@ import com.playground.common.event.DomainEvent
 
 data class UserPasswordUpdatedEvent(
     val userId: Long,
-    val loginId: String
+    val loginId: String,
 ) : DomainEvent

@@ -5,21 +5,19 @@ import com.playground.order.domain.model.OrderProduct
 import com.playground.order.persistence.entity.OrderJpaEntity
 import com.playground.order.persistence.entity.OrderProductJpaEntity
 
-fun OrderJpaEntity.toDomain(orderProducts: MutableList<OrderProduct>): Order {
-    return Order(
+fun OrderJpaEntity.toDomain(orderProducts: MutableList<OrderProduct>): Order =
+    Order(
         id = this.id,
         userId = this.userId,
         totalPrice = this.totalPrice,
         status = this.status,
-        orderProducts = orderProducts
+        orderProducts = orderProducts,
     )
-}
 
-fun OrderProductJpaEntity.toDomain(): OrderProduct {
-    return OrderProduct(
+fun OrderProductJpaEntity.toDomain(): OrderProduct =
+    OrderProduct(
         id = this.id,
         productId = this.productId,
         quantity = this.quantity,
-        price = this.price
+        price = this.price,
     )
-}

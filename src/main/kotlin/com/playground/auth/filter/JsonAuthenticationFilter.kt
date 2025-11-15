@@ -11,15 +11,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 class JsonAuthenticationFilter(
     private val objectMapper: ObjectMapper,
-    authenticationManager: AuthenticationManager
-): UsernamePasswordAuthenticationFilter(authenticationManager) {
-
+    authenticationManager: AuthenticationManager,
+) : UsernamePasswordAuthenticationFilter(authenticationManager) {
     init {
         this.setFilterProcessesUrl("/users/login")
     }
 
-    override fun attemptAuthentication(request: HttpServletRequest, response: HttpServletResponse): Authentication {
-
+    override fun attemptAuthentication(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+    ): Authentication {
         if (!request.contentType.equals("application/json", ignoreCase = true)) {
             return super.attemptAuthentication(request, response)
         }

@@ -17,13 +17,12 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/orders")
 class OrderController(
-    private val orderUseCase: OrderUseCase
+    private val orderUseCase: OrderUseCase,
 ) {
-
     @PostMapping
     fun createOrder(
         @AuthenticationPrincipal authUser: AuthUser,
-        @RequestBody @Valid request: OrderCreateRequestDto
+        @RequestBody @Valid request: OrderCreateRequestDto,
     ): ResponseEntity<OrderResponseDto> {
         val command = request.toCommand(authUser.userId)
         val createdOrder = orderUseCase.createOrder(command)

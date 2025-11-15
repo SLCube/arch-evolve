@@ -7,15 +7,14 @@ import org.springframework.stereotype.Component
 
 @Component
 class OrderProductQueryAdapter(
-    private val productQueryPort: ProductQueryPort
-): OrderProductQueryPort {
-
+    private val productQueryPort: ProductQueryPort,
+) : OrderProductQueryPort {
     override fun getProductInfos(productIds: List<Long>): Map<Long, ProductInfo> {
         val products = productQueryPort.findAllByIds(productIds)
 
         return products.associateBy(
             keySelector = { requireNotNull(it.id) },
-            valueTransform = { ProductInfo(productId = requireNotNull(it.id), price = it.price) }
+            valueTransform = { ProductInfo(productId = requireNotNull(it.id), price = it.price) },
         )
     }
 }

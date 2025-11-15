@@ -7,6 +7,8 @@ import com.playground.user.domain.model.User
 
 interface UserUseCase {
     fun signUp(command: SignUpCommand): User
+
     fun updateNickname(command: UpdateNicknameCommand): User
+
     fun updatePassword(command: UpdatePasswordCommand): User
 }

@@ -4,5 +4,5 @@ import com.playground.common.event.DomainEvent
 
 data class UserSignedUpEvent(
     val userId: Long,
-    val loginId: String
+    val loginId: String,
 ) : DomainEvent

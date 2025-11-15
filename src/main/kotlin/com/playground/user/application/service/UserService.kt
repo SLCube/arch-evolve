@@ -24,26 +24,26 @@ class UserService(
     private val userCommandPort: UserCommandPort,
     private val userEventPort: UserEventPort,
     private val userValidator: UserValidator,
-    private val passwordEncoder: PasswordEncoder
-): UserUseCase {
-
+    private val passwordEncoder: PasswordEncoder,
+) : UserUseCase {
     override fun signUp(command: SignUpCommand): User {
         userValidator.validateDuplicateLoginId(command.loginId)
         userValidator.validateDuplicateNickname(command.nickname)
 
-        val user = User(
-            loginId = command.loginId,
-            password = passwordEncoder.encode(command.password),
-            nickname = command.nickname
-        )
+        val user =
+            User(
+                loginId = command.loginId,
+                password = passwordEncoder.encode(command.password),
+                nickname = command.nickname,
+            )
 
         val savedUser = userCommandPort.save(user)
 
         userEventPort.publish(
             UserSignedUpEvent(
                 userId = requireNotNull(savedUser.id),
-                loginId = savedUser.loginId
-            )
+                loginId = savedUser.loginId,
+            ),
         )
 
         return savedUser
@@ -64,8 +64,8 @@ class UserService(
                 userId = requireNotNull(updatedUser.id),
                 loginId = updatedUser.loginId,
                 oldNickname = oldNickname,
-                newNickname = updatedUser.nickname
-            )
+                newNickname = updatedUser.nickname,
+            ),
         )
 
         return updatedUser
@@ -83,15 +83,15 @@ class UserService(
         userEventPort.publish(
             UserPasswordUpdatedEvent(
                 userId = requireNotNull(updatedUser.id),
-                loginId = updatedUser.loginId
-            )
+                loginId = updatedUser.loginId,
+            ),
         )
 
         return updatedUser
     }
 
-    private fun findUserById(userId: Long): User {
-        return userQueryPort.findById(userId)
+    private fun findUserById(userId: Long): User =
+        userQueryPort
+            .findById(userId)
             .orElseThrow { UserNotFoundException() }
-    }
 }

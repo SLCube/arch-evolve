@@ -15,16 +15,15 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Date
 import java.util.stream.Collectors
 import javax.crypto.SecretKey
 
 @Component
 class JwtTokenProvider(
     private val jwtProperties: JwtProperties,
-    private val userDetailsService: UserDetailsService
+    private val userDetailsService: UserDetailsService,
 ) {
-
     private val log = logger()
 
     private val secretKey: SecretKey by lazy {
@@ -32,14 +31,17 @@ class JwtTokenProvider(
     }
 
     fun generateToken(authentication: Authentication): String {
-        val authorities = authentication.authorities.stream()
-            .map { it: GrantedAuthority -> it.authority }
-            .collect(Collectors.joining(","))
+        val authorities =
+            authentication.authorities
+                .stream()
+                .map { it: GrantedAuthority -> it.authority }
+                .collect(Collectors.joining(","))
 
         val now = Instant.now()
         val expiration = now.plus(1, ChronoUnit.HOURS)
 
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .subject(authentication.name)
             .claim("auth", authorities)
             .issuedAt(Date.from(now))
@@ -51,9 +53,12 @@ class JwtTokenProvider(
     fun getAuthentication(token: String): Authentication {
         val claims = parseClaims(token)
 
-        val authorities = claims["auth"]?.toString()?.split(",")
-            ?.map { SimpleGrantedAuthority(it) }
-            ?: emptyList()
+        val authorities =
+            claims["auth"]
+                ?.toString()
+                ?.split(",")
+                ?.map { SimpleGrantedAuthority(it) }
+                ?: emptyList()
 
         val userDetails = userDetailsService.loadUserByUsername(claims.subject)
         return UsernamePasswordAuthenticationToken(userDetails, "", authorities)
@@ -77,11 +82,11 @@ class JwtTokenProvider(
         return false
     }
 
-    private fun parseClaims(token: String): Claims {
-        return Jwts.parser()
+    private fun parseClaims(token: String): Claims =
+        Jwts
+            .parser()
             .verifyWith(secretKey)
             .build()
             .parseSignedClaims(token)
             .payload
-    }
 }

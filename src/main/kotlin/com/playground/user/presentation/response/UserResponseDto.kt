@@ -7,8 +7,6 @@ data class UserResponseDto(
     val nickname: String,
 ) {
     companion object {
-        fun toResponse(domain: User): UserResponseDto {
-            return UserResponseDto(loginId = domain.loginId, nickname = domain.nickname)
-        }
+        fun toResponse(domain: User): UserResponseDto = UserResponseDto(loginId = domain.loginId, nickname = domain.nickname)
     }
 }

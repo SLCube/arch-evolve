@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class OrderEventAdapter(
-    private val publisher: ApplicationEventPublisher
-): OrderEventPort {
+    private val publisher: ApplicationEventPublisher,
+) : OrderEventPort {
     override fun publish(event: OrderCreatedEvent) {
         publisher.publishEvent(event)
     }

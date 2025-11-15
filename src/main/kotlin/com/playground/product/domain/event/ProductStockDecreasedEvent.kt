@@ -7,5 +7,5 @@ data class ProductStockDecreasedEvent(
     val productName: String,
     val oldStock: Int,
     val decreasedQuantity: Int,
-    val newStock: Int
+    val newStock: Int,
 ) : DomainEvent

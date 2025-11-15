@@ -2,7 +2,12 @@ package com.playground.product.persistence.entity
 
 import com.playground.common.jpa.domain.BaseEntity
 import com.playground.product.domain.Product
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 
 @Entity
 @Table(name = "products")
@@ -13,17 +18,16 @@ class ProductJpaEntity(
     val id: Long? = null,
     var name: String,
     var stock: Int,
-    var price: Long
-): BaseEntity() {
+    var price: Long,
+) : BaseEntity() {
     companion object {
-        fun toJpaEntity(domain: Product): ProductJpaEntity {
-            return ProductJpaEntity(
+        fun toJpaEntity(domain: Product): ProductJpaEntity =
+            ProductJpaEntity(
                 id = domain.id,
                 name = domain.name,
                 stock = domain.stock,
-                price = domain.price
+                price = domain.price,
             )
-        }
     }
 
     fun updateFromDomain(domain: Product) {

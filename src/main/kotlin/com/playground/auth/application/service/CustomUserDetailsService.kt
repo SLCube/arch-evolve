@@ -10,17 +10,19 @@ import org.springframework.stereotype.Service
 
 @Service
 class CustomUserDetailsService(
-    private val userQueryPort: UserQueryPort
-): UserDetailsService {
+    private val userQueryPort: UserQueryPort,
+) : UserDetailsService {
     override fun loadUserByUsername(username: String): UserDetails {
-        val user = userQueryPort.findByLoginId(username)
-            .orElseThrow { UsernameNotFoundException("User Not Found with loginId: $username") }
+        val user =
+            userQueryPort
+                .findByLoginId(username)
+                .orElseThrow { UsernameNotFoundException("User Not Found with loginId: $username") }
 
         return AuthUser(
             userId = user.id!!,
             loginId = user.loginId,
             password = user.password,
-            authorities = setOf(SimpleGrantedAuthority("ROLE_${user.role.name}"))
+            authorities = setOf(SimpleGrantedAuthority("ROLE_${user.role.name}")),
         )
     }
 }

@@ -11,20 +11,23 @@ import org.springframework.stereotype.Component
 
 @Component
 class UserLoadAdapter(
-    private val userRepository: UserRepository
-): UserLoadPort, AuthInfoPort {
+    private val userRepository: UserRepository,
+) : UserLoadPort,
+    AuthInfoPort {
     override fun loadUserByUsername(username: String): UserDetails {
-        val userJpaEntity = userRepository.findByLoginId(username)
-            .orElseThrow { UserNotFoundException() }
+        val userJpaEntity =
+            userRepository
+                .findByLoginId(username)
+                .orElseThrow { UserNotFoundException() }
 
         val authorities = listOf(SimpleGrantedAuthority("ROLE_${userJpaEntity.role.name}"))
 
         return User(userJpaEntity.loginId, userJpaEntity.password, authorities)
     }
 
-    override fun getLoginIdById(userId: Long): String? {
-        return userRepository.findById(userId)
+    override fun getLoginIdById(userId: Long): String? =
+        userRepository
+            .findById(userId)
             .map { it.loginId }
             .orElse(null)
-    }
 }

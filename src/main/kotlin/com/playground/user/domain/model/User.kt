@@ -8,9 +8,8 @@ class User(
     val loginId: String,
     var password: String,
     var nickname: String,
-    val role: UserRole = UserRole.USER
+    val role: UserRole = UserRole.USER,
 ) {
-
     fun updateNickname(newNickname: String) {
         if (this.nickname == newNickname) {
             throw SameNicknameException()
@@ -22,7 +21,5 @@ class User(
         this.password = encodedNewPassword
     }
 
-    override fun toString(): String {
-        return "User(id=$id, loginId='$loginId', password='****', nickname='$nickname', role=$role)"
-    }
+    override fun toString(): String = "User(id=$id, loginId='$loginId', password='****', nickname='$nickname', role=$role)"
 }

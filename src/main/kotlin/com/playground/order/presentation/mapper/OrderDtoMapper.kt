@@ -5,16 +5,14 @@ import com.playground.order.application.port.`in`.command.OrderProductCreateComm
 import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
 
-fun OrderCreateRequestDto.toCommand(userId: Long): OrderCreateCommand {
-    return OrderCreateCommand(
+fun OrderCreateRequestDto.toCommand(userId: Long): OrderCreateCommand =
+    OrderCreateCommand(
         userId = userId,
-        orderProducts = orderProducts.map { it.toCommand() }
+        orderProducts = orderProducts.map { it.toCommand() },
     )
-}
 
-fun OrderProductRequestDto.toCommand(): OrderProductCreateCommand {
-    return OrderProductCreateCommand(
+fun OrderProductRequestDto.toCommand(): OrderProductCreateCommand =
+    OrderProductCreateCommand(
         productId = productId,
-        quantity = quantity
+        quantity = quantity,
     )
-}

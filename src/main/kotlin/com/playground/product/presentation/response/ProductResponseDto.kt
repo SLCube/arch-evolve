@@ -6,7 +6,7 @@ data class ProductResponseDto(
     val id: Long,
     val name: String,
     val stock: Int,
-    val price: Long
+    val price: Long,
 ) {
     companion object {
         fun toResponse(domain: Product): ProductResponseDto {
@@ -15,7 +15,7 @@ data class ProductResponseDto(
                 productId,
                 domain.name,
                 domain.stock,
-                domain.price
+                domain.price,
             )
         }
     }

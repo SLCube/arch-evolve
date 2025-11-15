@@ -29,7 +29,6 @@ import org.springframework.web.context.WebApplicationContext
 @AutoConfigureMockMvc
 @ExtendWith(RestDocumentationExtension::class)
 abstract class ApiTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -49,38 +48,50 @@ abstract class ApiTest {
 
     @BeforeEach
     fun setUp(restDocumentation: RestDocumentationContextProvider) {
-        this.restDocsMockMvc = MockMvcBuilders
-            .webAppContextSetup(webApplicationContext)
-            .apply {
-                apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
-                apply<DefaultMockMvcBuilder>(springSecurity())
-            }
-            .build()
+        this.restDocsMockMvc =
+            MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply {
+                    apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
+                    apply<DefaultMockMvcBuilder>(springSecurity())
+                }.build()
     }
 
-    protected fun createUser(loginId: String, password: String, nickname: String, role: UserRole = UserRole.USER): UserJpaEntity {
-        val userJpaEntity = UserJpaEntity(
-            loginId = loginId,
-            password = passwordEncoder.encode(password),
-            nickname = nickname,
-            role = role
-        )
+    protected fun createUser(
+        loginId: String,
+        password: String,
+        nickname: String,
+        role: UserRole = UserRole.USER,
+    ): UserJpaEntity {
+        val userJpaEntity =
+            UserJpaEntity(
+                loginId = loginId,
+                password = passwordEncoder.encode(password),
+                nickname = nickname,
+                role = role,
+            )
 
         return userRepository.save(userJpaEntity)
     }
 
-    protected fun getAccessToken(loginId: String, password: String): String {
+    protected fun getAccessToken(
+        loginId: String,
+        password: String,
+    ): String {
         val loginRequest = AuthLoginRequestDto(loginId, password)
-        val loginResult = mockMvc.post("/users/login") {
-            contentType = MediaType.APPLICATION_JSON
-            content = objectMapper.writeValueAsString(loginRequest)
-        }.andExpect {
-            status { isOk() }
-        }.andReturn()
+        val loginResult =
+            mockMvc
+                .post("/users/login") {
+                    contentType = MediaType.APPLICATION_JSON
+                    content = objectMapper.writeValueAsString(loginRequest)
+                }.andExpect {
+                    status { isOk() }
+                }.andReturn()
 
-        return objectMapper.readValue(
-            loginResult.response.contentAsString,
-            AuthTokenResponseDto::class.java
-        ).accessToken
+        return objectMapper
+            .readValue(
+                loginResult.response.contentAsString,
+                AuthTokenResponseDto::class.java,
+            ).accessToken
     }
 }

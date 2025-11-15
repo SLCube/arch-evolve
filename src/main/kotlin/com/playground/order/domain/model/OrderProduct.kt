@@ -4,5 +4,5 @@ class OrderProduct(
     val id: Long? = null,
     val productId: Long,
     val quantity: Int,
-    val price: Long
+    val price: Long,
 )

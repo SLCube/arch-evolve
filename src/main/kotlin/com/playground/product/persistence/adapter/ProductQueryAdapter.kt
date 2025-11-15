@@ -9,25 +9,21 @@ import org.springframework.stereotype.Component
 
 @Component
 class ProductQueryAdapter(
-    private val productRepository: ProductRepository
-): ProductQueryPort {
-    override fun findById(id: Long): Product {
-        return productRepository.findById(id)
+    private val productRepository: ProductRepository,
+) : ProductQueryPort {
+    override fun findById(id: Long): Product =
+        productRepository
+            .findById(id)
             .orElseThrow { ProductNotFoundException(id) }
             .toDomain()
-    }
 
-    override fun findAll(): List<Product> {
-        return productRepository.findAll().map { it.toDomain() }
-    }
+    override fun findAll(): List<Product> = productRepository.findAll().map { it.toDomain() }
 
-    override fun findAllByIds(productIds: List<Long>): List<Product> {
-        return productRepository.findAllById(productIds).map { it.toDomain() }
-    }
+    override fun findAllByIds(productIds: List<Long>): List<Product> = productRepository.findAllById(productIds).map { it.toDomain() }
 
-    override fun findByIdWithPessimisticLock(id: Long): Product {
-        return productRepository.findByIdWithPessimisticLock(id)
+    override fun findByIdWithPessimisticLock(id: Long): Product =
+        productRepository
+            .findByIdWithPessimisticLock(id)
             .orElseThrow { ProductNotFoundException(id) }
             .toDomain()
-    }
 }

@@ -13,22 +13,22 @@ import java.nio.charset.StandardCharsets
 
 @Component
 class CustomAuthenticationEntryPoint(
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
 ) : AuthenticationEntryPoint {
-
     override fun commence(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        authException: AuthenticationException
+        authException: AuthenticationException,
     ) {
         response.status = HttpServletResponse.SC_UNAUTHORIZED
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.characterEncoding = StandardCharsets.UTF_8.name()
 
-        val errorResponse = ErrorResponse(
-            code = ErrorCode.UNAUTHORIZED.code,
-            message = ErrorCode.UNAUTHORIZED.message()
-        )
+        val errorResponse =
+            ErrorResponse(
+                code = ErrorCode.UNAUTHORIZED.code,
+                message = ErrorCode.UNAUTHORIZED.message(),
+            )
 
         response.writer.write(objectMapper.writeValueAsString(errorResponse))
     }
