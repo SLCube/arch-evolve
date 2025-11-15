@@ -26,6 +26,13 @@ enum class ErrorCode(
 
     // Order
     ORDERABLE_PRODUCT_NOT_FOUND("ORDERABLE_PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "주문하려는 상품을 찾을 수 없습니다. (상품 ID: %d)"),
+    ORDER_NOT_FOUND("ORDER_NOT_FOUND", HttpStatus.NOT_FOUND, "주문을 찾을 수 없습니다. (ID: %d)"),
+    ORDER_ACCESS_DENIED("ORDER_ACCESS_DENIED", HttpStatus.FORBIDDEN, "해당 주문에 대한 접근 권한이 없습니다. (주문 ID: %d, 사용자 ID: %d)"),
+    ORDER_STATUS_INVALID_FOR_CANCEL(
+        "ORDER_STATUS_INVALID_FOR_CANCEL",
+        HttpStatus.BAD_REQUEST,
+        "주문 상태가 PENDING 또는 COMPLETED일 때만 취소할 수 있습니다. (현재 상태: %s)",
+    ),
     ;
 
     fun message(vararg args: Any?): String = String.format(messageFormat, *args)

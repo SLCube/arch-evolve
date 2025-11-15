@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
 @WithMockUser
-class OrderApiTest(
+class OrderCreateApiTest(
     @param:Autowired private val productRepository: ProductRepository,
 ) : ApiTest() {
     @Test

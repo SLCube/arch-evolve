@@ -1,12 +1,14 @@
 package com.playground.order.application.service
 
 import com.playground.order.application.port.`in`.OrderUseCase
+import com.playground.order.application.port.`in`.command.OrderCancelCommand
 import com.playground.order.application.port.`in`.command.OrderCreateCommand
 import com.playground.order.application.port.out.OrderCommandPort
 import com.playground.order.application.port.out.OrderEventPort
 import com.playground.order.application.port.out.OrderQueryPort
 import com.playground.order.application.provider.OrderProductProvider
 import com.playground.order.domain.event.OrderCreatedEvent
+import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
 import com.playground.order.domain.vo.ProductInfo
@@ -74,5 +76,16 @@ class OrderService(
                 orderProductDetails,
             )
         orderEventPort.publish(orderCreatedEvent)
+    }
+
+    override fun cancelOrder(command: OrderCancelCommand): Order {
+        val foundOrder = orderQueryPort.findById(command.orderId)
+
+        if (foundOrder.userId != command.userId) {
+            throw OrderAccessDeniedException(command.orderId, command.userId)
+        }
+
+        foundOrder.cancelOrder()
+        return orderCommandPort.update(foundOrder)
     }
 }

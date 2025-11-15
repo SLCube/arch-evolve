@@ -36,4 +36,9 @@ class OrderJpaEntity(
                 status = domain.status,
             )
     }
+
+    fun updateFromDomain(order: Order) {
+        this.totalPrice = order.totalPrice
+        this.status = order.status
+    }
 }

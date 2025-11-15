@@ -2,6 +2,8 @@ package com.playground.order.application.port.out
 
 import com.playground.order.domain.model.Order
 
-fun interface OrderCommandPort {
+interface OrderCommandPort {
     fun save(order: Order): Order
+
+    fun update(order: Order): Order
 }

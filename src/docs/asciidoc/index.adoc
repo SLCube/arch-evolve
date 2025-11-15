@@ -378,3 +378,52 @@ include::{snippets}/주문 생성 - 실패, 주문 수량이 1개 미만/http-re
 include::{snippets}/주문 생성 - 실패, 인증되지 않은 사용자가 접근 시도/response-fields.adoc[]
 
 include::{snippets}/주문 생성 - 실패, 인증되지 않은 사용자가 접근 시도/http-response.adoc[]
+
+[[주문-취소]]
+=== 주문 취소
+
+`PATCH /orders/{orderId}/cancel`
+
+생성된 주문을 취소합니다. 주문 상태가 PENDING 또는 COMPLETED일 때만 취소 가능합니다.
+
+==== 요청
+
+===== 헤더
+
+include::{snippets}/주문 취소 - 성공/request-headers.adoc[]
+
+===== 경로 변수
+
+include::{snippets}/주문 취소 - 성공/path-parameters.adoc[]
+
+===== 요청 예시
+
+include::{snippets}/주문 취소 - 성공/http-request.adoc[]
+
+==== 응답
+
+===== 성공
+
+include::{snippets}/주문 취소 - 성공/response-fields.adoc[]
+
+include::{snippets}/주문 취소 - 성공/http-response.adoc[]
+
+===== 실패
+
+- 존재하지 않는 주문일 경우
+
+include::{snippets}/주문 취소 - 실패 (존재하지 않는 주문)/response-fields.adoc[]
+
+include::{snippets}/주문 취소 - 실패 (존재하지 않는 주문)/http-response.adoc[]
+
+- 이미 취소된 주문일 경우
+
+include::{snippets}/주문 취소 - 실패 (이미 취소된 주문)/response-fields.adoc[]
+
+include::{snippets}/주문 취소 - 실패 (이미 취소된 주문)/http-response.adoc[]
+
+- 다른 사용자의 주문 취소 시도
+
+include::{snippets}/주문 취소 - 실패 (다른 사용자의 주문)/response-fields.adoc[]
+
+include::{snippets}/주문 취소 - 실패 (다른 사용자의 주문)/http-response.adoc[]
