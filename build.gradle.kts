@@ -1,17 +1,23 @@
-plugins {
-    id("org.springframework.boot") version "3.3.1"
-    id("io.spring.dependency-management") version "1.1.5"
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
-    kotlin("plugin.jpa") version "1.9.22"
-    id("org.asciidoctor.jvm.convert") version "4.0.2"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
-}
+val springBootVersion: String by project
+val springDependencyManagementVersion: String by project
+val kotlinVersion: String by project
+val asciidoctorVersion: String by project
+val ktlintPluginVersion: String by project
+val ktlintEngineVersion: String by project
+val kotestVersion: String by project
+val kotestSpringExtensionVersion: String by project
+val jjwtVersion: String by project
+val kotlinJdslVersion: String by project
 
-val kotestVersion = "5.8.0"
-val kotestSpringExtensionVersion = "1.1.3"
-val jjwtVersion = "0.12.5"
-val springDataKotlinJdslVersion = "3.5.5"
+plugins {
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
+    kotlin("jvm")
+    kotlin("plugin.spring")
+    kotlin("plugin.jpa")
+    id("org.asciidoctor.jvm.convert")
+    id("org.jlleitschuh.gradle.ktlint")
+}
 
 group = "com.playground"
 version = "0.0.1-SNAPSHOT"
@@ -39,9 +45,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     // Kotlin JDSL
-    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$springDataKotlinJdslVersion")
-    implementation("com.linecorp.kotlin-jdsl:jpql-render:$springDataKotlinJdslVersion")
-    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$springDataKotlinJdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$kotlinJdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:$kotlinJdslVersion")
+    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$kotlinJdslVersion")
 
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
@@ -108,7 +114,7 @@ tasks.withType<ProcessResources> {
 }
 
 ktlint {
-    version.set("1.3.1")
+    version.set(ktlintEngineVersion)
     verbose.set(true)
     android.set(false)
     outputToConsole.set(true)
