@@ -1,6 +1,5 @@
 package com.playground.product.presentation.mapper
 
-import com.playground.product.application.port.`in`.command.DecreaseStockCommand
 import com.playground.product.application.port.`in`.command.SaveProductCommand
 import com.playground.product.application.port.`in`.command.UpdateProductCommand
 import com.playground.product.presentation.request.ProductSaveRequestDto
@@ -19,13 +18,4 @@ fun ProductUpdateRequestDto.toCommand(id: Long): UpdateProductCommand =
         name = this.name,
         stock = this.stock,
         price = this.price,
-    )
-
-fun toCommand(
-    id: Long,
-    quantity: Int,
-): DecreaseStockCommand =
-    DecreaseStockCommand(
-        id = id,
-        quantity = quantity,
     )
