@@ -1,7 +1,7 @@
 package com.playground.user.persistence.adapter
 
 import com.playground.user.application.port.out.UserQueryPort
-import com.playground.user.domain.User
+import com.playground.user.domain.model.User
 import com.playground.user.persistence.mapper.toDomain
 import com.playground.user.persistence.repository.UserRepository
 import org.springframework.stereotype.Component

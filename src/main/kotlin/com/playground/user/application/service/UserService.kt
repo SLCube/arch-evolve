@@ -5,8 +5,12 @@ import com.playground.user.application.port.`in`.command.SignUpCommand
 import com.playground.user.application.port.`in`.command.UpdateNicknameCommand
 import com.playground.user.application.port.`in`.command.UpdatePasswordCommand
 import com.playground.user.application.port.out.UserCommandPort
+import com.playground.user.application.port.out.UserEventPort
 import com.playground.user.application.port.out.UserQueryPort
-import com.playground.user.domain.User
+import com.playground.user.domain.event.UserNicknameUpdatedEvent
+import com.playground.user.domain.event.UserPasswordUpdatedEvent
+import com.playground.user.domain.event.UserSignedUpEvent
+import com.playground.user.domain.model.User
 import com.playground.user.domain.exception.DuplicateLoginIdException
 import com.playground.user.domain.exception.DuplicateNicknameException
 import com.playground.user.domain.exception.PasswordMismatchException
@@ -21,6 +25,7 @@ class UserService(
     private val userQueryPort: UserQueryPort,
     private val userCommandPort: UserCommandPort,
     private val passwordEncoder: PasswordEncoder,
+    private val userEventPort: UserEventPort
 ): UserUseCase {
 
     override fun signUp(command: SignUpCommand): User {
@@ -38,7 +43,15 @@ class UserService(
             nickname = command.nickname
         )
 
-        return userCommandPort.save(user)
+        val savedUser = userCommandPort.save(user)
+
+        val event = UserSignedUpEvent(
+            userId = requireNotNull(savedUser.id),
+            loginId = savedUser.loginId
+        )
+        userEventPort.publish(event)
+
+        return savedUser
     }
 
     override fun updateNickname(command: UpdateNicknameCommand): User {
@@ -51,9 +64,20 @@ class UserService(
         val user = userQueryPort.findById(command.userId)
             .orElseThrow { UserNotFoundException() }
 
+        val oldNickname = user.nickname
         user.updateNickname(command.newNickname)
 
-        return userCommandPort.update(user)
+        val updatedUser = userCommandPort.update(user)
+
+        val event = UserNicknameUpdatedEvent(
+            userId = requireNotNull(updatedUser.id),
+            loginId = updatedUser.loginId,
+            oldNickname = oldNickname,
+            newNickname = updatedUser.nickname
+        )
+        userEventPort.publish(event)
+
+        return updatedUser
     }
 
     override fun updatePassword(command: UpdatePasswordCommand): User {
@@ -66,6 +90,14 @@ class UserService(
 
         user.updatePassword(passwordEncoder.encode(command.newPassword))
 
-        return userCommandPort.update(user)
+        val updatedUser = userCommandPort.update(user)
+
+        val event = UserPasswordUpdatedEvent(
+            userId = requireNotNull(updatedUser.id),
+            loginId = updatedUser.loginId
+        )
+        userEventPort.publish(event)
+
+        return updatedUser
     }
 }

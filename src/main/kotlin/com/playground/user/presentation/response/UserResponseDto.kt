@@ -1,6 +1,6 @@
 package com.playground.user.presentation.response
 
-import com.playground.user.domain.User
+import com.playground.user.domain.model.User
 
 data class UserResponseDto(
     val loginId: String,

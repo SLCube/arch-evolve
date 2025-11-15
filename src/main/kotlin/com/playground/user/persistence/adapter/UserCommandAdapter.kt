@@ -1,7 +1,7 @@
 package com.playground.user.persistence.adapter
 
 import com.playground.user.application.port.out.UserCommandPort
-import com.playground.user.domain.User
+import com.playground.user.domain.model.User
 import com.playground.user.domain.exception.UserNotFoundException
 import com.playground.user.persistence.entity.UserJpaEntity
 import com.playground.user.persistence.mapper.toDomain

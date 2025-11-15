@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
 
 @Component
-class LoggingEventConsumer {
+class OrderLoggingEventConsumer {
 
     private val log = logger()
 

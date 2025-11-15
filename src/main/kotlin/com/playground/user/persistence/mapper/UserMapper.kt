@@ -1,6 +1,6 @@
 package com.playground.user.persistence.mapper
 
-import com.playground.user.domain.User
+import com.playground.user.domain.model.User
 import com.playground.user.persistence.entity.UserJpaEntity
 
 fun UserJpaEntity.toDomain(): User {

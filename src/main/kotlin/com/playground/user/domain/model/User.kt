@@ -1,4 +1,4 @@
-package com.playground.user.domain
+package com.playground.user.domain.model
 
 import com.playground.user.domain.enum.UserRole
 import com.playground.user.domain.exception.SameNicknameException

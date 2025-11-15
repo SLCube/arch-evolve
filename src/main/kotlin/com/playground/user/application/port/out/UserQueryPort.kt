@@ -1,6 +1,6 @@
 package com.playground.user.application.port.out
 
-import com.playground.user.domain.User
+import com.playground.user.domain.model.User
 import java.util.Optional
 
 interface UserQueryPort {
