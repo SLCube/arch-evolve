@@ -1,6 +1,6 @@
 package com.playground.user.persistence.entity
 
-import com.playground.common.jpa.domain.BaseEntity
+import com.playground.common.persistence.jpa.BaseEntity
 import com.playground.user.domain.enum.UserRole
 import com.playground.user.domain.model.User
 import jakarta.persistence.Column

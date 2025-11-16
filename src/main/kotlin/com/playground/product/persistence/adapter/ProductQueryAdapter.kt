@@ -1,8 +1,8 @@
 package com.playground.product.persistence.adapter
 
 import com.playground.product.application.port.out.ProductQueryPort
-import com.playground.product.domain.Product
 import com.playground.product.domain.exception.ProductNotFoundException
+import com.playground.product.domain.model.Product
 import com.playground.product.persistence.mapper.toDomain
 import com.playground.product.persistence.repository.ProductRepository
 import org.springframework.stereotype.Component

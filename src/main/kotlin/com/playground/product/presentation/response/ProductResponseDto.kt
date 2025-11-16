@@ -1,6 +1,6 @@
 package com.playground.product.presentation.response
 
-import com.playground.product.domain.Product
+import com.playground.product.domain.model.Product
 
 data class ProductResponseDto(
     val id: Long,

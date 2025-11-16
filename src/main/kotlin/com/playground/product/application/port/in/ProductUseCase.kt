@@ -4,7 +4,7 @@ import com.playground.product.application.port.`in`.command.DecreaseStockCommand
 import com.playground.product.application.port.`in`.command.SaveProductCommand
 import com.playground.product.application.port.`in`.command.UpdateProductCommand
 import com.playground.product.application.port.`in`.query.GetProductQuery
-import com.playground.product.domain.Product
+import com.playground.product.domain.model.Product
 
 interface ProductUseCase {
     fun saveProduct(command: SaveProductCommand): Product

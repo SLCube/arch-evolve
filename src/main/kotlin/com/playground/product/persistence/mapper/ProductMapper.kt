@@ -1,6 +1,6 @@
 package com.playground.product.persistence.mapper
 
-import com.playground.product.domain.Product
+import com.playground.product.domain.model.Product
 import com.playground.product.persistence.entity.ProductJpaEntity
 
 fun ProductJpaEntity.toDomain(): Product =

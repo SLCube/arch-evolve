@@ -1,6 +1,6 @@
 package com.playground.order.presentation.web
 
-import com.playground.auth.domain.model.AuthUser
+import com.playground.auth.application.security.AuthUserDetails
 import com.playground.common.application.query.PageQuery
 import com.playground.common.presentation.response.PagedResponse
 import com.playground.order.application.port.`in`.OrderCommandUseCase
@@ -32,10 +32,10 @@ class OrderController(
 ) {
     @PostMapping
     fun createOrder(
-        @AuthenticationPrincipal authUser: AuthUser,
+        @AuthenticationPrincipal authUserDetails: AuthUserDetails,
         @RequestBody @Valid request: OrderCreateRequestDto,
     ): ResponseEntity<OrderResponseDto> {
-        val command = request.toCommand(authUser.userId)
+        val command = request.toCommand(authUserDetails.getUserId())
         val createdOrder = orderCommandUseCase.createOrder(command)
 
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponseDto.toResponse(createdOrder))
@@ -43,10 +43,10 @@ class OrderController(
 
     @PatchMapping("/{orderId}/cancel")
     fun cancelOrder(
-        @AuthenticationPrincipal authUser: AuthUser,
+        @AuthenticationPrincipal authUserDetails: AuthUserDetails,
         @PathVariable orderId: Long,
     ): ResponseEntity<OrderResponseDto> {
-        val command = OrderCancelCommand(userId = authUser.userId, orderId = orderId)
+        val command = OrderCancelCommand(userId = authUserDetails.getUserId(), orderId = orderId)
         val cancelledOrder = orderCommandUseCase.cancelOrder(command)
 
         return ResponseEntity.status(HttpStatus.OK).body(OrderResponseDto.toResponse(cancelledOrder))
@@ -54,10 +54,10 @@ class OrderController(
 
     @GetMapping("/{orderId}")
     fun getOrder(
-        @AuthenticationPrincipal authUser: AuthUser,
+        @AuthenticationPrincipal authUserDetails: AuthUserDetails,
         @PathVariable orderId: Long,
     ): ResponseEntity<OrderDetailResponseDto> {
-        val orderDetailResult = orderQueryUseCase.getOrder(authUser.userId, orderId)
+        val orderDetailResult = orderQueryUseCase.getOrder(authUserDetails.getUserId(), orderId)
         val response = OrderDetailResponseDto.toResponse(orderDetailResult)
 
         return ResponseEntity.status(HttpStatus.OK).body(response)
@@ -65,7 +65,7 @@ class OrderController(
 
     @GetMapping
     fun getOrders(
-        @AuthenticationPrincipal authUser: AuthUser,
+        @AuthenticationPrincipal authUserDetails: AuthUserDetails,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int,
         @RequestParam(required = false) sortBy: String?,
@@ -79,7 +79,7 @@ class OrderController(
                 direction = direction,
             )
 
-        val pagedOrderSummaries = orderQueryUseCase.getOrders(authUser.userId, pageQuery)
+        val pagedOrderSummaries = orderQueryUseCase.getOrders(authUserDetails.getUserId(), pageQuery)
         val response = PagedResponse.of(pagedOrderSummaries) { OrderSummaryResponseDto.of(it) }
 
         return ResponseEntity.status(HttpStatus.OK).body(response)

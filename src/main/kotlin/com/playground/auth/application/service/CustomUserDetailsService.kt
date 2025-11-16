@@ -1,8 +1,8 @@
 package com.playground.auth.application.service
 
+import com.playground.auth.application.security.AuthUserDetails
 import com.playground.auth.domain.model.AuthUser
 import com.playground.user.application.port.out.UserQueryPort
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -18,11 +18,16 @@ class CustomUserDetailsService(
                 .findByLoginId(username)
                 .orElseThrow { UsernameNotFoundException("User Not Found with loginId: $username") }
 
-        return AuthUser(
-            userId = user.id!!,
-            loginId = user.loginId,
-            password = user.password,
-            authorities = setOf(SimpleGrantedAuthority("ROLE_${user.role.name}")),
+        val authUser =
+            AuthUser(
+                userId = user.id!!,
+                loginId = user.loginId,
+                password = user.password,
+            )
+
+        return AuthUserDetails(
+            authUser = authUser,
+            roles = listOf(user.role.name),
         )
     }
 }

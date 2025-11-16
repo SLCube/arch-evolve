@@ -1,6 +1,6 @@
 package com.playground.product.application.port.out
 
-import com.playground.product.domain.Product
+import com.playground.product.domain.model.Product
 
 interface ProductQueryPort {
     fun findById(id: Long): Product

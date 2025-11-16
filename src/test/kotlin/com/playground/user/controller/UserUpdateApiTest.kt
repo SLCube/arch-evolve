@@ -4,11 +4,13 @@ import com.playground.common.error.ErrorCode
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
+import com.playground.user.persistence.repository.UserRepository
 import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
 import com.playground.user.presentation.request.UserPasswordUpdateRequestDto
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
@@ -19,7 +21,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-class UserUpdateApiTest : ApiTest() {
+class UserUpdateApiTest(
+    @param:Autowired private val userRepository: UserRepository,
+) : ApiTest() {
     @Test
     fun `닉네임 변경 - 성공`() {
         val user = createUser("testuser", "testuser123", "테스트유저")

@@ -4,10 +4,12 @@ import com.playground.common.error.ErrorCode
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
+import com.playground.user.persistence.repository.UserRepository
 import com.playground.user.presentation.request.UserSignUpRequestDto
 import io.kotest.matchers.shouldNotBe
 import org.hamcrest.Matchers.matchesPattern
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
@@ -16,7 +18,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-class UserSignUpApiTest : ApiTest() {
+class UserSignUpApiTest(
+    @param:Autowired private val userRepository: UserRepository,
+) : ApiTest() {
     @Test
     fun `회원가입 - 성공`() {
         val signUpRequest =

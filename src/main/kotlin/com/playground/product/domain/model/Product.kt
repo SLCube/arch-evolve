@@ -1,4 +1,4 @@
-package com.playground.product.domain
+package com.playground.product.domain.model
 
 import com.playground.product.domain.exception.InsufficientStockException
 

@@ -1,4 +1,4 @@
-package com.playground.common.security
+package com.playground.auth.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.auth.presentation.request.AuthLoginRequestDto

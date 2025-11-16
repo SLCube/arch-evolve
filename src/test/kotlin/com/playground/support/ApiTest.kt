@@ -3,9 +3,9 @@ package com.playground.support
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.auth.presentation.request.AuthLoginRequestDto
 import com.playground.auth.presentation.response.AuthTokenResponseDto
-import com.playground.user.domain.enum.UserRole
-import com.playground.user.persistence.entity.UserJpaEntity
-import com.playground.user.persistence.repository.UserRepository
+import com.playground.user.application.port.`in`.UserUseCase
+import com.playground.user.application.port.`in`.command.SignUpCommand
+import com.playground.user.domain.model.User
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +15,6 @@ import org.springframework.http.MediaType
 import org.springframework.restdocs.RestDocumentationContextProvider
 import org.springframework.restdocs.RestDocumentationExtension
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
@@ -36,10 +35,7 @@ abstract class ApiTest {
     lateinit var objectMapper: ObjectMapper
 
     @Autowired
-    lateinit var userRepository: UserRepository
-
-    @Autowired
-    lateinit var passwordEncoder: PasswordEncoder
+    lateinit var userUseCase: UserUseCase
 
     @Autowired
     private lateinit var webApplicationContext: WebApplicationContext
@@ -61,17 +57,15 @@ abstract class ApiTest {
         loginId: String,
         password: String,
         nickname: String,
-        role: UserRole = UserRole.USER,
-    ): UserJpaEntity {
-        val userJpaEntity =
-            UserJpaEntity(
+    ): User {
+        val command =
+            SignUpCommand(
                 loginId = loginId,
-                password = passwordEncoder.encode(password),
+                password = password,
                 nickname = nickname,
-                role = role,
             )
 
-        return userRepository.save(userJpaEntity)
+        return userUseCase.signUp(command)
     }
 
     protected fun getAccessToken(

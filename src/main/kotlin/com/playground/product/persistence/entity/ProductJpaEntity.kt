@@ -1,7 +1,7 @@
 package com.playground.product.persistence.entity
 
-import com.playground.common.jpa.domain.BaseEntity
-import com.playground.product.domain.Product
+import com.playground.common.persistence.jpa.BaseEntity
+import com.playground.product.domain.model.Product
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

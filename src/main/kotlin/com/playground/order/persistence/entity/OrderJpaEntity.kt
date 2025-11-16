@@ -1,6 +1,6 @@
 package com.playground.order.persistence.entity
 
-import com.playground.common.jpa.domain.BaseEntity
+import com.playground.common.persistence.jpa.BaseEntity
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.model.Order
 import jakarta.persistence.Column

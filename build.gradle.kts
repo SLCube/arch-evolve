@@ -8,6 +8,7 @@ val kotestVersion: String by project
 val kotestSpringExtensionVersion: String by project
 val jjwtVersion: String by project
 val kotlinJdslVersion: String by project
+val archunitVersion: String by project
 
 plugins {
     id("org.springframework.boot")
@@ -39,22 +40,32 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$kotlinJdslVersion")
     implementation("com.linecorp.kotlin-jdsl:jpql-render:$kotlinJdslVersion")
     implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$kotlinJdslVersion")
+
     implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
+
     runtimeOnly("org.postgresql:postgresql")
+
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("org.springframework.security:spring-security-test")
+
     testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
     testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestSpringExtensionVersion")
+
+    testImplementation("com.tngtech.archunit:archunit-junit5:$archunitVersion") // ArchUnit JUnit5 통합 의존성 추가
+
     testRuntimeOnly("com.h2database:h2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

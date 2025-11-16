@@ -8,10 +8,10 @@ import com.playground.product.application.port.`in`.query.GetProductQuery
 import com.playground.product.application.port.out.ProductCommandPort
 import com.playground.product.application.port.out.ProductEventPort
 import com.playground.product.application.port.out.ProductQueryPort
-import com.playground.product.domain.Product
 import com.playground.product.domain.event.ProductCreatedEvent
 import com.playground.product.domain.event.ProductStockDecreasedEvent
 import com.playground.product.domain.event.ProductUpdatedEvent
+import com.playground.product.domain.model.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
