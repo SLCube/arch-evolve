@@ -73,6 +73,7 @@ dependencies {
     implementation(project(":module-common"))
     implementation(project(":module-product"))
     implementation(project(":module-user"))
+    implementation(project(":module-auth"))
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
