@@ -18,6 +18,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
+import org.springframework.restdocs.request.RequestDocumentation.queryParameters
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -137,6 +138,149 @@ class OrderLookupApiTest(
                         parameterWithName("orderId").description("다른 사용자의 주문 ID"),
                     ),
                     responseFields(commonErrorResponseSnippet()),
+                )
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "1")
+    fun `주문 목록 조회 - 성공`() {
+        val user = createUser("testUser", "password123", "테스트유저")
+        val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000L))
+        val jwtToken = getAccessToken(user.loginId, "password123")
+
+        val orderJpaEntity1 =
+            orderRepository.save(
+                OrderJpaEntity(
+                    userId = requireNotNull(user.id),
+                    totalPrice = productJpaEntity1.price,
+                    status = OrderStatus.PENDING,
+                ),
+            )
+        orderProductRepository.save(
+            OrderProductJpaEntity(
+                orderJpaEntity = orderJpaEntity1,
+                productId = productJpaEntity1.id!!,
+                quantity = 1,
+                price = productJpaEntity1.price,
+            ),
+        )
+
+        val orderJpaEntity2 =
+            orderRepository.save(
+                OrderJpaEntity(
+                    userId = requireNotNull(user.id),
+                    totalPrice = productJpaEntity2.price * 2,
+                    status = OrderStatus.COMPLETED,
+                ),
+            )
+        orderProductRepository.save(
+            OrderProductJpaEntity(
+                orderJpaEntity = orderJpaEntity2,
+                productId = productJpaEntity2.id!!,
+                quantity = 2,
+                price = productJpaEntity2.price,
+            ),
+        )
+
+        performAndDocument("주문 목록 조회 - 성공") {
+            httpMethod = HttpMethod.GET
+            urlTemplate = "/orders"
+            accessToken = jwtToken
+            expectedStatus = status().isOk
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.content.length()").value(2),
+                    jsonPath("$.content[0].id").value(orderJpaEntity2.id),
+                    jsonPath("$.content[0].representativeProductName").value(productJpaEntity2.name),
+                    jsonPath("$.content[0].totalPrice").value(orderJpaEntity2.totalPrice),
+                    jsonPath("$.content[0].status").value(OrderStatus.COMPLETED.name),
+                    jsonPath("$.content[1].id").value(orderJpaEntity1.id),
+                    jsonPath("$.content[1].representativeProductName").value(productJpaEntity1.name),
+                    jsonPath("$.content[1].totalPrice").value(orderJpaEntity1.totalPrice),
+                    jsonPath("$.content[1].status").value(OrderStatus.PENDING.name),
+                    jsonPath("$.pageNumber").value(0),
+                    jsonPath("$.pageSize").value(10),
+                    jsonPath("$.totalElements").value(2),
+                    jsonPath("$.totalPages").value(1),
+                )
+            snippets =
+                arrayOf(
+                    queryParameters(
+                        parameterWithName("page").description("페이지 번호 (0부터 시작)").optional(),
+                        parameterWithName("size").description("페이지 크기").optional(),
+                        parameterWithName("sortBy").description("정렬 기준 필드 (예: createdAt)").optional(),
+                        parameterWithName("direction").description("정렬 방향 (ASC 또는 DESC)").optional(),
+                    ),
+                    responseFields(
+                        fieldWithPath("content[].id").description("주문 ID"),
+                        fieldWithPath("content[].representativeProductName").description("대표 상품명"),
+                        fieldWithPath("content[].totalPrice").description("총 주문 금액"),
+                        fieldWithPath("content[].status").description("주문 상태"),
+                        fieldWithPath("content[].createdAt").description("주문 생성일시"),
+                        fieldWithPath("pageNumber").description("현재 페이지 번호"),
+                        fieldWithPath("pageSize").description("페이지 크기"),
+                        fieldWithPath("totalElements").description("총 요소 개수"),
+                        fieldWithPath("totalPages").description("총 페이지 수"),
+                    ),
+                )
+        }
+    }
+
+    @Test
+    @WithMockUser(roles = ["USER"], username = "1")
+    fun `주문 목록 조회 - 실패 (다른 사용자의 주문은 조회되지 않음)`() {
+        val ownerUser = createUser("ownerUser", "password123", "주문소유자")
+        val otherUser = createUser("otherUser", "password123", "다른사용자")
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val jwtToken = getAccessToken(otherUser.loginId, "password123")
+
+        val ownerOrder =
+            orderRepository.save(
+                OrderJpaEntity(
+                    userId = ownerUser.id!!,
+                    totalPrice = productJpaEntity.price * 1,
+                    status = OrderStatus.PENDING,
+                ),
+            )
+        orderProductRepository.save(
+            OrderProductJpaEntity(
+                orderJpaEntity = ownerOrder,
+                productId = productJpaEntity.id!!,
+                quantity = 1,
+                price = productJpaEntity.price,
+            ),
+        )
+
+        performAndDocument("주문 목록 조회 - 실패 (다른 사용자의 주문은 조회되지 않음)") {
+            httpMethod = HttpMethod.GET
+            urlTemplate = "/orders"
+            accessToken = jwtToken
+            expectedStatus = status().isOk
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.content.length()").value(0),
+                    jsonPath("$.pageNumber").value(0),
+                    jsonPath("$.pageSize").value(10),
+                    jsonPath("$.totalElements").value(0),
+                    jsonPath("$.totalPages").value(0),
+                )
+            snippets =
+                arrayOf(
+                    queryParameters(
+                        parameterWithName("page").description("페이지 번호 (0부터 시작)").optional(),
+                        parameterWithName("size").description("페이지 크기").optional(),
+                        parameterWithName("sortBy").description("정렬 기준 필드 (예: createdAt)").optional(),
+                        parameterWithName("direction").description("정렬 방향 (ASC 또는 DESC)").optional(),
+                    ),
+                    responseFields(
+                        fieldWithPath("content").description("주문 목록 (비어있음)"),
+                        fieldWithPath("pageNumber").description("현재 페이지 번호"),
+                        fieldWithPath("pageSize").description("페이지 크기"),
+                        fieldWithPath("totalElements").description("총 요소 개수"),
+                        fieldWithPath("totalPages").description("총 페이지 수"),
+                    ),
                 )
         }
     }

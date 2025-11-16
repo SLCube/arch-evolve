@@ -1,11 +1,15 @@
 package com.playground.order.persistence.adapter
 
+import com.playground.common.application.query.PageQuery
+import com.playground.common.application.query.PagedResult
 import com.playground.order.application.port.out.OrderQueryPort
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
 import com.playground.order.persistence.mapper.toDomain
 import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 
 @Component
@@ -22,5 +26,34 @@ class OrderQueryAdapter(
             .findById(orderId)
             .orElseThrow { OrderNotFoundException(orderId) }
             .toDomain(orderProducts)
+    }
+
+    override fun findOrdersByUserId(
+        userId: Long,
+        pageQuery: PageQuery,
+    ): PagedResult<Order> {
+        val sort =
+            if (pageQuery.sortBy != null && pageQuery.direction != null) {
+                Sort.by(Sort.Direction.valueOf(pageQuery.direction.uppercase()), pageQuery.sortBy)
+            } else {
+                Sort.by(Sort.Direction.DESC, "createdAt")
+            }
+        val pageable = PageRequest.of(pageQuery.pageNumber, pageQuery.pageSize, sort)
+
+        val orderJpaEntitiesPage = orderRepository.findByUserId(userId, pageable)
+
+        val content =
+            orderJpaEntitiesPage.content.map { orderJpaEntity ->
+                val orderProducts = orderProductRepository.findByOrderId(orderJpaEntity.id!!).map { it.toDomain() }.toMutableList()
+                orderJpaEntity.toDomain(orderProducts)
+            }
+
+        return PagedResult(
+            content = content,
+            pageNumber = orderJpaEntitiesPage.number,
+            pageSize = orderJpaEntitiesPage.size,
+            totalElements = orderJpaEntitiesPage.totalElements,
+            totalPages = orderJpaEntitiesPage.totalPages,
+        )
     }
 }

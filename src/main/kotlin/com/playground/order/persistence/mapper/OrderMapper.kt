@@ -12,6 +12,8 @@ fun OrderJpaEntity.toDomain(orderProducts: MutableList<OrderProduct>): Order =
         totalPrice = this.totalPrice,
         status = this.status,
         orderProducts = orderProducts,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt,
     )
 
 fun OrderProductJpaEntity.toDomain(): OrderProduct =
