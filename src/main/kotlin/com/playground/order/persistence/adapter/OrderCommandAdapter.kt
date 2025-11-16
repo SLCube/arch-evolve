@@ -1,6 +1,6 @@
 package com.playground.order.persistence.adapter
 
-import com.playground.order.application.port.out.OrderCommandPort
+import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
 import com.playground.order.persistence.entity.OrderJpaEntity

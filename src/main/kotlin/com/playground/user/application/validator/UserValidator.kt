@@ -1,6 +1,6 @@
 package com.playground.user.application.validator
 
-import com.playground.user.application.port.out.UserQueryPort
+import com.playground.user.application.port.outbound.UserQueryPort
 import com.playground.user.domain.exception.DuplicateLoginIdException
 import com.playground.user.domain.exception.DuplicateNicknameException
 import com.playground.user.domain.exception.PasswordMismatchException

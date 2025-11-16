@@ -3,8 +3,8 @@ package com.playground.support
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.auth.presentation.request.AuthLoginRequestDto
 import com.playground.auth.presentation.response.AuthTokenResponseDto
-import com.playground.user.application.port.`in`.UserUseCase
-import com.playground.user.application.port.`in`.command.SignUpCommand
+import com.playground.user.application.port.inbound.UserUseCase
+import com.playground.user.application.port.inbound.command.SignUpCommand
 import com.playground.user.domain.model.User
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith

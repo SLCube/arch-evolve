@@ -1,6 +1,6 @@
 package com.playground.auth.application.service
 
-import com.playground.auth.application.port.out.AuthInfoPort
+import com.playground.auth.application.port.outbound.AuthInfoPort
 import org.springframework.stereotype.Component
 
 @Component

@@ -1,6 +1,6 @@
 package com.playground.order.application.validator
 
-import com.playground.order.application.port.out.OrderQueryPort
+import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import org.springframework.stereotype.Component
 

@@ -2,7 +2,7 @@ package com.playground.order.persistence.adapter
 
 import com.playground.common.application.query.PageQuery
 import com.playground.common.application.query.PagedResult
-import com.playground.order.application.port.out.OrderQueryPort
+import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
 import com.playground.order.persistence.entity.OrderJpaEntity

@@ -1,12 +1,12 @@
 package com.playground.user.application.service
 
-import com.playground.user.application.port.`in`.UserUseCase
-import com.playground.user.application.port.`in`.command.SignUpCommand
-import com.playground.user.application.port.`in`.command.UpdateNicknameCommand
-import com.playground.user.application.port.`in`.command.UpdatePasswordCommand
-import com.playground.user.application.port.out.UserCommandPort
-import com.playground.user.application.port.out.UserEventPort
-import com.playground.user.application.port.out.UserQueryPort
+import com.playground.user.application.port.inbound.UserUseCase
+import com.playground.user.application.port.inbound.command.SignUpCommand
+import com.playground.user.application.port.inbound.command.UpdateNicknameCommand
+import com.playground.user.application.port.inbound.command.UpdatePasswordCommand
+import com.playground.user.application.port.outbound.UserCommandPort
+import com.playground.user.application.port.outbound.UserEventPort
+import com.playground.user.application.port.outbound.UserQueryPort
 import com.playground.user.application.validator.UserValidator
 import com.playground.user.domain.event.UserNicknameUpdatedEvent
 import com.playground.user.domain.event.UserPasswordUpdatedEvent

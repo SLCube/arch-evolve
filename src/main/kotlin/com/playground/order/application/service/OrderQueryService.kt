@@ -2,8 +2,8 @@ package com.playground.order.application.service
 
 import com.playground.common.application.query.PageQuery
 import com.playground.common.application.query.PagedResult
-import com.playground.order.application.port.`in`.OrderQueryUseCase
-import com.playground.order.application.port.out.OrderQueryPort
+import com.playground.order.application.port.inbound.OrderQueryUseCase
+import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderProductProvider
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.application.service.result.OrderSummaryResult

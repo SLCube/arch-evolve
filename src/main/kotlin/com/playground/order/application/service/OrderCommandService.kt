@@ -1,11 +1,11 @@
 package com.playground.order.application.service
 
-import com.playground.order.application.port.`in`.OrderCommandUseCase
-import com.playground.order.application.port.`in`.command.OrderCancelCommand
-import com.playground.order.application.port.`in`.command.OrderCreateCommand
-import com.playground.order.application.port.out.OrderCommandPort
-import com.playground.order.application.port.out.OrderEventPort
-import com.playground.order.application.port.out.OrderQueryPort
+import com.playground.order.application.port.inbound.OrderCommandUseCase
+import com.playground.order.application.port.inbound.command.OrderCancelCommand
+import com.playground.order.application.port.inbound.command.OrderCreateCommand
+import com.playground.order.application.port.outbound.OrderCommandPort
+import com.playground.order.application.port.outbound.OrderEventPort
+import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderProductProvider
 import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.domain.event.OrderCreatedEvent

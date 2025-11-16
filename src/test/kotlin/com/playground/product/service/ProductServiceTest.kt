@@ -1,7 +1,7 @@
 package com.playground.product.service
 
-import com.playground.product.application.port.`in`.ProductUseCase
-import com.playground.product.application.port.`in`.command.DecreaseStockCommand
+import com.playground.product.application.port.inbound.ProductUseCase
+import com.playground.product.application.port.inbound.command.DecreaseStockCommand
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import io.kotest.matchers.shouldBe

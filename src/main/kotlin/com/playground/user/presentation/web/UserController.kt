@@ -1,7 +1,7 @@
 package com.playground.user.presentation.web
 
 import com.playground.auth.annotation.CheckIsOwner
-import com.playground.user.application.port.`in`.UserUseCase
+import com.playground.user.application.port.inbound.UserUseCase
 import com.playground.user.presentation.mapper.toCommand
 import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
 import com.playground.user.presentation.request.UserPasswordUpdateRequestDto

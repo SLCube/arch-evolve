@@ -1,0 +1,9 @@
+package com.playground.user.application.port.inbound.command
+
+data class UpdatePasswordCommand(
+    val userId: Long,
+    val oldPassword: String,
+    val newPassword: String,
+) {
+    override fun toString(): String = "UpdatePasswordCommand(userId=$userId, oldPassword='****', newPassword='****')"
+}

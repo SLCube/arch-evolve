@@ -3,9 +3,9 @@ package com.playground.order.presentation.web
 import com.playground.auth.application.security.AuthUserDetails
 import com.playground.common.application.query.PageQuery
 import com.playground.common.presentation.response.PagedResponse
-import com.playground.order.application.port.`in`.OrderCommandUseCase
-import com.playground.order.application.port.`in`.OrderQueryUseCase
-import com.playground.order.application.port.`in`.command.OrderCancelCommand
+import com.playground.order.application.port.inbound.OrderCommandUseCase
+import com.playground.order.application.port.inbound.OrderQueryUseCase
+import com.playground.order.application.port.inbound.command.OrderCancelCommand
 import com.playground.order.presentation.mapper.toCommand
 import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.response.OrderDetailResponseDto

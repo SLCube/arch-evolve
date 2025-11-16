@@ -1,6 +1,6 @@
 package com.playground.user.persistence.adapter
 
-import com.playground.auth.application.port.out.AuthInfoPort
+import com.playground.auth.application.port.outbound.AuthInfoPort
 import com.playground.user.persistence.repository.UserRepository
 import org.springframework.stereotype.Component
 

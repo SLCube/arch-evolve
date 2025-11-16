@@ -2,7 +2,7 @@ package com.playground.auth.application.service
 
 import com.playground.auth.application.security.AuthUserDetails
 import com.playground.auth.domain.model.AuthUser
-import com.playground.user.application.port.out.UserQueryPort
+import com.playground.user.application.port.outbound.UserQueryPort
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException

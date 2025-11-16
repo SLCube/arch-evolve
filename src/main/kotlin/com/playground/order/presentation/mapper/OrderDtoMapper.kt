@@ -1,7 +1,7 @@
 package com.playground.order.presentation.mapper
 
-import com.playground.order.application.port.`in`.command.OrderCreateCommand
-import com.playground.order.application.port.`in`.command.OrderProductCreateCommand
+import com.playground.order.application.port.inbound.command.OrderCreateCommand
+import com.playground.order.application.port.inbound.command.OrderProductCreateCommand
 import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
 
