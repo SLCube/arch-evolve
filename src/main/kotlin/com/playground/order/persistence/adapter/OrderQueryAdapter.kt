@@ -5,9 +5,11 @@ import com.playground.common.application.query.PagedResult
 import com.playground.order.application.port.out.OrderQueryPort
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
+import com.playground.order.persistence.entity.OrderJpaEntity
 import com.playground.order.persistence.mapper.toDomain
 import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
@@ -42,9 +44,28 @@ class OrderQueryAdapter(
 
         val orderJpaEntitiesPage = orderRepository.findByUserId(userId, pageable)
 
+        return mapToPagedResultOrder(orderJpaEntitiesPage)
+    }
+
+    private fun mapToPagedResultOrder(orderJpaEntitiesPage: Page<OrderJpaEntity>): PagedResult<Order> {
+        val orderIdsInPage = orderJpaEntitiesPage.content.map { it.id!! }
+        val orderProductsInPage =
+            if (orderIdsInPage.isNotEmpty()) {
+                orderProductRepository.findByOrderIdIn(orderIdsInPage)
+            } else {
+                emptyList()
+            }
+
+        val orderProductsMap = orderProductsInPage.groupBy { it.orderJpaEntity.id!! }
+
         val content =
             orderJpaEntitiesPage.content.map { orderJpaEntity ->
-                val orderProducts = orderProductRepository.findByOrderId(orderJpaEntity.id!!).map { it.toDomain() }.toMutableList()
+                val orderId = orderJpaEntity.id!!
+                val orderProducts =
+                    orderProductsMap
+                        .getOrDefault(orderId, emptyList())
+                        .map { it.toDomain() }
+                        .toMutableList()
                 orderJpaEntity.toDomain(orderProducts)
             }
 

@@ -7,4 +7,7 @@ import org.springframework.data.jpa.repository.Query
 interface OrderProductRepository : JpaRepository<OrderProductJpaEntity, Long> {
     @Query("SELECT op FROM OrderProductJpaEntity op WHERE op.orderJpaEntity.id = :orderId")
     fun findByOrderId(orderId: Long): MutableList<OrderProductJpaEntity>
+
+    @Query("SELECT op FROM OrderProductJpaEntity op WHERE op.orderJpaEntity.id IN :orderIds")
+    fun findByOrderIdIn(orderIds: List<Long>): List<OrderProductJpaEntity>
 }
