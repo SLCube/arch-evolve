@@ -74,6 +74,7 @@ class OrderLookupApiTest(
                     jsonPath("$.orderProducts[0].productName").value(productJpaEntity.name),
                     jsonPath("$.orderProducts[0].quantity").value(orderProductJpaEntity.quantity),
                     jsonPath("$.orderProducts[0].price").value(orderProductJpaEntity.price),
+                    jsonPath("$.createdAt").exists(),
                 )
             snippets =
                 arrayOf(
@@ -90,6 +91,7 @@ class OrderLookupApiTest(
                         fieldWithPath("orderProducts[].productName").description("상품 이름"),
                         fieldWithPath("orderProducts[].quantity").description("주문 수량"),
                         fieldWithPath("orderProducts[].price").description("주문 당시 상품 단가"),
+                        fieldWithPath("createdAt").description("주문 생성일시"),
                     ),
                 )
         }

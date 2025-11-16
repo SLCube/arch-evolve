@@ -1,5 +1,6 @@
 package com.playground.order.presentation.response
 
+import com.playground.common.util.DateTimeUtils
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.domain.enum.OrderStatus
 
@@ -9,6 +10,7 @@ data class OrderDetailResponseDto(
     val totalPrice: Long,
     val status: OrderStatus,
     val orderProducts: List<OrderProductDetailResponseDto>,
+    val createdAt: String,
 ) {
     companion object {
         fun toResponse(result: OrderDetailResult): OrderDetailResponseDto {
@@ -29,6 +31,7 @@ data class OrderDetailResponseDto(
                 totalPrice = result.totalPrice,
                 status = result.status,
                 orderProducts = orderProductDetails,
+                createdAt = result.createdAt.format(DateTimeUtils.API_DATE_TIME_FORMATTER),
             )
         }
     }

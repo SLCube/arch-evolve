@@ -3,6 +3,7 @@ package com.playground.order.application.service.result
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.vo.ProductInfo
+import java.time.LocalDateTime
 
 data class OrderDetailResult(
     val id: Long,
@@ -10,6 +11,7 @@ data class OrderDetailResult(
     val totalPrice: Long,
     val status: OrderStatus,
     val orderProducts: List<OrderProductDetail>,
+    val createdAt: LocalDateTime,
 ) {
     companion object {
         fun of(
@@ -34,6 +36,7 @@ data class OrderDetailResult(
                 totalPrice = order.totalPrice,
                 status = order.status,
                 orderProducts = orderProductDetails,
+                createdAt = order.createdAt,
             )
         }
     }
