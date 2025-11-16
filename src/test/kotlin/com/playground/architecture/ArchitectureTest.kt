@@ -100,7 +100,7 @@ class ArchitectureTest {
                 "..persistence..",
                 "..domain..",
                 "..common..",
-                "..application.port.out..",
+                "..application.port.outbound..",
             ).check(productionClasses)
     }
 
@@ -120,7 +120,7 @@ class ArchitectureTest {
                 "jakarta..", // @Valid, @NotBlank 등 Jakarta Validation 어노테이션 사용 가능
                 "org.jetbrains..",
                 "..presentation..", // Presentation 내부 DTO, Controller 등
-                "..application.port.in..", // Inbound Port (UseCase 인터페이스) 호출
+                "..application.port.inbound..", // Inbound Port (UseCase 인터페이스) 호출
                 "..application.service.result..", // Application Service에서 반환하는 Result DTO 사용
                 "..domain..", // Domain Enum, Value Object 등 사용
                 "..common..", // Common 유틸리티, PagedResponse 등 사용
