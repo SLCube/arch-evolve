@@ -1,13 +1,12 @@
 package com.playground.order.application.service
 
-import com.playground.order.application.port.`in`.OrderUseCase
+import com.playground.order.application.port.`in`.OrderCommandUseCase
 import com.playground.order.application.port.`in`.command.OrderCancelCommand
 import com.playground.order.application.port.`in`.command.OrderCreateCommand
 import com.playground.order.application.port.out.OrderCommandPort
 import com.playground.order.application.port.out.OrderEventPort
 import com.playground.order.application.port.out.OrderQueryPort
 import com.playground.order.application.provider.OrderProductProvider
-import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
@@ -18,13 +17,13 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
-class OrderService(
+class OrderCommandService(
     private val orderCommandPort: OrderCommandPort,
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
     private val orderProductProvider: OrderProductProvider,
     private val orderOwnerValidator: OrderOwnerValidator,
-) : OrderUseCase {
+) : OrderCommandUseCase {
     override fun createOrder(command: OrderCreateCommand): Order {
         val productIds = command.orderProducts.map { it.productId }
         val productInfoMap = orderProductProvider.getVerifiedProductInfos(productIds)
@@ -88,19 +87,5 @@ class OrderService(
         val foundOrder = orderQueryPort.findById(command.orderId)
         foundOrder.cancelOrder()
         return orderCommandPort.update(foundOrder)
-    }
-
-    @Transactional(readOnly = true)
-    override fun getOrder(
-        userId: Long,
-        orderId: Long,
-    ): OrderDetailResult {
-        orderOwnerValidator.validate(userId, orderId)
-
-        val order = orderQueryPort.findById(orderId)
-        val productIds = order.orderProducts.map { it.productId }
-        val productInfoMap = orderProductProvider.getVerifiedProductInfos(productIds)
-
-        return OrderDetailResult.of(order, productInfoMap)
     }
 }

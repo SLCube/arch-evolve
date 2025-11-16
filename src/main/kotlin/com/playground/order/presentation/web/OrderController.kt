@@ -1,7 +1,8 @@
 package com.playground.order.presentation.web
 
 import com.playground.auth.domain.model.AuthUser
-import com.playground.order.application.port.`in`.OrderUseCase
+import com.playground.order.application.port.`in`.OrderCommandUseCase
+import com.playground.order.application.port.`in`.OrderQueryUseCase
 import com.playground.order.application.port.`in`.command.OrderCancelCommand
 import com.playground.order.presentation.mapper.toCommand
 import com.playground.order.presentation.request.OrderCreateRequestDto
@@ -22,7 +23,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/orders")
 class OrderController(
-    private val orderUseCase: OrderUseCase,
+    private val orderCommandUseCase: OrderCommandUseCase,
+    private val orderQueryUseCase: OrderQueryUseCase,
 ) {
     @PostMapping
     fun createOrder(
@@ -30,7 +32,7 @@ class OrderController(
         @RequestBody @Valid request: OrderCreateRequestDto,
     ): ResponseEntity<OrderResponseDto> {
         val command = request.toCommand(authUser.userId)
-        val createdOrder = orderUseCase.createOrder(command)
+        val createdOrder = orderCommandUseCase.createOrder(command)
 
         return ResponseEntity.status(HttpStatus.CREATED).body(OrderResponseDto.toResponse(createdOrder))
     }
@@ -41,7 +43,7 @@ class OrderController(
         @PathVariable orderId: Long,
     ): ResponseEntity<OrderResponseDto> {
         val command = OrderCancelCommand(userId = authUser.userId, orderId = orderId)
-        val cancelledOrder = orderUseCase.cancelOrder(command)
+        val cancelledOrder = orderCommandUseCase.cancelOrder(command)
 
         return ResponseEntity.status(HttpStatus.OK).body(OrderResponseDto.toResponse(cancelledOrder))
     }
@@ -51,7 +53,7 @@ class OrderController(
         @AuthenticationPrincipal authUser: AuthUser,
         @PathVariable orderId: Long,
     ): ResponseEntity<OrderDetailResponseDto> {
-        val orderDetailResult = orderUseCase.getOrder(authUser.userId, orderId)
+        val orderDetailResult = orderQueryUseCase.getOrder(authUser.userId, orderId)
         val response = OrderDetailResponseDto.toResponse(orderDetailResult)
 
         return ResponseEntity.status(HttpStatus.OK).body(response)
