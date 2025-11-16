@@ -34,15 +34,39 @@ repositories {
     mavenCentral()
 }
 
+subprojects {
+    apply(plugin = "io.spring.dependency-management") // 이 줄 추가
+    apply(plugin = "kotlin")
+    apply(plugin = "kotlin-spring")
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
+        }
+    }
+
+    dependencies {
+        implementation("org.springframework.boot:spring-boot-starter")
+        implementation("org.springframework.boot:spring-boot-starter-web")
+        implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+        implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+        implementation("org.jetbrains.kotlin:kotlin-reflect")
+    }
+}
+
 dependencies {
+    implementation(project(":module-common"))
+
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-aop")
-
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$kotlinJdslVersion")
     implementation("com.linecorp.kotlin-jdsl:jpql-render:$kotlinJdslVersion")

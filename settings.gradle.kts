@@ -26,3 +26,5 @@ pluginManagement {
 }
 
 rootProject.name = "play-ground"
+
+include("module-common")

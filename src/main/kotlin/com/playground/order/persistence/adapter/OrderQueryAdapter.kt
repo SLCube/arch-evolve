@@ -34,9 +34,11 @@ class OrderQueryAdapter(
         userId: Long,
         pageQuery: PageQuery,
     ): PagedResult<Order> {
+        val direction = pageQuery.direction
+        val sortBy = pageQuery.sortBy
         val sort =
-            if (pageQuery.sortBy != null && pageQuery.direction != null) {
-                Sort.by(Sort.Direction.valueOf(pageQuery.direction.uppercase()), pageQuery.sortBy)
+            if (sortBy != null && direction != null) {
+                Sort.by(Sort.Direction.valueOf(direction.uppercase()), sortBy)
             } else {
                 Sort.by(Sort.Direction.DESC, "createdAt")
             }
