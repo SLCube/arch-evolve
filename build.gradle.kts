@@ -72,6 +72,7 @@ subprojects {
 dependencies {
     implementation(project(":module-common"))
     implementation(project(":module-product"))
+    implementation(project(":module-user"))
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")

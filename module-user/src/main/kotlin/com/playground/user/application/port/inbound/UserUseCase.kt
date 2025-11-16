@@ -11,4 +11,5 @@ interface UserUseCase {
     fun updateNickname(command: UpdateNicknameCommand): User
 
     fun updatePassword(command: UpdatePasswordCommand): User
+
 }

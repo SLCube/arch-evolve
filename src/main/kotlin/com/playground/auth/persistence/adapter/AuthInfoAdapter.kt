@@ -1,4 +1,4 @@
-package com.playground.user.persistence.adapter
+package com.playground.auth.persistence.adapter
 
 import com.playground.auth.application.port.outbound.AuthInfoPort
 import com.playground.user.persistence.repository.UserRepository

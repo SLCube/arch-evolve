@@ -1,6 +1,5 @@
 package com.playground.user.presentation.web
 
-import com.playground.auth.annotation.CheckIsOwner
 import com.playground.user.application.port.inbound.UserUseCase
 import com.playground.user.presentation.mapper.toCommand
 import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
@@ -30,7 +29,7 @@ class UserController(
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponseDto.toResponse(savedUser))
     }
 
-    @CheckIsOwner
+//    @CheckIsOwner
     @PatchMapping("/{userId}/nickname")
     fun updateNickname(
         @PathVariable userId: Long,
@@ -40,7 +39,7 @@ class UserController(
         return ResponseEntity.ok(UserResponseDto.toResponse(updatedUser))
     }
 
-    @CheckIsOwner
+//    @CheckIsOwner
     @PatchMapping("/{userId}/password")
     fun updatePassword(
         @PathVariable userId: Long,
