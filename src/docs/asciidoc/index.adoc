@@ -427,3 +427,40 @@ include::{snippets}/주문 취소 - 실패 (이미 취소된 주문)/http-respon
 include::{snippets}/주문 취소 - 실패 (다른 사용자의 주문)/response-fields.adoc[]
 
 include::{snippets}/주문 취소 - 실패 (다른 사용자의 주문)/http-response.adoc[]
+
+[[주문-상세-조회]]
+=== 주문 상세 조회
+
+`GET /orders/{orderId}`
+
+특정 주문의 상세 정보를 조회합니다.
+
+==== 요청
+
+===== 헤더
+
+include::{snippets}/주문 상세 조회 - 성공/request-headers.adoc[]
+
+===== 경로 변수
+
+include::{snippets}/주문 상세 조회 - 성공/path-parameters.adoc[]
+
+===== 요청 예시
+
+include::{snippets}/주문 상세 조회 - 성공/http-request.adoc[]
+
+==== 응답
+
+===== 성공
+
+include::{snippets}/주문 상세 조회 - 성공/response-fields.adoc[]
+
+include::{snippets}/주문 상세 조회 - 성공/http-response.adoc[]
+
+===== 실패
+
+- 다른 사용자의 주문 조회 시도
+
+include::{snippets}/주문 상세 조회 - 실패 (다른 사용자의 주문)/response-fields.adoc[]
+
+include::{snippets}/주문 상세 조회 - 실패 (다른 사용자의 주문)/http-response.adoc[]

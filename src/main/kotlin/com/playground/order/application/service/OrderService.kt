@@ -7,8 +7,9 @@ import com.playground.order.application.port.out.OrderCommandPort
 import com.playground.order.application.port.out.OrderEventPort
 import com.playground.order.application.port.out.OrderQueryPort
 import com.playground.order.application.provider.OrderProductProvider
+import com.playground.order.application.service.result.OrderDetailResult
+import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.domain.event.OrderCreatedEvent
-import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
 import com.playground.order.domain.vo.ProductInfo
@@ -22,9 +23,12 @@ class OrderService(
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
     private val orderProductProvider: OrderProductProvider,
+    private val orderOwnerValidator: OrderOwnerValidator,
 ) : OrderUseCase {
     override fun createOrder(command: OrderCreateCommand): Order {
-        val productInfoMap = orderProductProvider.getVerifiedProductInfos(command)
+        val productIds = command.orderProducts.map { it.productId }
+        val productInfoMap = orderProductProvider.getVerifiedProductInfos(productIds)
+
         val order = createOrderAggregate(command, productInfoMap)
 
         val savedOrder = orderCommandPort.save(order)
@@ -79,13 +83,24 @@ class OrderService(
     }
 
     override fun cancelOrder(command: OrderCancelCommand): Order {
+        orderOwnerValidator.validate(command.userId, command.orderId)
+
         val foundOrder = orderQueryPort.findById(command.orderId)
-
-        if (foundOrder.userId != command.userId) {
-            throw OrderAccessDeniedException(command.orderId, command.userId)
-        }
-
         foundOrder.cancelOrder()
         return orderCommandPort.update(foundOrder)
+    }
+
+    @Transactional(readOnly = true)
+    override fun getOrder(
+        userId: Long,
+        orderId: Long,
+    ): OrderDetailResult {
+        orderOwnerValidator.validate(userId, orderId)
+
+        val order = orderQueryPort.findById(orderId)
+        val productIds = order.orderProducts.map { it.productId }
+        val productInfoMap = orderProductProvider.getVerifiedProductInfos(productIds)
+
+        return OrderDetailResult.of(order, productInfoMap)
     }
 }

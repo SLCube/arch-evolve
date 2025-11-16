@@ -5,11 +5,13 @@ import com.playground.order.application.port.`in`.OrderUseCase
 import com.playground.order.application.port.`in`.command.OrderCancelCommand
 import com.playground.order.presentation.mapper.toCommand
 import com.playground.order.presentation.request.OrderCreateRequestDto
+import com.playground.order.presentation.response.OrderDetailResponseDto
 import com.playground.order.presentation.response.OrderResponseDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -40,6 +42,18 @@ class OrderController(
     ): ResponseEntity<OrderResponseDto> {
         val command = OrderCancelCommand(userId = authUser.userId, orderId = orderId)
         val cancelledOrder = orderUseCase.cancelOrder(command)
+
         return ResponseEntity.status(HttpStatus.OK).body(OrderResponseDto.toResponse(cancelledOrder))
+    }
+
+    @GetMapping("/{orderId}")
+    fun getOrder(
+        @AuthenticationPrincipal authUser: AuthUser,
+        @PathVariable orderId: Long,
+    ): ResponseEntity<OrderDetailResponseDto> {
+        val orderDetailResult = orderUseCase.getOrder(authUser.userId, orderId)
+        val response = OrderDetailResponseDto.toResponse(orderDetailResult)
+
+        return ResponseEntity.status(HttpStatus.OK).body(response)
     }
 }

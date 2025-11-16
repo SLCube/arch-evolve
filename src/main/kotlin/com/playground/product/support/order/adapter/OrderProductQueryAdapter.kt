@@ -14,7 +14,7 @@ class OrderProductQueryAdapter(
 
         return products.associateBy(
             keySelector = { it.id!! },
-            valueTransform = { ProductInfo(productId = it.id!!, price = it.price) },
+            valueTransform = { ProductInfo(productId = it.id!!, price = it.price, productName = it.name) },
         )
     }
 }
