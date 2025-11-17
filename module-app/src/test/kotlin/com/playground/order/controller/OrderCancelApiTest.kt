@@ -8,7 +8,7 @@ import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
-import com.playground.support.ApiTest
+import com.playground.support.AuthenticatedApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
@@ -18,19 +18,16 @@ import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-@WithMockUser
 class OrderCancelApiTest(
     @param:Autowired private val productRepository: ProductRepository,
     @param:Autowired private val orderRepository: OrderRepository,
     @param:Autowired private val orderProductRepository: OrderProductRepository,
-) : ApiTest() {
+) : AuthenticatedApiTest() {
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 취소 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
@@ -85,7 +82,6 @@ class OrderCancelApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 취소 - 실패 (존재하지 않는 주문)`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val jwtToken = getAccessToken(user.loginId, "password123")
@@ -113,7 +109,6 @@ class OrderCancelApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 취소 - 실패 (이미 취소된 주문)`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
@@ -167,7 +162,6 @@ class OrderCancelApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 취소 - 실패 (다른 사용자의 주문)`() {
         val ownerUser = createUser("ownerUser", "password123", "주문소유자")
         val otherUser = createUser("otherUser", "password123", "다른사용자")

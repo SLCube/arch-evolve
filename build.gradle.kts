@@ -35,7 +35,7 @@ repositories {
 }
 
 subprojects {
-    apply(plugin = "io.spring.dependency-management") // 이 줄 추가
+    apply(plugin = "io.spring.dependency-management")
     apply(plugin = "kotlin")
     apply(plugin = "kotlin-spring")
 
@@ -105,6 +105,8 @@ dependencies {
 
     testImplementation("com.tngtech.archunit:archunit-junit5:$archunitVersion") // ArchUnit JUnit5 통합 의존성 추가
 
+    testImplementation(project(":module-test-support"))
+
     testRuntimeOnly("com.h2database:h2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -122,14 +124,16 @@ tasks.withType<Test> {
 
 val snippetsDir = file("build/generated-snippets")
 
-tasks.asciidoctor {
-    sourceDir(file("src/docs/asciidoc"))
-    inputs.dir(snippetsDir)
-    dependsOn(tasks.test)
-    attributes(
-        mapOf("snippets" to snippetsDir),
-    )
-}
+// todo -> 문서 빌드 문제는 내일 다시 해결....
+// tasks.asciidoctor {
+//    val snippetsDir = project(":module-app").layout.buildDirectory.dir("generated-snippets")
+//    sourceDir(file("src/docs/asciidoc"))
+//    inputs.dir(snippetsDir)
+//    dependsOn(project(":module-app").tasks.named("test"))
+//    attributes(
+//        mapOf("snippets" to snippetsDir.get().asFile)
+//    )
+// }
 
 tasks.register("buildDocs") {
     group = "documentation"
@@ -138,10 +142,7 @@ tasks.register("buildDocs") {
 }
 
 tasks.bootJar {
-    enabled = true
-    from(tasks.asciidoctor.get().outputDir) {
-        into("static/docs")
-    }
+    enabled = false
 }
 
 tasks.withType<JavaCompile> {

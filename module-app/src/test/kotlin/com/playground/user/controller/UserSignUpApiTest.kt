@@ -1,7 +1,7 @@
 package com.playground.user.controller
 
 import com.playground.common.error.ErrorCode
-import com.playground.support.ApiTest
+import com.playground.support.AuthenticatedApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import com.playground.user.persistence.repository.UserRepository
@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Suppress("NonAsciiCharacters")
 class UserSignUpApiTest(
     @param:Autowired private val userRepository: UserRepository,
-) : ApiTest() {
+) : AuthenticatedApiTest() {
     @Test
     fun `회원가입 - 성공`() {
         val signUpRequest =

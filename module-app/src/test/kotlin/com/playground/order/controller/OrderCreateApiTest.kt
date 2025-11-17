@@ -5,7 +5,7 @@ import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
-import com.playground.support.ApiTest
+import com.playground.support.AuthenticatedApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
@@ -14,17 +14,14 @@ import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-@WithMockUser
 class OrderCreateApiTest(
     @param:Autowired private val productRepository: ProductRepository,
-) : ApiTest() {
+) : AuthenticatedApiTest() {
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
@@ -81,7 +78,6 @@ class OrderCreateApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 실패, 상품이 존재하지 않음`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val nonExistingProductId = 999L
@@ -154,7 +150,6 @@ class OrderCreateApiTest(
 //    }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 실패, 주문 상품이 비어있음`() {
         val user = createUser("testUser", "password123", "테스트유저")
 
@@ -186,7 +181,6 @@ class OrderCreateApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 실패, 주문 수량이 1개 미만`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))

@@ -8,7 +8,7 @@ import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
-import com.playground.support.ApiTest
+import com.playground.support.AuthenticatedApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
@@ -19,19 +19,16 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.restdocs.request.RequestDocumentation.parameterWithName
 import org.springframework.restdocs.request.RequestDocumentation.pathParameters
 import org.springframework.restdocs.request.RequestDocumentation.queryParameters
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-@WithMockUser
 class OrderLookupApiTest(
     @param:Autowired private val productRepository: ProductRepository,
     @param:Autowired private val orderRepository: OrderRepository,
     @param:Autowired private val orderProductRepository: OrderProductRepository,
-) : ApiTest() {
+) : AuthenticatedApiTest() {
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 상세 조회 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
@@ -98,7 +95,6 @@ class OrderLookupApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 상세 조회 - 실패 (다른 사용자의 주문)`() {
         val ownerUser = createUser("ownerUser", "password123", "주문소유자")
         val otherUser = createUser("otherUser", "password123", "다른사용자")
@@ -145,7 +141,6 @@ class OrderLookupApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 목록 조회 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
@@ -231,7 +226,6 @@ class OrderLookupApiTest(
     }
 
     @Test
-    @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 목록 조회 - 실패 (다른 사용자의 주문은 조회되지 않음)`() {
         val ownerUser = createUser("ownerUser", "password123", "주문소유자")
         val otherUser = createUser("otherUser", "password123", "다른사용자")
