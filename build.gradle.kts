@@ -105,8 +105,6 @@ dependencies {
 
     testImplementation("com.tngtech.archunit:archunit-junit5:$archunitVersion") // ArchUnit JUnit5 통합 의존성 추가
 
-    testImplementation(project(":module-test-support"))
-
     testRuntimeOnly("com.h2database:h2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -120,18 +118,26 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    systemProperty(
+        "org.springframework.restdocs.outputDir",
+        layout.buildDirectory
+            .dir("generated-snippets")
+            .get()
+            .asFile.path,
+    )
 }
 
 val snippetsDir = file("build/generated-snippets")
 
-// todo -> 문서 빌드 문제는 내일 다시 해결....
 // tasks.asciidoctor {
 //    val snippetsDir = project(":module-app").layout.buildDirectory.dir("generated-snippets")
+//
 //    sourceDir(file("src/docs/asciidoc"))
 //    inputs.dir(snippetsDir)
 //    dependsOn(project(":module-app").tasks.named("test"))
+//
 //    attributes(
-//        mapOf("snippets" to snippetsDir.get().asFile)
+//        mapOf("snippets" to snippetsDir.get().asFile),
 //    )
 // }
 
@@ -173,16 +179,17 @@ jacoco {
 }
 
 tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-        csv.required.set(false)
-    }
+    dependsOn(subprojects.map { it.tasks.named("test") })
+
+    val allClassDirs = files(subprojects.map { it.layout.buildDirectory.dir("classes/kotlin/main") })
+    val allSourceDirs = files(subprojects.map { it.file("src/main/kotlin") })
+    val allExecData = files(subprojects.map { it.layout.buildDirectory.file("jacoco/test.exec") })
+
+    sourceDirectories.setFrom(allSourceDirs)
+    executionData.setFrom(allExecData)
+
     classDirectories.setFrom(
-        fileTree(
-            layout.buildDirectory.dir("classes/kotlin/main"),
-        ) {
+        fileTree(allClassDirs) {
             exclude(
                 "**/com/playground/PlayGroundApplication*",
                 "**/com/playground/common/**",
@@ -196,6 +203,12 @@ tasks.jacocoTestReport {
             )
         },
     )
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
 }
 
 tasks.check {

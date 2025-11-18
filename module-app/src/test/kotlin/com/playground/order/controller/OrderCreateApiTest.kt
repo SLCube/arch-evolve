@@ -5,7 +5,7 @@ import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
-import com.playground.support.AuthenticatedApiTest
+import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Suppress("NonAsciiCharacters")
 class OrderCreateApiTest(
     @param:Autowired private val productRepository: ProductRepository,
-) : AuthenticatedApiTest() {
+) : ApiTest() {
     @Test
     fun `주문 생성 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")

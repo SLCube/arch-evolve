@@ -3,7 +3,7 @@ package com.playground.product.controller
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.product.presentation.request.ProductUpdateRequestDto
-import com.playground.support.AuthenticatedApiTest
+import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @Suppress("NonAsciiCharacters")
 class ProductUpdateApiTest(
     @param:Autowired private val productRepository: ProductRepository,
-) : AuthenticatedApiTest() {
+) : ApiTest() {
     @Test
     fun `상품 수정 - 성공`() {
         val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))

@@ -1,7 +1,7 @@
 package com.playground.user.controller
 
 import com.playground.auth.presentation.request.AuthLoginRequestDto
-import com.playground.support.AuthenticatedApiTest
+import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-class UserLoginApiTest : AuthenticatedApiTest() {
+class UserLoginApiTest : ApiTest() {
     @Test
     fun `로그인 - 성공`() {
         createUser("testUser", "password123", "테스트유저")

@@ -8,7 +8,7 @@ import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
-import com.playground.support.AuthenticatedApiTest
+import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
@@ -27,7 +27,7 @@ class OrderLookupApiTest(
     @param:Autowired private val productRepository: ProductRepository,
     @param:Autowired private val orderRepository: OrderRepository,
     @param:Autowired private val orderProductRepository: OrderProductRepository,
-) : AuthenticatedApiTest() {
+) : ApiTest() {
     @Test
     fun `주문 상세 조회 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")

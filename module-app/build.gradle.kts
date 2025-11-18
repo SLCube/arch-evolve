@@ -22,7 +22,6 @@ dependencies {
 
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
-    testImplementation(project(":module-test-support"))
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("org.springframework.security:spring-security-test")
 
