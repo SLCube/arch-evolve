@@ -12,6 +12,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -20,6 +21,7 @@ class ProductUpdateApiTest(
     @param:Autowired private val productRepository: ProductRepository,
 ) : ApiTest() {
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 수정 - 성공`() {
         val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
         val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20, price = 20000L)
@@ -54,6 +56,7 @@ class ProductUpdateApiTest(
     }
 
     @Test
+    @WithMockUser(roles = ["USER"])
     fun `상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
         val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
         val updateRequest = ProductUpdateRequestDto(name = "상품2", stock = 20, price = 20000L)

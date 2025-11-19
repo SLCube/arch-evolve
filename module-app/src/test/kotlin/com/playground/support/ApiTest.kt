@@ -33,6 +33,9 @@ abstract class ApiTest {
     lateinit var mockMvc: MockMvc
 
     @Autowired
+    lateinit var restDocsMockMvc: MockMvc
+
+    @Autowired
     lateinit var userUseCase: UserUseCase
 
     @Autowired
@@ -43,7 +46,7 @@ abstract class ApiTest {
 
     @BeforeEach
     fun setUp(restDocumentation: RestDocumentationContextProvider) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+        this.restDocsMockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
             .apply {
                 apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
                 apply<DefaultMockMvcBuilder>(springSecurity())

@@ -1,5 +1,8 @@
 plugins {
     id("org.springframework.boot")
+    id("org.asciidoctor.jvm.convert")
+    kotlin("jvm")
+    kotlin("plugin.spring")
 }
 
 val kotestVersion: String by rootProject
@@ -17,6 +20,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     runtimeOnly("org.postgresql:postgresql")
 
@@ -31,9 +35,38 @@ dependencies {
     testRuntimeOnly("com.h2database:h2")
 }
 
+tasks.asciidoctor {
+    val snippetsDir = layout.buildDirectory.dir("build/generated-snippets")
+
+    sourceDir(file("src/docs/asciidoc"))
+    inputs.dir(snippetsDir)
+    dependsOn(tasks.named("test"))
+
+    attributes(
+        mapOf("snippets" to snippetsDir.get().asFile)
+    )
+}
+
+tasks.register("buildDocs") {
+    group = "documentation"
+    description = "Builds the API documentation."
+    dependsOn(tasks.asciidoctor)
+}
+
 tasks.bootJar {
     enabled = true
-    from(rootProject.tasks.named("asciidoctor")) {
+    from(tasks.named("asciidoctor")) {
         into("static/docs")
     }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+    systemProperty(
+        "org.springframework.restdocs.outputDir",
+        layout.buildDirectory
+            .dir("generated-snippets")
+            .get()
+            .asFile.path,
+    )
 }

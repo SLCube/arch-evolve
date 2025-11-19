@@ -1,24 +1,23 @@
 package com.playground.product.controller
 
-import com.playground.product.persistence.repository.ProductRepository
 import com.playground.product.presentation.request.ProductSaveRequestDto
 import com.playground.support.ApiTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
 import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-class ProductSaveApiTest(
-    @param:Autowired private val productRepository: ProductRepository,
-) : ApiTest() {
+class ProductSaveApiTest : ApiTest() {
+
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 등록 - 성공`() {
         val request =
             ProductSaveRequestDto(
@@ -56,6 +55,7 @@ class ProductSaveApiTest(
     }
 
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 등록 - 실패, 이름이 비어있음`() {
         val request =
             ProductSaveRequestDto(
@@ -85,6 +85,7 @@ class ProductSaveApiTest(
     }
 
     @Test
+    @WithMockUser(roles = ["ADMIN"])
     fun `상품 등록 - 실패, 재고가 0보다 작음`() {
         val request =
             ProductSaveRequestDto(
@@ -114,6 +115,7 @@ class ProductSaveApiTest(
     }
 
     @Test
+    @WithMockUser(roles = ["USER"])
     fun `상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
         val request = ProductSaveRequestDto(name = "상품1", stock = 10, price = 10000L)
 

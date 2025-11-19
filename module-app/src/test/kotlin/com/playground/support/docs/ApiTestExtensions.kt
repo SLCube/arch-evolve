@@ -71,7 +71,7 @@ fun ApiTest.performAndDocument(
     }
 
     val resultActions =
-        mockMvc
+        restDocsMockMvc
             .perform(requestBuilder)
             .andExpect(builder.expectedStatus)
 

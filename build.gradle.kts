@@ -127,7 +127,7 @@ tasks.withType<Test> {
     )
 }
 
-val snippetsDir = file("build/generated-snippets")
+// val snippetsDir = file("build/generated-snippets")
 
 // tasks.asciidoctor {
 //    val snippetsDir = project(":module-app").layout.buildDirectory.dir("generated-snippets")
@@ -141,11 +141,11 @@ val snippetsDir = file("build/generated-snippets")
 //    )
 // }
 
-tasks.register("buildDocs") {
-    group = "documentation"
-    description = "Builds the API documentation."
-    dependsOn(tasks.asciidoctor)
-}
+// tasks.register("buildDocs") {
+//    group = "documentation"
+//    description = "Builds the API documentation."
+//    dependsOn(tasks.asciidoctor)
+// }
 
 tasks.bootJar {
     enabled = false
