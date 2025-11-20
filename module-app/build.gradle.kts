@@ -36,7 +36,7 @@ dependencies {
 }
 
 tasks.asciidoctor {
-    val snippetsDir = layout.buildDirectory.dir("build/generated-snippets")
+    val snippetsDir = layout.buildDirectory.dir("generated-snippets")
 
     sourceDir(file("src/docs/asciidoc"))
     inputs.dir(snippetsDir)
