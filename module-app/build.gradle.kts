@@ -16,14 +16,6 @@ dependencies {
     implementation(project(":module-auth"))
     implementation(project(":module-order"))
 
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-
-    runtimeOnly("org.postgresql:postgresql")
-
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")

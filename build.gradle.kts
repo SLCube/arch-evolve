@@ -60,53 +60,8 @@ subprojects {
     }
 
     dependencies {
-        implementation("org.springframework.boot:spring-boot-starter")
-
-        implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-        implementation("org.jetbrains.kotlin:kotlin-reflect")
-
         testImplementation("org.springframework.boot:spring-boot-starter-test")
     }
-}
-
-dependencies {
-    implementation(project(":module-common"))
-    implementation(project(":module-product"))
-    implementation(project(":module-user"))
-    implementation(project(":module-auth"))
-    implementation(project(":module-order"))
-
-    implementation("org.springframework.boot:spring-boot-starter")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-
-    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:$kotlinJdslVersion")
-    implementation("com.linecorp.kotlin-jdsl:jpql-render:$kotlinJdslVersion")
-    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:$kotlinJdslVersion")
-
-    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
-
-    runtimeOnly("org.postgresql:postgresql")
-
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("org.springframework.security:spring-security-test")
-
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:$kotestVersion")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:$kotestVersion")
-    testImplementation("io.kotest.extensions:kotest-extensions-spring:$kotestSpringExtensionVersion")
-
-    testImplementation("com.tngtech.archunit:archunit-junit5:$archunitVersion") // ArchUnit JUnit5 통합 의존성 추가
-
-    testRuntimeOnly("com.h2database:h2")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
@@ -126,26 +81,6 @@ tasks.withType<Test> {
             .asFile.path,
     )
 }
-
-// val snippetsDir = file("build/generated-snippets")
-
-// tasks.asciidoctor {
-//    val snippetsDir = project(":module-app").layout.buildDirectory.dir("generated-snippets")
-//
-//    sourceDir(file("src/docs/asciidoc"))
-//    inputs.dir(snippetsDir)
-//    dependsOn(project(":module-app").tasks.named("test"))
-//
-//    attributes(
-//        mapOf("snippets" to snippetsDir.get().asFile),
-//    )
-// }
-
-// tasks.register("buildDocs") {
-//    group = "documentation"
-//    description = "Builds the API documentation."
-//    dependsOn(tasks.asciidoctor)
-// }
 
 tasks.bootJar {
     enabled = false
