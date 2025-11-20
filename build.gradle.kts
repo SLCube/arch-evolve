@@ -38,6 +38,7 @@ subprojects {
     apply(plugin = "io.spring.dependency-management")
     apply(plugin = "kotlin")
     apply(plugin = "kotlin-spring")
+    apply(plugin = "jacoco")
 
     repositories {
         mavenCentral()
@@ -116,15 +117,17 @@ jacoco {
 tasks.jacocoTestReport {
     dependsOn(subprojects.map { it.tasks.named("test") })
 
-    val allClassDirs = files(subprojects.map { it.layout.buildDirectory.dir("classes/kotlin/main") })
-    val allSourceDirs = files(subprojects.map { it.file("src/main/kotlin") })
-    val allExecData = files(subprojects.map { it.layout.buildDirectory.file("jacoco/test.exec") })
+    val allSourceDirs = subprojects.map { it.layout.projectDirectory.dir("src/main/kotlin") }
+    sourceDirectories.setFrom(files(allSourceDirs))
 
-    sourceDirectories.setFrom(allSourceDirs)
-    executionData.setFrom(allExecData)
+    val allClassDirs = subprojects.map { it.layout.buildDirectory.dir("classes/kotlin/main") }
+    classDirectories.setFrom(files(allClassDirs))
+
+    val allExecData = subprojects.map { it.layout.buildDirectory.file("jacoco/test.exec") }
+    executionData.setFrom(files(allExecData))
 
     classDirectories.setFrom(
-        fileTree(allClassDirs) {
+        files(allClassDirs).asFileTree.matching {
             exclude(
                 "**/com/playground/PlayGroundApplication*",
                 "**/com/playground/common/**",
