@@ -1,102 +1,89 @@
-val springBootVersion: String by project
-val springDependencyManagementVersion: String by project
-val kotlinVersion: String by project
-val asciidoctorVersion: String by project
-val ktlintPluginVersion: String by project
-val ktlintEngineVersion: String by project
-val kotestVersion: String by project
-val kotestSpringExtensionVersion: String by project
-val jjwtVersion: String by project
-val kotlinJdslVersion: String by project
-val archunitVersion: String by project
+import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot")
-    id("io.spring.dependency-management")
-    kotlin("jvm")
-    kotlin("plugin.spring")
-    kotlin("plugin.jpa")
-    id("org.asciidoctor.jvm.convert")
-    id("org.jlleitschuh.gradle.ktlint")
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.spring) apply false
+    alias(libs.plugins.kotlin.jpa) apply false
+
+    id("org.asciidoctor.jvm.convert") version "3.3.2" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("jacoco")
+    id("base")
 }
 
 group = "com.playground"
 version = "0.0.1-SNAPSHOT"
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+allprojects {
+    repositories {
+        mavenCentral()
     }
-}
-
-repositories {
-    mavenCentral()
 }
 
 subprojects {
     apply(plugin = "io.spring.dependency-management")
-    apply(plugin = "kotlin")
-    apply(plugin = "kotlin-spring")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "jacoco")
 
-    repositories {
-        mavenCentral()
-    }
-
-    plugins.withId("org.springframework.boot") {
-        tasks.getByName("bootJar") {
-            enabled = false
-        }
-
-        tasks.getByName("jar") {
-            enabled = true
+    configure<JavaPluginExtension> {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
         }
     }
 
-    dependencyManagement {
+    configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
         imports {
             mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
         }
     }
 
+    val libs = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
+
     dependencies {
-        testImplementation("org.springframework.boot:spring-boot-starter-test")
+        "implementation"(libs.findLibrary("spring-boot-starter").get())
+        "implementation"(libs.findLibrary("jackson-module-kotlin").get())
+        "implementation"(libs.findLibrary("kotlin-reflect").get())
+        "testImplementation"(libs.findLibrary("spring-boot-starter-test").get())
+    }
+
+    tasks.withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs += "-Xjsr305=strict"
+            jvmTarget = "21"
+        }
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
+        systemProperty(
+            "org.springframework.restdocs.outputDir",
+            layout.buildDirectory.dir("generated-snippets").get().asFile.path,
+        )
+    }
+
+    plugins.withId("org.springframework.boot") {
+        tasks.named("bootJar") {
+            enabled = false
+        }
+        tasks.named("jar") {
+            enabled = true
+        }
+    }
+
+    tasks.withType<JavaCompile> {
+        options.encoding = "UTF-8"
+    }
+    tasks.withType<ProcessResources> {
+        filteringCharset = "UTF-8"
     }
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += "-Xjsr305=strict"
-        jvmTarget = "21"
-    }
-}
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-    systemProperty(
-        "org.springframework.restdocs.outputDir",
-        layout.buildDirectory
-            .dir("generated-snippets")
-            .get()
-            .asFile.path,
-    )
-}
-
-tasks.bootJar {
-    enabled = false
-}
-
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
-}
-
-tasks.withType<ProcessResources> {
-    filteringCharset = "UTF-8"
-}
-
-ktlint {
-    version.set(ktlintEngineVersion)
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     verbose.set(true)
     android.set(false)
     outputToConsole.set(true)
@@ -110,20 +97,21 @@ ktlint {
     }
 }
 
-jacoco {
+configure<JacocoPluginExtension> {
     toolVersion = "0.8.11"
 }
 
-tasks.jacocoTestReport {
+tasks.register<JacocoReport>("jacocoTestReport") {
+    group = "Verification"
+    description = "Generates an aggregate Jacoco report from all subprojects"
+
     dependsOn(subprojects.map { it.tasks.named("test") })
 
     val allSourceDirs = subprojects.map { it.layout.projectDirectory.dir("src/main/kotlin") }
-    sourceDirectories.setFrom(files(allSourceDirs))
-
     val allClassDirs = subprojects.map { it.layout.buildDirectory.dir("classes/kotlin/main") }
-    classDirectories.setFrom(files(allClassDirs))
-
     val allExecData = subprojects.map { it.layout.buildDirectory.file("jacoco/test.exec") }
+
+    sourceDirectories.setFrom(files(allSourceDirs))
     executionData.setFrom(files(allExecData))
 
     classDirectories.setFrom(
@@ -149,9 +137,6 @@ tasks.jacocoTestReport {
     }
 }
 
-tasks.check {
-}
-
-tasks.build {
-    dependsOn(tasks.jacocoTestReport)
+tasks.named("check") {
+    dependsOn("jacocoTestReport")
 }
