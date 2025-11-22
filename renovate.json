@@ -6,28 +6,15 @@
   "prHourlyLimit": 0,
   "enabledManagers": [
     "gradle",
-    "gradle-wrapper",
-    "version-catalog"
+    "gradle-wrapper"
   ],
   "packageRules": [
     {
       "description": "Group all version catalog updates together",
-      "matchManagers": [
-        "version-catalog"
+      "matchFileNames": [
+        "gradle/libs.versions.toml"
       ],
-      "groupName": "Version Catalog Dependencies",
-      "groupPrefix": "dep"
-    },
-    {
-      "description": "Automerge all patch updates for low-risk libs",
-      "matchUpdateTypes": ["patch"],
-      "matchPackagePatterns": [
-        "com.fasterxml.jackson.module:jackson-module-kotlin",
-        "^org\\.jetbrains\\.kotlin"
-      ],
-      "automerge": false,
-      "platformAutomerge": false,
-      "schedule": ["at any time"]
+      "groupName": "Version Catalog Dependencies"
     }
   ],
   "reviewers": [
