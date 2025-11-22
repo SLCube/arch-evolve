@@ -2,5 +2,41 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "enabledManagers": [
+    "gradle",
+    "gradle-wrapper",
+    "version-catalog"
+  ],
+  "version-catalog": {
+    "enabled": true,
+    "fileMatch": [
+      "**/libs.versions.toml",
+      "gradle/libs.versions.toml"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Group all version catalog updates together",
+      "matchManagers": [
+        "version-catalog"
+      ],
+      "groupName": "Version Catalog Dependencies",
+      "groupPrefix": "dep"
+    },
+    {
+      "description": "Automerge all patch updates for low-risk libs",
+      "matchUpdateTypes": ["patch"],
+      "matchPackagePatterns": [
+        "com.fasterxml.jackson.module:jackson-module-kotlin",
+        "^org\\.jetbrains\\.kotlin"
+      ],
+      "automerge": false,
+      "platformAutomerge": false,
+      "schedule": ["at any time"]
+    }
+  ],
+  "reviewers": [
+    "SLCube"
   ]
 }
