@@ -9,9 +9,9 @@ import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderProductProvider
 import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.contract.domain.event.OrderCreatedEvent
+import com.playground.order.contract.domain.vo.ProductInfo
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
-import com.playground.order.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

@@ -8,7 +8,7 @@ import com.playground.order.application.provider.OrderProductProvider
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.application.service.result.OrderSummaryResult
 import com.playground.order.application.validator.OrderOwnerValidator
-import com.playground.order.domain.vo.ProductInfo
+import com.playground.order.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

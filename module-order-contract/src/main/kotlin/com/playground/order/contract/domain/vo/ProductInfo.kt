@@ -1,4 +1,4 @@
-package com.playground.order.domain.vo
+package com.playground.order.contract.domain.vo
 
 data class ProductInfo(
     val productId: Long,

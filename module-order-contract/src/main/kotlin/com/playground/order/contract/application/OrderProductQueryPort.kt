@@ -1,6 +1,7 @@
-package com.playground.order.application.port.outbound
+package com.playground.order.contract.application
 
-import com.playground.order.domain.vo.ProductInfo
+import com.playground.order.contract.domain.vo.ProductInfo
+
 
 fun interface OrderProductQueryPort {
     fun getProductInfos(productIds: List<Long>): Map<Long, ProductInfo>

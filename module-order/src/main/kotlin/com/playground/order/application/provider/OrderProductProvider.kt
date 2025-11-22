@@ -1,8 +1,8 @@
 package com.playground.order.application.provider
 
-import com.playground.order.application.port.outbound.OrderProductQueryPort
+import com.playground.order.contract.application.OrderProductQueryPort
+import com.playground.order.contract.domain.vo.ProductInfo
 import com.playground.order.domain.exception.OrderableProductNotFoundException
-import com.playground.order.domain.vo.ProductInfo
 import org.springframework.stereotype.Component
 
 @Component
