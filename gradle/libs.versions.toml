@@ -1,17 +1,17 @@
 [versions]
-kotlin = "1.9.25"
+kotlin = "2.2.21"
 java = "21"
-springBoot = "3.5.8"
+springBoot = "4.0.0"
 springDependencyManagement = "1.1.7"
 
 jackson = "2.15.0"
 kotlinJdsl = "3.6.1"
 jjwt = "0.13.0"
-kotest = "5.9.1"
+kotest = "6.0.5"
 kotestSpringExtension = "1.3.0"
 archunit = "1.4.1"
-asciidoctor = "3.3.2"
-ktlint = "12.3.0"
+asciidoctor = "4.0.5"
+ktlint = "14.0.1"
 
 [libraries]
 # --- kotlin plugin ---
