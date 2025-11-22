@@ -1,13 +1,8 @@
 plugins {
-    id("org.springframework.boot")
-    id("org.asciidoctor.jvm.convert")
-    kotlin("jvm")
-    kotlin("plugin.spring")
+    id("spring-web-conventions")
+    id("spring-data-conventions")
+    alias(libs.plugins.asciidoctor.convert)
 }
-
-val kotestVersion: String by rootProject
-val kotestSpringExtensionVersion: String by rootProject
-val archunitVersion: String by rootProject
 
 dependencies {
     implementation(project(":module-common"))
@@ -19,11 +14,12 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation(libs.spring.security.test)
 
-    testImplementation("io.kotest:kotest-runner-junit5-jvm:${kotestVersion}")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:${kotestVersion}")
-    testImplementation("io.kotest.extensions:kotest-extensions-spring:${kotestSpringExtensionVersion}")
+    testImplementation(libs.kotest.runner)
+    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.kotest.spring)
+
     testRuntimeOnly("com.h2database:h2")
 }
 

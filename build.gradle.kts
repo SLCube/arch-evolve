@@ -1,13 +1,10 @@
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    alias(libs.plugins.spring.boot) apply false
-    alias(libs.plugins.spring.dependency.management) apply false
-    alias(libs.plugins.kotlin.jvm) apply false
-    alias(libs.plugins.kotlin.spring) apply false
-    alias(libs.plugins.kotlin.jpa) apply false
+    id("io.spring.dependency-management") apply false
+    id("org.jetbrains.kotlin.jvm") apply false
+    id("org.jetbrains.kotlin.plugin.spring") apply false
+    id("org.jetbrains.kotlin.plugin.jpa") apply false
 
     id("org.asciidoctor.jvm.convert") version "3.3.2" apply false
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
@@ -25,62 +22,7 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = "io.spring.dependency-management")
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
     apply(plugin = "jacoco")
-
-    configure<JavaPluginExtension> {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
-        }
-    }
-
-    configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
-        imports {
-            mavenBom(org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES)
-        }
-    }
-
-    val libs = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-    dependencies {
-        "implementation"(libs.findLibrary("spring-boot-starter").get())
-        "implementation"(libs.findLibrary("jackson-module-kotlin").get())
-        "implementation"(libs.findLibrary("kotlin-reflect").get())
-        "testImplementation"(libs.findLibrary("spring-boot-starter-test").get())
-    }
-
-    tasks.withType<KotlinCompile> {
-        kotlinOptions {
-            freeCompilerArgs += "-Xjsr305=strict"
-            jvmTarget = "21"
-        }
-    }
-
-    tasks.withType<Test> {
-        useJUnitPlatform()
-        systemProperty(
-            "org.springframework.restdocs.outputDir",
-            layout.buildDirectory.dir("generated-snippets").get().asFile.path,
-        )
-    }
-
-    plugins.withId("org.springframework.boot") {
-        tasks.named("bootJar") {
-            enabled = false
-        }
-        tasks.named("jar") {
-            enabled = true
-        }
-    }
-
-    tasks.withType<JavaCompile> {
-        options.encoding = "UTF-8"
-    }
-    tasks.withType<ProcessResources> {
-        filteringCharset = "UTF-8"
-    }
 }
 
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {

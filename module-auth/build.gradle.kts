@@ -1,13 +1,12 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.spring")
-    kotlin("plugin.jpa")
-    id("io.spring.dependency-management")
+    id("spring-web-conventions")
+    id("spring-data-conventions")
 }
-
-val jjwtVersion: String by rootProject
 
 dependencies {
     implementation(project(":module-common"))
     implementation(project(":module-user"))
+
+    implementation(libs.spring.boot.starter.security)
+    implementation(libs.bundles.jjwt)
 }

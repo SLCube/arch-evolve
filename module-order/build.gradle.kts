@@ -1,8 +1,6 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.spring")
-    kotlin("plugin.jpa")
-    id("io.spring.dependency-management")
+    id("spring-web-conventions")
+    id("spring-data-conventions")
 }
 
 dependencies {
@@ -10,4 +8,6 @@ dependencies {
     implementation(project(":module-user"))
     implementation(project(":module-product"))
     implementation(project(":module-auth"))
+
+    implementation(libs.spring.boot.starter.security)
 }

@@ -1,5 +1,6 @@
 plugins {
-    kotlin("plugin.jpa")
+    id("spring-web-conventions")
+    id("spring-data-conventions")
 }
 
 dependencies {
