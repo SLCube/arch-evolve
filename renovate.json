@@ -8,13 +8,6 @@
     "gradle-wrapper",
     "version-catalog"
   ],
-  "version-catalog": {
-    "enabled": true,
-    "fileMatch": [
-      "**/libs.versions.toml",
-      "gradle/libs.versions.toml"
-    ]
-  },
   "packageRules": [
     {
       "description": "Group all version catalog updates together",
