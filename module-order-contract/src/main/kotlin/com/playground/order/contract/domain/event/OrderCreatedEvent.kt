@@ -1,4 +1,4 @@
-package com.playground.order.domain.event
+package com.playground.order.contract.domain.event
 
 import com.playground.common.event.DomainEvent
 

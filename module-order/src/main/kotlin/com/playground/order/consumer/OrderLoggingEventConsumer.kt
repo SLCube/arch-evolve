@@ -1,7 +1,7 @@
 package com.playground.order.consumer
 
 import com.playground.common.log.utils.logger
-import com.playground.order.domain.event.OrderCreatedEvent
+import com.playground.order.contract.domain.event.OrderCreatedEvent
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
 
