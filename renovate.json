@@ -3,7 +3,6 @@
   "extends": [
     "config:recommended"
   ],
-  "prHourlyLimit": 0,
   "enabledManagers": [
     "gradle",
     "gradle-wrapper"
