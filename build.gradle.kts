@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.spring) apply false
     alias(libs.plugins.kotlin.jpa) apply false
 
-    id("org.asciidoctor.jvm.convert") version "3.3.2" apply false
+    id("org.asciidoctor.jvm.convert") version "4.0.5" apply false
     id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
     id("jacoco")
     id("base")
