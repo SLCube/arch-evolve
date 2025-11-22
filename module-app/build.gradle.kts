@@ -1,7 +1,10 @@
 plugins {
-    id("spring-web-conventions")
-    id("spring-data-conventions")
-    alias(libs.plugins.asciidoctor.convert)
+    id("org.springframework.boot")
+    id("io.spring.dependency-management")
+    id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.kotlin.plugin.spring")
+
+    id("org.asciidoctor.jvm.convert")
 }
 
 dependencies {
@@ -11,16 +14,23 @@ dependencies {
     implementation(project(":module-auth"))
     implementation(project(":module-order"))
 
-    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.validation)
+    implementation(libs.spring.boot.starter.aop)
 
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    developmentOnly(libs.spring.boot.docker.compose)
+
+    runtimeOnly(libs.postgres)
+
+    testImplementation(libs.restdocs.mockmvc)
     testImplementation(libs.spring.security.test)
 
     testImplementation(libs.kotest.runner)
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.kotest.spring)
 
-    testRuntimeOnly("com.h2database:h2")
+    testRuntimeOnly(libs.h2.database)
 }
 
 tasks.asciidoctor {

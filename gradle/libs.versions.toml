@@ -4,6 +4,7 @@ java = "21"
 springBoot = "3.3.1"
 springDependencyManagement = "1.1.5"
 
+jackson = "2.15.0"
 kotlinJdsl = "3.5.5"
 jjwt = "0.12.5"
 kotest = "5.8.0"
@@ -35,11 +36,12 @@ spring-boot-starter-aop = { module = "org.springframework.boot:spring-boot-start
 spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-docker-compose" }
 
 # --- Kotlin ---
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 
 # --- Database ---
 postgres = { module = "org.postgresql:postgresql", version = "42.7.3" }
+h2-database = { module = "com.h2database:h2" }
 
 # --- JDSL ---
 kotlin-jdsl-core = { module = "com.linecorp.kotlin-jdsl:jpql-dsl", version.ref = "kotlinJdsl" }
@@ -56,8 +58,8 @@ kotest-runner = { module = "io.kotest:kotest-runner-junit5-jvm", version.ref = "
 kotest-assertions = { module = "io.kotest:kotest-assertions-core-jvm", version.ref = "kotest" }
 kotest-spring = { module = "io.kotest.extensions:kotest-extensions-spring", version.ref = "kotestSpringExtension" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
-restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc", version = "3.0.1" }
-restdocs-asciidoctor = { module = "org.springframework.restdocs:spring-restdocs-asciidoctor", version = "3.0.1" }
+restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc" }
+restdocs-asciidoctor = { module = "org.springframework.restdocs:spring-restdocs-asciidoctor" }
 
 [bundles]
 jjwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
