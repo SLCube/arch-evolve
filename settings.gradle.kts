@@ -10,8 +10,13 @@ rootProject.name = "play-ground"
 include("module-common")
 include("module-product")
 include("module-user")
+
 include("module-auth")
 include("module-auth-contract")
+
 include("module-order")
 include("module-order-contract")
+
+include("module-payment")
+
 include("module-app")
