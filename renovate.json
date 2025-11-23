@@ -9,11 +9,15 @@
   ],
   "packageRules": [
     {
-      "description": "Group all version catalog updates together",
-      "matchFileNames": [
-        "gradle/libs.versions.toml"
+      "description": "Automerge all patch updates for low-risk libs",
+      "matchUpdateTypes": ["patch"],
+      "matchPackagePatterns": [
+        "com.fasterxml.jackson.module:jackson-module-kotlin",
+        "^org\\.jetbrains\\.kotlin"
       ],
-      "groupName": "Version Catalog Dependencies"
+      "automerge": false,
+      "platformAutomerge": false,
+      "schedule": ["at any time"]
     }
   ],
   "reviewers": [
