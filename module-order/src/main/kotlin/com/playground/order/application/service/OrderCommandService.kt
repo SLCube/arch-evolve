@@ -14,6 +14,7 @@ import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 
 @Service
 @Transactional
@@ -44,7 +45,7 @@ class OrderCommandService(
         val order =
             Order(
                 userId = command.userId,
-                totalPrice = 0,
+                totalPrice = BigDecimal.ZERO,
             )
 
         val orderProducts =
@@ -77,6 +78,7 @@ class OrderCommandService(
                 orderId = order.id!!,
                 userId = order.userId,
                 orderProductDetails,
+                order.totalPrice,
             )
         orderEventPort.publish(orderCreatedEvent)
     }

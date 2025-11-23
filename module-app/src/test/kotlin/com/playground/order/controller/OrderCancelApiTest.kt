@@ -30,14 +30,14 @@ class OrderCancelApiTest(
     @Test
     fun `주문 취소 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
         val jwtToken = getAccessToken(user.loginId, "password123")
 
         val orderJpaEntity =
             orderRepository.save(
                 OrderJpaEntity(
                     userId = user.id!!,
-                    totalPrice = productJpaEntity.price * 1,
+                    totalPrice = productJpaEntity.price,
                     status = OrderStatus.PENDING,
                 ),
             )
@@ -111,14 +111,14 @@ class OrderCancelApiTest(
     @Test
     fun `주문 취소 - 실패 (이미 취소된 주문)`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
         val jwtToken = getAccessToken(user.loginId, "password123")
 
         val orderJpaEntity =
             orderRepository.save(
                 OrderJpaEntity(
                     userId = user.id!!,
-                    totalPrice = productJpaEntity.price * 1,
+                    totalPrice = productJpaEntity.price,
                     status = OrderStatus.PENDING,
                 ),
             )
@@ -165,13 +165,13 @@ class OrderCancelApiTest(
     fun `주문 취소 - 실패 (다른 사용자의 주문)`() {
         val ownerUser = createUser("ownerUser", "password123", "주문소유자")
         val otherUser = createUser("otherUser", "password123", "다른사용자")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
 
         val orderJpaEntity =
             orderRepository.save(
                 OrderJpaEntity(
                     userId = ownerUser.id!!,
-                    totalPrice = productJpaEntity.price * 1,
+                    totalPrice = productJpaEntity.price,
                     status = OrderStatus.PENDING,
                 ),
             )

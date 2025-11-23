@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.math.BigDecimal
 
 @Entity
 @Table(name = "products")
@@ -18,7 +19,8 @@ class ProductJpaEntity(
     val id: Long? = null,
     var name: String,
     var stock: Int,
-    var price: Long,
+    @Column(nullable = false, precision = 19, scale = 2)
+    var price: BigDecimal,
 ) : BaseEntity() {
     companion object {
         fun toJpaEntity(domain: Product): ProductJpaEntity =

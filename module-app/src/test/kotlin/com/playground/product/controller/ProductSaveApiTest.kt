@@ -23,7 +23,7 @@ class ProductSaveApiTest : ApiTest() {
             ProductSaveRequestDto(
                 name = "상품1",
                 stock = 10,
-                price = 10000L,
+                price = 10000.toBigDecimal(),
             )
 
         performAndDocument("상품 등록 - 성공") {
@@ -61,7 +61,7 @@ class ProductSaveApiTest : ApiTest() {
             ProductSaveRequestDto(
                 name = "",
                 stock = 10,
-                price = 10000L,
+                price = 10000.toBigDecimal(),
             )
 
         performAndDocument("상품 등록 - 실패, 이름이 비어있음") {
@@ -91,7 +91,7 @@ class ProductSaveApiTest : ApiTest() {
             ProductSaveRequestDto(
                 name = "상품1",
                 stock = -1,
-                price = 10000L,
+                price = 10000.toBigDecimal(),
             )
 
         performAndDocument("상품 등록 - 실패, 재고가 0보다 작음") {
@@ -117,7 +117,7 @@ class ProductSaveApiTest : ApiTest() {
     @Test
     @WithMockUser(roles = ["USER"])
     fun `상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
-        val request = ProductSaveRequestDto(name = "상품1", stock = 10, price = 10000L)
+        val request = ProductSaveRequestDto(name = "상품1", stock = 10, price = 10000.toBigDecimal())
 
         performAndDocument("상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도") {
             httpMethod = HttpMethod.POST

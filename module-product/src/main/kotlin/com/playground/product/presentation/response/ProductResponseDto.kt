@@ -1,12 +1,13 @@
 package com.playground.product.presentation.response
 
 import com.playground.product.domain.model.Product
+import java.math.BigDecimal
 
 data class ProductResponseDto(
     val id: Long,
     val name: String,
     val stock: Int,
-    val price: Long,
+    val price: BigDecimal,
 ) {
     companion object {
         fun toResponse(domain: Product): ProductResponseDto {

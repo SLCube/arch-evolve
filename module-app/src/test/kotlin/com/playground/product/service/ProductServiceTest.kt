@@ -23,7 +23,7 @@ class ProductServiceTest(
 
     @BeforeEach
     fun setUp() {
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "테스트 상품", stock = 100, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "테스트 상품", stock = 100, price = 10000.toBigDecimal()))
         productId = productJpaEntity.id!!
     }
 

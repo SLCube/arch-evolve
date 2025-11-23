@@ -31,14 +31,14 @@ class OrderLookupApiTest(
     @Test
     fun `주문 상세 조회 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
         val jwtToken = getAccessToken(user.loginId, "password123")
 
         val orderJpaEntity =
             orderRepository.save(
                 OrderJpaEntity(
                     userId = user.id!!,
-                    totalPrice = productJpaEntity.price * 2,
+                    totalPrice = productJpaEntity.price.multiply(2.toBigDecimal()),
                     status = OrderStatus.PENDING,
                 ),
             )
@@ -98,13 +98,13 @@ class OrderLookupApiTest(
     fun `주문 상세 조회 - 실패 (다른 사용자의 주문)`() {
         val ownerUser = createUser("ownerUser", "password123", "주문소유자")
         val otherUser = createUser("otherUser", "password123", "다른사용자")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
 
         val orderJpaEntity =
             orderRepository.save(
                 OrderJpaEntity(
                     userId = ownerUser.id!!,
-                    totalPrice = productJpaEntity.price * 1,
+                    totalPrice = productJpaEntity.price,
                     status = OrderStatus.PENDING,
                 ),
             )
@@ -143,8 +143,8 @@ class OrderLookupApiTest(
     @Test
     fun `주문 목록 조회 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
-        val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000L))
+        val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
+        val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000.toBigDecimal()))
         val jwtToken = getAccessToken(user.loginId, "password123")
 
         val orderJpaEntity1 =
@@ -168,7 +168,7 @@ class OrderLookupApiTest(
             orderRepository.save(
                 OrderJpaEntity(
                     userId = requireNotNull(user.id),
-                    totalPrice = productJpaEntity2.price * 2,
+                    totalPrice = productJpaEntity2.price.multiply(2.toBigDecimal()),
                     status = OrderStatus.COMPLETED,
                 ),
             )
@@ -229,14 +229,14 @@ class OrderLookupApiTest(
     fun `주문 목록 조회 - 실패 (다른 사용자의 주문은 조회되지 않음)`() {
         val ownerUser = createUser("ownerUser", "password123", "주문소유자")
         val otherUser = createUser("otherUser", "password123", "다른사용자")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
         val jwtToken = getAccessToken(otherUser.loginId, "password123")
 
         val ownerOrder =
             orderRepository.save(
                 OrderJpaEntity(
                     userId = ownerUser.id!!,
-                    totalPrice = productJpaEntity.price * 1,
+                    totalPrice = productJpaEntity.price,
                     status = OrderStatus.PENDING,
                 ),
             )

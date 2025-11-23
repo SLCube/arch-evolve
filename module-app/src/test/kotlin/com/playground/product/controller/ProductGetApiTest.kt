@@ -24,7 +24,7 @@ class ProductGetApiTest(
 ) : ApiTest() {
     @Test
     fun `상품 단일 조회 - 성공`() {
-        val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val savedProductJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
 
         performAndDocument("상품 단일 조회 - 성공") {
             httpMethod = HttpMethod.GET
@@ -76,8 +76,8 @@ class ProductGetApiTest(
 
     @Test
     fun `상품 목록 조회 - 성공`() {
-        productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
-        productRepository.save(ProductJpaEntity(name = "상품2", stock = 20, price = 20000L))
+        productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
+        productRepository.save(ProductJpaEntity(name = "상품2", stock = 20, price = 20000.toBigDecimal()))
 
         performAndDocument("상품 목록 조회 - 성공") {
             httpMethod = HttpMethod.GET

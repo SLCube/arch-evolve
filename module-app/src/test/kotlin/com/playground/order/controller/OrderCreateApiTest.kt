@@ -25,8 +25,8 @@ class OrderCreateApiTest(
     @Test
     fun `주문 생성 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
-        val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000L))
+        val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
+        val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000.toBigDecimal()))
 
         val orderRequest =
             OrderCreateRequestDto(
@@ -48,7 +48,7 @@ class OrderCreateApiTest(
             additionalMatchers =
                 arrayOf(
                     jsonPath("$.userId").value(user.id),
-                    jsonPath("$.totalPrice").value(productJpaEntity1.price * 2 + productJpaEntity2.price * 3),
+                    jsonPath("$.totalPrice").value(productJpaEntity1.price.multiply(2.toBigDecimal()) + productJpaEntity2.price.multiply(3.toBigDecimal())),
                     jsonPath("$.status").value("PENDING"),
                     jsonPath("$.orderProducts.length()").value(2),
                     jsonPath("$.orderProducts[0].productId").value(productJpaEntity1.id),
@@ -114,7 +114,7 @@ class OrderCreateApiTest(
     @WithMockUser(roles = ["USER"], username = "1")
     fun `주문 생성 - 실패, 재고 부족`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 5, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 5, price = 10000.toBigDecimal()))
 
         val orderRequest =
             OrderCreateRequestDto(
@@ -183,7 +183,7 @@ class OrderCreateApiTest(
     @Test
     fun `주문 생성 - 실패, 주문 수량이 1개 미만`() {
         val user = createUser("testUser", "password123", "테스트유저")
-        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000L))
+        val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
 
         val orderRequest =
             OrderCreateRequestDto(

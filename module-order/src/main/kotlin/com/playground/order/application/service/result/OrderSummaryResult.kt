@@ -3,12 +3,13 @@ package com.playground.order.application.service.result
 import com.playground.order.contract.domain.vo.ProductInfo
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.model.Order
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 data class OrderSummaryResult(
     val id: Long,
     val representativeProductName: String,
-    val totalPrice: Long,
+    val totalPrice: BigDecimal,
     val status: OrderStatus,
     val createdAt: LocalDateTime,
 ) {

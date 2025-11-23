@@ -11,6 +11,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import java.math.BigDecimal
 
 @Entity
 @Table(name = "order_products")
@@ -26,8 +27,8 @@ class OrderProductJpaEntity(
     val productId: Long,
     @Column(nullable = false)
     val quantity: Int,
-    @Column(nullable = false)
-    val price: Long,
+    @Column(nullable = false, precision = 19, scale = 2)
+    val price: BigDecimal,
 ) : BaseEntity() {
     companion object {
         fun toJpaEntity(

@@ -1,17 +1,18 @@
 package com.playground.product.domain.model
 
 import com.playground.product.domain.exception.InsufficientStockException
+import java.math.BigDecimal
 
 class Product(
     val id: Long? = null,
     var name: String,
     var stock: Int,
-    var price: Long,
+    var price: BigDecimal,
 ) {
     fun update(
         name: String,
         stock: Int,
-        price: Long,
+        price: BigDecimal,
     ) {
         this.name = name
         this.stock = stock

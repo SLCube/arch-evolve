@@ -102,7 +102,7 @@ class SecurityIntegrationTest(
             ProductSaveRequestDto(
                 name = "새 상품",
                 stock = 10,
-                price = 10000L,
+                price = 10000.toBigDecimal(),
             )
 
         mockMvc

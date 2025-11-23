@@ -2,12 +2,13 @@ package com.playground.order.domain.model
 
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderStatusInvalidException
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 class Order(
     val id: Long? = null,
     val userId: Long,
-    var totalPrice: Long,
+    var totalPrice: BigDecimal,
     var status: OrderStatus = OrderStatus.PENDING,
     val orderProducts: MutableList<OrderProduct> = mutableListOf(),
     val createdAt: LocalDateTime = LocalDateTime.now(),
@@ -18,7 +19,10 @@ class Order(
     }
 
     fun calculateTotalPrice() {
-        this.totalPrice = orderProducts.sumOf { it.price * it.quantity }
+        this.totalPrice = orderProducts.fold(BigDecimal.ZERO) { total, orderProduct ->
+            val itemAmount = orderProduct.price.multiply(orderProduct.quantity.toBigDecimal())
+            total.add(itemAmount)
+        }
     }
 
     fun completeOrder() {

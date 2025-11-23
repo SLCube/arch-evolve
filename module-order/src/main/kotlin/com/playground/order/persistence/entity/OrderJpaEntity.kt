@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.math.BigDecimal
 
 @Entity
 @Table(name = "orders")
@@ -21,8 +22,8 @@ class OrderJpaEntity(
     val id: Long? = null,
     @Column(nullable = false)
     val userId: Long,
-    @Column(nullable = false)
-    var totalPrice: Long,
+    @Column(nullable = false, precision = 19, scale = 2)
+    var totalPrice: BigDecimal,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: OrderStatus = OrderStatus.PENDING,
