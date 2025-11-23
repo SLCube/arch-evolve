@@ -55,7 +55,6 @@ subprojects {
         "testImplementation"(libs.findLibrary("spring-boot-starter-test").get())
     }
 
-    // 5. Kotlin 컴파일 옵션
     tasks.withType<KotlinCompile> {
         kotlinOptions {
             freeCompilerArgs += "-Xjsr305=strict"
@@ -67,7 +66,10 @@ subprojects {
         useJUnitPlatform()
         systemProperty(
             "org.springframework.restdocs.outputDir",
-            layout.buildDirectory.dir("generated-snippets").get().asFile.path,
+            layout.buildDirectory
+                .dir("generated-snippets")
+                .get()
+                .asFile.path,
         )
     }
 
