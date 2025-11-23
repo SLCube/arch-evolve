@@ -4,6 +4,7 @@ import com.playground.user.application.port.outbound.UserQueryPort
 import com.playground.user.domain.exception.DuplicateLoginIdException
 import com.playground.user.domain.exception.DuplicateNicknameException
 import com.playground.user.domain.exception.PasswordMismatchException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 
@@ -35,6 +36,12 @@ class UserValidator(
     ) {
         if (!passwordEncoder.matches(rawOldPassword, storedHashedPassword)) {
             throw PasswordMismatchException()
+        }
+    }
+
+    fun validateOwnership(requestUserId: Long, targetUserId: Long) {
+        if (requestUserId != targetUserId) {
+            throw AccessDeniedException("접근 권한이 없습니다.")
         }
     }
 }

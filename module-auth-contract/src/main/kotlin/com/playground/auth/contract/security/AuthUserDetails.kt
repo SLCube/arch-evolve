@@ -1,19 +1,20 @@
-package com.playground.auth.application.security
+package com.playground.auth.contract.security
 
-import com.playground.auth.domain.model.AuthUser
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 class AuthUserDetails(
-    private val authUser: AuthUser,
+    private val userId: Long,
+    private val loginId: String,
+    private val password: String,
     private val roles: List<String>,
 ) : UserDetails {
     override fun getAuthorities(): Collection<GrantedAuthority> = roles.map { SimpleGrantedAuthority("ROLE_$it") }
 
-    override fun getPassword(): String = authUser.password
+    override fun getPassword(): String = password
 
-    override fun getUsername(): String = authUser.loginId
+    override fun getUsername(): String = loginId
 
     override fun isAccountNonExpired(): Boolean = true
 
@@ -23,5 +24,5 @@ class AuthUserDetails(
 
     override fun isEnabled(): Boolean = true
 
-    fun getUserId(): Long = authUser.userId
+    fun getUserId(): Long = userId
 }

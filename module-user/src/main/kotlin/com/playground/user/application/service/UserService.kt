@@ -50,9 +50,14 @@ class UserService(
     }
 
     override fun updateNickname(command: UpdateNicknameCommand): User {
-        userValidator.validateDuplicateNickname(command.newNickname, command.userId)
+        userValidator.validateOwnership(
+            requestUserId = command.requestUserId,
+            targetUserId = command.targetUserId,
+        )
 
-        val user = findUserById(command.userId)
+        userValidator.validateDuplicateNickname(command.newNickname, command.requestUserId)
+
+        val user = findUserById(command.requestUserId)
 
         val oldNickname = user.nickname
         user.updateNickname(command.newNickname)
@@ -72,7 +77,12 @@ class UserService(
     }
 
     override fun updatePassword(command: UpdatePasswordCommand): User {
-        val user = findUserById(command.userId)
+        userValidator.validateOwnership(
+            requestUserId = command.requestUserId,
+            targetUserId = command.targetUserId,
+        )
+
+        val user = findUserById(command.targetUserId)
 
         userValidator.validateOldPassword(command.oldPassword, user.password)
 

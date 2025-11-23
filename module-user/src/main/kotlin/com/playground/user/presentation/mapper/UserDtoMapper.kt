@@ -14,15 +14,17 @@ fun UserSignUpRequestDto.toCommand(): SignUpCommand =
         nickname = this.nickname,
     )
 
-fun UserPasswordUpdateRequestDto.toCommand(userId: Long): UpdatePasswordCommand =
+fun UserPasswordUpdateRequestDto.toCommand(requestUserId: Long, targetUserId: Long): UpdatePasswordCommand =
     UpdatePasswordCommand(
-        userId = userId,
+        requestUserId = requestUserId,
+        targetUserId = targetUserId,
         oldPassword = this.oldPassword,
         newPassword = this.newPassword,
     )
 
-fun UserNicknameUpdateRequestDto.toCommand(userId: Long): UpdateNicknameCommand =
+fun UserNicknameUpdateRequestDto.toCommand(requestUserId: Long, targetUserId: Long): UpdateNicknameCommand =
     UpdateNicknameCommand(
-        userId = userId,
+        requestUserId = requestUserId,
+        targetUserId = targetUserId,
         newNickname = this.nickname,
     )

@@ -57,27 +57,26 @@ class UserUpdateApiTest(
         updatedUser.nickname shouldNotBe "테스트유저"
     }
 
-    // todo -> 멀티 모듈 구조로 변경중 불가피하게 테스트 주석처리 후에 원복 필요
-//    @Test
-//    fun `닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도`() {
-//        createUser("user", "user123", "일반유저")
-//        val otherUser = createUser("other", "other123", "다른유저")
-//        val jwtToken = getAccessToken("user", "user123")
-//        val updateRequest = UserNicknameUpdateRequestDto("새로운닉네임")
-//
-//        performAndDocument("닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도") {
-//            httpMethod = HttpMethod.PATCH
-//            urlTemplate = "/users/{userId}/nickname"
-//            urlVars = arrayOf(otherUser.id)
-//            requestBody = updateRequest
-//            accessToken = jwtToken
-//            expectedStatus = status().isForbidden
-//            snippets =
-//                arrayOf(
-//                    responseFields(commonErrorResponseSnippet()),
-//                )
-//        }
-//    }
+    @Test
+    fun `닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도`() {
+        createUser("user", "user123", "일반유저")
+        val otherUser = createUser("other", "other123", "다른유저")
+        val jwtToken = getAccessToken("user", "user123")
+        val updateRequest = UserNicknameUpdateRequestDto("새로운닉네임")
+
+        performAndDocument("닉네임 변경 - 실패, USER 권한으로 다른 사용자의 닉네임 변경 시도") {
+            httpMethod = HttpMethod.PATCH
+            urlTemplate = "/users/{userId}/nickname"
+            urlVars = arrayOf(otherUser.id)
+            requestBody = updateRequest
+            accessToken = jwtToken
+            expectedStatus = status().isForbidden
+            snippets =
+                arrayOf(
+                    responseFields(commonErrorResponseSnippet()),
+                )
+        }
+    }
 
     @Test
     fun `닉네임 변경 - 실패, 동일 닉네임으로 변경 시도`() {
@@ -256,29 +255,28 @@ class UserUpdateApiTest(
         }
     }
 
-    // todo -> 멀티 모듈 구조로 변경중 불가피하게 테스트 주석처리 후에 원복 필요
-//    @Test
-//    fun `비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도`() {
-//        createUser("user", "user123", "일반유저")
-//        val otherUser = createUser("other", "other123", "다른유저")
-//        val jwtToken = getAccessToken("user", "user123")
-//        val updateRequest =
-//            UserPasswordUpdateRequestDto(
-//                oldPassword = "other123",
-//                newPassword = "newpassword123",
-//            )
-//
-//        performAndDocument("비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도") {
-//            httpMethod = HttpMethod.PATCH
-//            urlTemplate = "/users/{userId}/password"
-//            urlVars = arrayOf(otherUser.id)
-//            requestBody = updateRequest
-//            accessToken = jwtToken
-//            expectedStatus = status().isForbidden
-//            snippets =
-//                arrayOf(
-//                    responseFields(commonErrorResponseSnippet()),
-//                )
-//        }
-//    }
+    @Test
+    fun `비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도`() {
+        createUser("user", "user123", "일반유저")
+        val otherUser = createUser("other", "other123", "다른유저")
+        val jwtToken = getAccessToken("user", "user123")
+        val updateRequest =
+            UserPasswordUpdateRequestDto(
+                oldPassword = "other123",
+                newPassword = "newpassword123",
+            )
+
+        performAndDocument("비밀번호 변경 - 실패, USER 권한으로 다른 사용자의 비밀번호 변경 시도") {
+            httpMethod = HttpMethod.PATCH
+            urlTemplate = "/users/{userId}/password"
+            urlVars = arrayOf(otherUser.id)
+            requestBody = updateRequest
+            accessToken = jwtToken
+            expectedStatus = status().isForbidden
+            snippets =
+                arrayOf(
+                    responseFields(commonErrorResponseSnippet()),
+                )
+        }
+    }
 }

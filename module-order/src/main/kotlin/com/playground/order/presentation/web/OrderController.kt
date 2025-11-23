@@ -1,6 +1,6 @@
 package com.playground.order.presentation.web
 
-import com.playground.auth.application.security.AuthUserDetails
+import com.playground.auth.contract.security.AuthUserDetails
 import com.playground.common.application.query.PageQuery
 import com.playground.common.presentation.response.PagedResponse
 import com.playground.order.application.port.inbound.OrderCommandUseCase

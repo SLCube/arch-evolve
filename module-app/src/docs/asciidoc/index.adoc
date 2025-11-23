@@ -373,12 +373,6 @@ include::{snippets}/주문 생성 - 실패, 주문 수량이 1개 미만/respons
 
 include::{snippets}/주문 생성 - 실패, 주문 수량이 1개 미만/http-response.adoc[]
 
-- 인증되지 않은 사용자가 접근 시도
-
-include::{snippets}/주문 생성 - 실패, 인증되지 않은 사용자가 접근 시도/response-fields.adoc[]
-
-include::{snippets}/주문 생성 - 실패, 인증되지 않은 사용자가 접근 시도/http-response.adoc[]
-
 [[주문-취소]]
 === 주문 취소
 
