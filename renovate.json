@@ -10,14 +10,18 @@
   "packageRules": [
     {
       "description": "Automerge all patch updates for low-risk libs",
-      "matchUpdateTypes": ["patch"],
-      "matchPackagePatterns": [
-        "com.fasterxml.jackson.module:jackson-module-kotlin",
-        "^org\\.jetbrains\\.kotlin"
+      "matchUpdateTypes": [
+        "patch"
       ],
       "automerge": false,
       "platformAutomerge": false,
-      "schedule": ["at any time"]
+      "schedule": [
+        "at any time"
+      ],
+      "matchPackageNames": [
+        "/com.fasterxml.jackson.module:jackson-module-kotlin/",
+        "/^org\\.jetbrains\\.kotlin/"
+      ]
     }
   ],
   "reviewers": [
