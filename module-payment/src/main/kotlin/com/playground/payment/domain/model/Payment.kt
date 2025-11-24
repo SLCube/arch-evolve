@@ -13,9 +13,9 @@ class Payment(
     val usedPaymentKey: String,
 
     var status: PaymentStatus,
-    var pgTransactionId: String?,
-    var approvalNumber: String?,
-    var failReason: String?,
+    var pgTransactionId: String? = null,
+    var approvalNumber: String? = null,
+    var failReason: String? = null,
 
     val createdAt: LocalDateTime = LocalDateTime.now(),
     var approveAt: LocalDateTime? = null,
@@ -28,9 +28,9 @@ class Payment(
         this.approveAt = LocalDateTime.now()
     }
 
-    fun fail(reason: String) {
+    fun fail(reason: String?) {
         this.status = PaymentStatus.FAILED
-        this.failReason = reason
+        this.failReason = reason ?: "PG사로부터 상세 오류 정보가 수신되지 않았습니다."
     }
 
     fun cancel() {

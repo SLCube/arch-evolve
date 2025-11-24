@@ -33,6 +33,9 @@ enum class ErrorCode(
         HttpStatus.BAD_REQUEST,
         "주문 상태가 PENDING 또는 COMPLETED일 때만 취소할 수 있습니다. (현재 상태: %s)",
     ),
+
+    // Payment
+    PAYMENT_METHOD_NOT_FOUND("PAYMENT_METHOD_NOT_FOUND", HttpStatus.NOT_FOUND, "결제 수단을 찾을 수 없습니다. (사용자 ID: %d)"),
     ;
 
     fun message(vararg args: Any?): String = String.format(messageFormat, *args)
