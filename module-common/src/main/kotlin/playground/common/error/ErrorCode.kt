@@ -36,6 +36,10 @@ enum class ErrorCode(
 
     // Payment
     PAYMENT_METHOD_NOT_FOUND("PAYMENT_METHOD_NOT_FOUND", HttpStatus.NOT_FOUND, "결제 수단을 찾을 수 없습니다. (사용자 ID: %d)"),
+    PAYMENT_GATEWAY_TIMEOUT("PAYMENT_GATEWAY_TIMEOUT", HttpStatus.GATEWAY_TIMEOUT, "PG사 응답 지연(Timeout) 발생"),
+    PAYMENT_LIMIT_EXCEEDED("PAYMENT_LIMIT_EXCEEDED", HttpStatus.BAD_REQUEST, "결제 한도 초과"),
+    PAYMENT_GATEWAY_ERROR("PAYMENT_GATEWAY_ERROR", HttpStatus.BAD_GATEWAY, "PG사 오류 발생"),
+
     ;
 
     fun message(vararg args: Any?): String = String.format(messageFormat, *args)
