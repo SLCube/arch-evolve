@@ -2,8 +2,8 @@ package com.playground.payment.infra.external
 
 import com.playground.common.error.BusinessException
 import com.playground.payment.application.port.outbound.PaymentGatewayPort
-import com.playground.payment.domain.exception.PaymentGatewayTimeout
-import com.playground.payment.domain.exception.PaymentLimitExceeded
+import com.playground.payment.domain.exception.PaymentGatewayTimeoutException
+import com.playground.payment.domain.exception.PaymentLimitExceededException
 import com.playground.payment.domain.vo.PgAuthorizationResult
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
@@ -44,11 +44,11 @@ class PaymentGatewayAdapter : PaymentGatewayPort {
         Thread.sleep(latency)
 
         if (paymentKey.startsWith("FAIL_")) {
-            throw PaymentGatewayTimeout()
+            throw PaymentGatewayTimeoutException()
         }
 
         if (amount >= BigDecimal("10000000")) {
-            throw PaymentLimitExceeded()
+            throw PaymentLimitExceededException()
         }
     }
 }

@@ -3,7 +3,9 @@ package com.playground.payment.domain.exception
 import com.playground.common.error.BusinessException
 import com.playground.common.error.ErrorCode
 
-class PaymentGatewayError : BusinessException(
+class PaymentFailedException(
+    reason: String?,
+) : BusinessException(
     errorCode = ErrorCode.PAYMENT_GATEWAY_ERROR,
-    message = ErrorCode.PAYMENT_GATEWAY_ERROR.message()
+    message = reason ?: ErrorCode.PAYMENT_GATEWAY_ERROR.message()
 )
