@@ -1,5 +1,5 @@
 dependencies {
     implementation(project(":module-common"))
 
-    implementation(libs.spring.boot.starter.security)
+    implementation(libs.spring.security.core)
 }

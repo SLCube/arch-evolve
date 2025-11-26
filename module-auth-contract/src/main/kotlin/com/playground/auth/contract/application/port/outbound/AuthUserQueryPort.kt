@@ -1,4 +1,4 @@
-package com.playground.auth.contract.application
+package com.playground.auth.contract.application.port.outbound
 
 import com.playground.auth.contract.domain.vo.AuthUserInfo
 

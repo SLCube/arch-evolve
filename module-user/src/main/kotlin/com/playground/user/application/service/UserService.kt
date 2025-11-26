@@ -1,5 +1,6 @@
 package com.playground.user.application.service
 
+import com.playground.auth.contract.application.port.outbound.PasswordEncoderPort
 import com.playground.user.application.port.inbound.UserUseCase
 import com.playground.user.application.port.inbound.command.SignUpCommand
 import com.playground.user.application.port.inbound.command.UpdateNicknameCommand
@@ -13,7 +14,6 @@ import com.playground.user.domain.event.UserPasswordUpdatedEvent
 import com.playground.user.domain.event.UserSignedUpEvent
 import com.playground.user.domain.exception.UserNotFoundException
 import com.playground.user.domain.model.User
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -24,7 +24,7 @@ class UserService(
     private val userCommandPort: UserCommandPort,
     private val userEventPort: UserEventPort,
     private val userValidator: UserValidator,
-    private val passwordEncoder: PasswordEncoder,
+    private val passwordEncoderPort: PasswordEncoderPort,
 ) : UserUseCase {
     override fun signUp(command: SignUpCommand): User {
         userValidator.validateDuplicateLoginId(command.loginId)
@@ -33,7 +33,7 @@ class UserService(
         val user =
             User(
                 loginId = command.loginId,
-                password = passwordEncoder.encode(command.password),
+                password = passwordEncoderPort.encode(command.password),
                 nickname = command.nickname,
             )
 
@@ -86,7 +86,7 @@ class UserService(
 
         userValidator.validateOldPassword(command.oldPassword, user.password)
 
-        user.updatePassword(passwordEncoder.encode(command.newPassword))
+        user.updatePassword(passwordEncoderPort.encode(command.newPassword))
 
         val updatedUser = userCommandPort.update(user)
 

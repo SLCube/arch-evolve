@@ -1,6 +1,6 @@
 package com.playground.user.persistence.adapter
 
-import com.playground.auth.contract.application.AuthUserQueryPort
+import com.playground.auth.contract.application.port.outbound.AuthUserQueryPort
 import com.playground.auth.contract.domain.vo.AuthUserInfo
 import com.playground.user.persistence.repository.UserRepository
 import org.springframework.security.core.userdetails.UsernameNotFoundException

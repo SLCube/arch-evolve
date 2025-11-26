@@ -1,6 +1,6 @@
 package com.playground.auth.application.service
 
-import com.playground.auth.contract.application.AuthUserQueryPort
+import com.playground.auth.contract.application.port.outbound.AuthUserQueryPort
 import com.playground.auth.contract.security.AuthUserDetails
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
