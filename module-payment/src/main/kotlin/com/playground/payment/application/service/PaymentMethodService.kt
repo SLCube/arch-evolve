@@ -6,6 +6,7 @@ import com.playground.payment.application.port.inbound.command.PaymentMethodRegi
 import com.playground.payment.application.port.outbound.PaymentGatewayPort
 import com.playground.payment.application.port.outbound.PaymentMethodCommandPort
 import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
+import com.playground.payment.domain.exception.PaymentAccessDeniedException
 import com.playground.payment.domain.model.PaymentMethod
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -26,6 +27,12 @@ class PaymentMethodService(
     }
 
     override fun deletePaymentMethod(command: PaymentMethodDeleteCommand) {
-        TODO("Not yet implemented")
+        val paymentMethod = paymentMethodQueryPort.findById(command.paymentMethodId)
+
+        if (paymentMethod.userId != command.userId) {
+            throw PaymentAccessDeniedException(command.userId, command.paymentMethodId)
+        }
+
+        paymentMethodCommandPort.delete(paymentMethod)
     }
 }

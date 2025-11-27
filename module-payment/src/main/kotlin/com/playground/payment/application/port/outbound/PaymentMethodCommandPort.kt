@@ -1,4 +1,7 @@
 package com.playground.payment.application.port.outbound
 
-interface PaymentMethodCommandPort {
+import com.playground.payment.domain.model.PaymentMethod
+
+fun interface PaymentMethodCommandPort {
+    fun delete(paymentMethod: PaymentMethod)
 }

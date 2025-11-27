@@ -5,4 +5,5 @@ import com.playground.payment.domain.model.PaymentMethod
 interface PaymentMethodQueryPort {
     fun findByUserId(userId: Long) : PaymentMethod
     fun findAllByUserId(userId: Long) : List<PaymentMethod>
+    fun findById(paymentMethodId: Long) : PaymentMethod
 }
