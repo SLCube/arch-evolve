@@ -6,4 +6,5 @@ import java.util.Optional
 
 interface PaymentMethodRepository : JpaRepository<PaymentMethodJpaEntity, Long> {
     fun findByUserId(userId: Long): Optional<PaymentMethodJpaEntity>
+    fun findAllByUserId(userId: Long): List<PaymentMethodJpaEntity>
 }

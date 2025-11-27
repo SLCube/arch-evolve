@@ -6,7 +6,7 @@ class PaymentMethod(
     val id: Long? = null,
     val userId: Long,
 
-    val paymentKey: String,
+    val billingKey: String,
 
     val cardCompany: String,
     val cardNumberMasked: String,

@@ -7,7 +7,7 @@ fun PaymentMethodJpaEntity.toDomain() : PaymentMethod {
     return PaymentMethod(
         id = this.id,
         userId = this.userId,
-        paymentKey = this.paymentKey,
+        billingKey = this.billingKey,
         cardCompany = this.cardCompany,
         cardNumberMasked = this.cardNumberMasked,
         isDefault = this.isDefault,

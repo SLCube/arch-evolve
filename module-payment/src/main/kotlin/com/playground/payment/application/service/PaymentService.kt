@@ -31,11 +31,11 @@ class PaymentService(
             userId = command.userId,
             orderId = command.orderId,
             amount = command.amount,
-            usedPaymentKey = paymentMethod.paymentKey,
+            usedPaymentKey = paymentMethod.billingKey,
             status = PaymentStatus.PENDING,
         )
 
-        val pgResult = paymentGatewayPort.requestAuthorization(paymentMethod.paymentKey, command.amount)
+        val pgResult = paymentGatewayPort.requestAuthorization(paymentMethod.billingKey, command.amount)
 
         if (pgResult.isSuccess) {
             payment.complete(pgResult.requirePgTransactionId(), pgResult.requireApprovalNumber())

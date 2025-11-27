@@ -16,4 +16,9 @@ class PaymentMethodQueryAdapter(
             .orElseThrow { PaymentMethodNotFoundException(userId) }
             .toDomain()
     }
+
+    override fun findAllByUserId(userId: Long): List<PaymentMethod> {
+        return paymentMethodRepository.findAllByUserId(userId)
+            .map { it.toDomain() }
+    }
 }

@@ -21,7 +21,7 @@ class PaymentMethodJpaEntity(
     val userId: Long,
 
     @Column(nullable = false)
-    val paymentKey: String,
+    val billingKey: String,
 
     @Column(nullable = false)
     val cardCompany: String,
@@ -37,7 +37,7 @@ class PaymentMethodJpaEntity(
             return PaymentMethodJpaEntity(
                 id = domain.id,
                 userId = domain.userId,
-                paymentKey = domain.paymentKey,
+                billingKey = domain.billingKey,
                 cardCompany = domain.cardCompany,
                 cardNumberMasked = domain.cardNumberMasked,
                 isDefault = domain.isDefault
