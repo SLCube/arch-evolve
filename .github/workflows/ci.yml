@@ -53,5 +53,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           # JaCoCo XML 리포트 경로
-          files: ./build/reports/jacoco/test/jacocoTestReport.xml
+          files: ./build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
           verbose: true
