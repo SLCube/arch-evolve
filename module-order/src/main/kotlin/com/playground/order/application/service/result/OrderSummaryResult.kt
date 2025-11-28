@@ -1,8 +1,8 @@
 package com.playground.order.application.service.result
 
-import com.playground.order.contract.domain.vo.ProductInfo
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.model.Order
+import com.playground.product.contract.domain.vo.ProductInfo
 import java.math.BigDecimal
 import java.time.LocalDateTime
 

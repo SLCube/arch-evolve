@@ -8,8 +8,12 @@ pluginManagement {
 rootProject.name = "play-ground"
 
 include("module-common")
+
 include("module-product")
+include("module-product-contract")
+
 include("module-user")
+include("module-user-contract")
 
 include("module-auth")
 include("module-auth-contract")

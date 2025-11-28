@@ -4,11 +4,11 @@ import com.playground.common.application.query.PageQuery
 import com.playground.common.application.query.PagedResult
 import com.playground.order.application.port.inbound.OrderQueryUseCase
 import com.playground.order.application.port.outbound.OrderQueryPort
-import com.playground.order.application.provider.OrderProductProvider
+import com.playground.order.application.provider.ProductDataProvider
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.application.service.result.OrderSummaryResult
 import com.playground.order.application.validator.OrderOwnerValidator
-import com.playground.order.contract.domain.vo.ProductInfo
+import com.playground.product.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class OrderQueryService(
     private val orderQueryPort: OrderQueryPort,
-    private val orderProductProvider: OrderProductProvider,
+    private val productDataProvider: ProductDataProvider,
     private val orderOwnerValidator: OrderOwnerValidator,
 ) : OrderQueryUseCase {
     override fun getOrder(
@@ -27,7 +27,7 @@ class OrderQueryService(
 
         val order = orderQueryPort.findById(orderId)
         val productIds = order.orderProducts.map { it.productId }
-        val productInfoMap = orderProductProvider.getVerifiedProductInfos(productIds)
+        val productInfoMap = productDataProvider.getVerifiedProductInfos(productIds)
 
         return OrderDetailResult.of(order, productInfoMap)
     }
@@ -42,7 +42,7 @@ class OrderQueryService(
 
         val productInfoMap: Map<Long, ProductInfo> =
             if (allProductIdsInPage.isNotEmpty()) {
-                orderProductProvider.getVerifiedProductInfos(allProductIdsInPage)
+                productDataProvider.getVerifiedProductInfos(allProductIdsInPage)
             } else {
                 emptyMap()
             }

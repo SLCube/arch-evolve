@@ -1,19 +1,19 @@
 package com.playground.user.persistence.adapter
 
-import com.playground.auth.contract.application.port.outbound.AuthUserQueryPort
-import com.playground.auth.contract.domain.vo.AuthUserInfo
+import com.playground.user.contract.application.port.outbound.UserInfoQueryPort
+import com.playground.user.contract.domain.vo.UserInfo
 import com.playground.user.persistence.repository.UserRepository
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Component
 
 @Component
-class AuthUserQueryAdapter(
+class UserInfoQueryAdapter(
     private val userRepository: UserRepository,
-) : AuthUserQueryPort {
-    override fun getUserInfoByLoginId(loginId: String): AuthUserInfo {
+) : UserInfoQueryPort {
+    override fun getUserInfoByLoginId(loginId: String): UserInfo {
         val user = userRepository.findByLoginId(loginId).orElseThrow { UsernameNotFoundException("User Not Found with loginId: $loginId") }
 
-        return AuthUserInfo(
+        return UserInfo(
             userId = user.id!!,
             loginId = user.loginId,
             password = user.password,

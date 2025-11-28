@@ -1,4 +1,4 @@
-package com.playground.order.contract.domain.vo
+package com.playground.product.contract.domain.vo
 
 import java.math.BigDecimal
 

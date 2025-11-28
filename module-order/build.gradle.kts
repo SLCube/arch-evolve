@@ -2,6 +2,7 @@ dependencies {
     implementation(project(":module-common"))
 
     implementation(project(":module-order-contract"))
+    implementation(project(":module-product-contract"))
     implementation(project(":module-auth-contract"))
 
     implementation(libs.spring.boot.starter.web)

@@ -1,14 +1,14 @@
 package com.playground.product.persistence.adapter
 
-import com.playground.order.contract.application.OrderProductQueryPort
-import com.playground.order.contract.domain.vo.ProductInfo
 import com.playground.product.application.port.outbound.ProductQueryPort
+import com.playground.product.contract.application.outbound.ProductInfoQueryPort
+import com.playground.product.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Component
 
 @Component
-class OrderProductQueryAdapter(
+class ProductInfoQueryAdapter(
     private val productQueryPort: ProductQueryPort,
-) : OrderProductQueryPort {
+) : ProductInfoQueryPort {
     override fun getProductInfos(productIds: List<Long>): Map<Long, ProductInfo> {
         val products = productQueryPort.findAllByIds(productIds)
 

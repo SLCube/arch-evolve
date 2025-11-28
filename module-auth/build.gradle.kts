@@ -1,6 +1,7 @@
 dependencies {
     implementation(project(":module-common"))
     implementation(project(":module-auth-contract"))
+    implementation(project(":module-user-contract"))
 
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)

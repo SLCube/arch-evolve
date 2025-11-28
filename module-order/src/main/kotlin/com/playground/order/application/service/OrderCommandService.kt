@@ -6,12 +6,12 @@ import com.playground.order.application.port.inbound.command.OrderCreateCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
-import com.playground.order.application.provider.OrderProductProvider
+import com.playground.order.application.provider.ProductDataProvider
 import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.contract.domain.event.OrderCreatedEvent
-import com.playground.order.contract.domain.vo.ProductInfo
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
+import com.playground.product.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -22,12 +22,12 @@ class OrderCommandService(
     private val orderCommandPort: OrderCommandPort,
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
-    private val orderProductProvider: OrderProductProvider,
+    private val productDataProvider: ProductDataProvider,
     private val orderOwnerValidator: OrderOwnerValidator,
 ) : OrderCommandUseCase {
     override fun createOrder(command: OrderCreateCommand): Order {
         val productIds = command.orderProducts.map { it.productId }
-        val productInfoMap = orderProductProvider.getVerifiedProductInfos(productIds)
+        val productInfoMap = productDataProvider.getVerifiedProductInfos(productIds)
 
         val order = createOrderAggregate(command, productInfoMap)
 
