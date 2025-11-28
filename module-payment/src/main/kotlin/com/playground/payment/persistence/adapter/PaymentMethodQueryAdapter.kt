@@ -7,15 +7,21 @@ import com.playground.payment.domain.model.PaymentMethod
 import com.playground.payment.persistence.mapper.toDomain
 import com.playground.payment.persistence.repository.PaymentMethodRepository
 import org.springframework.stereotype.Component
+import java.util.Optional
 
 @Component
 class PaymentMethodQueryAdapter(
     private val paymentMethodRepository: PaymentMethodRepository,
 ) : PaymentMethodQueryPort {
-    override fun findByUserId(userId: Long): PaymentMethod {
-        return paymentMethodRepository.findByUserId(userId)
+    override fun findDefaultByUserId(userId: Long): PaymentMethod {
+        return paymentMethodRepository.findDefaultByUserId(userId)
             .orElseThrow { DefaultPaymentMethodNotFoundException(userId) }
             .toDomain()
+    }
+
+    override fun findDefaultOrNullByUserId(userId: Long): Optional<PaymentMethod> {
+        return paymentMethodRepository.findDefaultByUserId(userId)
+            .map { it.toDomain() }
     }
 
     override fun findAllByUserId(userId: Long): List<PaymentMethod> {
@@ -27,5 +33,9 @@ class PaymentMethodQueryAdapter(
         return paymentMethodRepository.findById(paymentMethodId)
             .orElseThrow { PaymentMethodNotFoundException(paymentMethodId) }
             .toDomain()
+    }
+
+    override fun countByUserId(userId: Long): Long {
+        return paymentMethodRepository.countByUserId(userId)
     }
 }

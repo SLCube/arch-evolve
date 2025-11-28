@@ -25,7 +25,7 @@ class PaymentService(
             return existingPayment
         }
 
-        val paymentMethod = paymentMethodQueryPort.findByUserId(command.userId)
+        val paymentMethod = paymentMethodQueryPort.findDefaultByUserId(command.userId)
 
         val payment = Payment(
             userId = command.userId,

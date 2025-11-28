@@ -19,9 +19,33 @@ class PaymentMethodService(
     private val paymentMethodQueryPort: PaymentMethodQueryPort,
 ) : PaymentMethodUseCase {
     override fun registerPaymentMethod(command: PaymentMethodRegisterCommand): PaymentMethod {
-        TODO("Not yet implemented")
+        val billingKey = paymentGatewayPort.issueBillingKey(
+            command.authKey,
+            command.userId,
+        )
+
+        val isFirstCard = paymentMethodQueryPort.countByUserId(command.userId) == 0L
+        val shouldBeDefault = command.setAsDefault || isFirstCard
+
+        if (shouldBeDefault) {
+            paymentMethodQueryPort.findDefaultOrNullByUserId(command.userId).ifPresent { existingDefault ->
+                existingDefault.changeDefault(false)
+                paymentMethodCommandPort.save(existingDefault)
+            }
+        }
+
+        val newPaymentMethod = PaymentMethod(
+            userId = command.userId,
+            billingKey = billingKey,
+            cardCompany = command.cardCompany,
+            cardNumberMasked = command.cardNumberMasked,
+            isDefault = command.setAsDefault,
+        )
+
+        return paymentMethodCommandPort.save(newPaymentMethod)
     }
 
+    @Transactional(readOnly = true)
     override fun getPaymentMethodList(userId: Long): List<PaymentMethod> {
         return paymentMethodQueryPort.findAllByUserId(userId)
     }

@@ -12,6 +12,10 @@ import kotlin.random.Random
 
 @Component
 class PaymentGatewayAdapter : PaymentGatewayPort {
+    override fun issueBillingKey(authKey: String, userId: Long): String {
+        TODO("Not yet implemented")
+    }
+
     override fun requestAuthorization(
         paymentKey: String,
         amount: BigDecimal
