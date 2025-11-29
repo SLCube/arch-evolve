@@ -11,6 +11,7 @@ class Order(
     var totalPrice: BigDecimal,
     var status: OrderStatus = OrderStatus.PENDING,
     val orderProducts: MutableList<OrderProduct> = mutableListOf(),
+    var pgTransactionId: String? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now(),
 ) {
@@ -25,9 +26,10 @@ class Order(
         }
     }
 
-    fun completeOrder() {
+    fun completeOrder(pgTransactionId: String) {
         require(this.status == OrderStatus.PENDING) { "주문 상태가 PENDING일 때만 완료할 수 있습니다." }
         this.status = OrderStatus.COMPLETED
+        this.pgTransactionId = pgTransactionId
         this.updatedAt = LocalDateTime.now()
     }
 

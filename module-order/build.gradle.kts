@@ -4,6 +4,7 @@ dependencies {
     implementation(project(":module-order-contract"))
     implementation(project(":module-product-contract"))
     implementation(project(":module-auth-contract"))
+    implementation(project(":module-payment-contract"))
 
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)

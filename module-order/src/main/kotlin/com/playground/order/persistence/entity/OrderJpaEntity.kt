@@ -27,6 +27,8 @@ class OrderJpaEntity(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: OrderStatus = OrderStatus.PENDING,
+    @Column(nullable = true, length = 50)
+    var pgTransactionId: String? = null,
 ) : BaseEntity() {
     companion object {
         fun toJpaEntity(domain: Order): OrderJpaEntity =
@@ -41,5 +43,6 @@ class OrderJpaEntity(
     fun updateFromDomain(order: Order) {
         this.totalPrice = order.totalPrice
         this.status = order.status
+        this.pgTransactionId = order.pgTransactionId
     }
 }

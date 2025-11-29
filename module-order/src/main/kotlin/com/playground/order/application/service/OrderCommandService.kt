@@ -2,6 +2,7 @@ package com.playground.order.application.service
 
 import com.playground.order.application.port.inbound.OrderCommandUseCase
 import com.playground.order.application.port.inbound.command.OrderCancelCommand
+import com.playground.order.application.port.inbound.command.OrderCompleteCommand
 import com.playground.order.application.port.inbound.command.OrderCreateCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
@@ -36,6 +37,12 @@ class OrderCommandService(
         publishOrderCreationEvent(savedOrder)
 
         return savedOrder
+    }
+
+    override fun completeOrder(command: OrderCompleteCommand): Order {
+        val order = orderQueryPort.findById(command.orderId)
+        order.completeOrder(command.pgTransactionId)
+        return orderCommandPort.update(order)
     }
 
     private fun createOrderAggregate(
