@@ -7,13 +7,21 @@ import com.playground.payment.domain.exception.PaymentLimitExceededException
 import com.playground.payment.domain.vo.PgAuthorizationResult
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
+import java.time.Instant
 import java.util.UUID
 import kotlin.random.Random
 
 @Component
 class PaymentGatewayAdapter : PaymentGatewayPort {
     override fun issueBillingKey(authKey: String, userId: Long): String {
-        TODO("Not yet implemented")
+        simulateLatency(100, 300)
+
+        if (authKey.startsWith("FAIL_ISSUE_TIMEOUT")) {
+            throw PaymentGatewayTimeoutException()
+        }
+
+        val timestamp = Instant.now().epochSecond
+        return "bil_${userId}_${timestamp}_${Random.nextInt(1000)}"
     }
 
     override fun requestAuthorization(
@@ -25,7 +33,7 @@ class PaymentGatewayAdapter : PaymentGatewayPort {
 
             PgAuthorizationResult(
                 isSuccess = true,
-                pgTransactionId = "TID_" + UUID.randomUUID().toString().substring(0, 8),
+                pgTransactionId = "TID_${UUID.randomUUID().toString().substring(0, 8)}",
                 approvalNumber = Random.nextInt(10000000, 99999999).toString(),
                 failReason = null
             )
@@ -44,15 +52,22 @@ class PaymentGatewayAdapter : PaymentGatewayPort {
     }
 
     private fun callExternalPgApi(paymentKey: String, amount: BigDecimal) {
-        val latency = Random.nextLong(300, 500)
-        Thread.sleep(latency)
-
+        simulateLatency(300, 500)
         if (paymentKey.startsWith("FAIL_")) {
             throw PaymentGatewayTimeoutException()
         }
 
         if (amount >= BigDecimal("10000000")) {
             throw PaymentLimitExceededException()
+        }
+    }
+
+    private fun simulateLatency(min: Long, max: Long) {
+        val latency = Random.nextLong(min, max)
+        try {
+            Thread.sleep(latency)
+        } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
         }
     }
 }

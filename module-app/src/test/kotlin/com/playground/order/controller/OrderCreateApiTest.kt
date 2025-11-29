@@ -3,6 +3,8 @@ package com.playground.order.controller
 import com.playground.common.error.ErrorCode
 import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
+import com.playground.payment.persistence.entity.PaymentMethodJpaEntity
+import com.playground.payment.persistence.repository.PaymentMethodRepository
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.ApiTest
@@ -17,17 +19,19 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
 
 @Suppress("NonAsciiCharacters")
 class OrderCreateApiTest(
     @param:Autowired private val productRepository: ProductRepository,
+    @param:Autowired private val paymentMethodRepository: PaymentMethodRepository,
 ) : ApiTest() {
     @Test
     fun `주문 생성 - 성공`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity1 = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
         val productJpaEntity2 = productRepository.save(ProductJpaEntity(name = "상품2", stock = 5, price = 5000.toBigDecimal()))
-
+        createPaymentMethod(user.id!!)
         val orderRequest =
             OrderCreateRequestDto(
                 orderProducts =
@@ -76,6 +80,19 @@ class OrderCreateApiTest(
                     ),
                 )
         }
+    }
+
+    fun createPaymentMethod(userId: Long): PaymentMethodJpaEntity {
+        val dummyBillingKey = "bil_test_${userId}_${UUID.randomUUID().toString().substring(0, 5)}"
+
+        val entity = PaymentMethodJpaEntity(
+            userId = userId,
+            billingKey = dummyBillingKey,
+            cardCompany = "TestBank",
+            cardNumberMasked = "****-0000",
+            isDefault = true
+        )
+        return paymentMethodRepository.save(entity)
     }
 
     @Test
