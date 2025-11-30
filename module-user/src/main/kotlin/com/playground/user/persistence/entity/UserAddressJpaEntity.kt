@@ -14,6 +14,7 @@ class UserAddressJpaEntity(
     @Column(name = "user_address_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
+    @Column(name = "user_id", insertable = false, updatable = false)
     val userId: Long,
     val revceiverName: String,
     val receiverPhoneNumber: String,
