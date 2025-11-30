@@ -1,11 +1,13 @@
 package com.playground.payment.application.service
 
 import com.playground.payment.application.port.inbound.PaymentUseCase
-import com.playground.payment.application.port.inbound.command.AuthorizePaymentCommand
+import com.playground.payment.application.port.inbound.command.PaymentAuthorizeCommand
 import com.playground.payment.application.port.outbound.PaymentCommandPort
+import com.playground.payment.application.port.outbound.PaymentEventPort
 import com.playground.payment.application.port.outbound.PaymentGatewayPort
 import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
 import com.playground.payment.application.port.outbound.PaymentQueryPort
+import com.playground.payment.contract.domain.event.PaymentCompletedEvent
 import com.playground.payment.domain.enum.PaymentStatus
 import com.playground.payment.domain.exception.PaymentFailedException
 import com.playground.payment.domain.model.Payment
@@ -18,9 +20,10 @@ class PaymentService(
     private val paymentQueryPort: PaymentQueryPort,
     private val paymentCommandPort: PaymentCommandPort,
     private val paymentGatewayPort: PaymentGatewayPort,
+    private val paymentEventPort: PaymentEventPort,
     private val paymentMethodQueryPort: PaymentMethodQueryPort,
 ) : PaymentUseCase {
-    override fun authorizePayment(command: AuthorizePaymentCommand): Payment {
+    override fun authorizePayment(command: PaymentAuthorizeCommand): Payment {
         paymentQueryPort.findByOrderId(command.orderId)?.let { existingPayment ->
             return existingPayment
         }
@@ -39,7 +42,16 @@ class PaymentService(
 
         if (pgResult.isSuccess) {
             payment.complete(pgResult.requirePgTransactionId(), pgResult.requireApprovalNumber())
-            return paymentCommandPort.save(payment)
+            val savedPayment = paymentCommandPort.save(payment)
+            paymentEventPort.publish(
+                PaymentCompletedEvent(
+                    orderId = savedPayment.orderId,
+                    userId = savedPayment.userId,
+                    amount = savedPayment.amount,
+                    pgTransactionId = savedPayment.pgTransactionId!!
+                )
+            )
+            return savedPayment
         } else {
             payment.fail(pgResult.failReason)
             paymentCommandPort.save(payment)

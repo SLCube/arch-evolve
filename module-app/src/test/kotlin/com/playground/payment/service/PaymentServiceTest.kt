@@ -1,7 +1,7 @@
 package com.playground.payment.service
 
 import com.playground.payment.application.port.inbound.PaymentUseCase
-import com.playground.payment.application.port.inbound.command.AuthorizePaymentCommand
+import com.playground.payment.application.port.inbound.command.PaymentAuthorizeCommand
 import com.playground.payment.domain.enum.PaymentStatus
 import com.playground.payment.domain.exception.PaymentFailedException
 import com.playground.payment.persistence.entity.PaymentMethodJpaEntity
@@ -30,7 +30,7 @@ class PaymentServiceTest(
         val amount = BigDecimal("50000.00")
         createPaymentMethodFixture(userId, "SUCCESS_KEY") // Mock PG가 성공하도록 설정
 
-        val command = AuthorizePaymentCommand(
+        val command = PaymentAuthorizeCommand(
             userId = userId,
             orderId = orderId,
             amount = amount,
@@ -57,7 +57,7 @@ class PaymentServiceTest(
 
         createPaymentMethodFixture(userId, validBillingKey)
 
-        val command = AuthorizePaymentCommand(
+        val command = PaymentAuthorizeCommand(
             userId = userId,
             orderId = orderId,
             amount = hugeAmount,
@@ -81,7 +81,7 @@ class PaymentServiceTest(
 
         createPaymentMethodFixture(userId, failBillingKey)
 
-        val command = AuthorizePaymentCommand(
+        val command = PaymentAuthorizeCommand(
             userId = userId,
             orderId = orderId,
             amount = BigDecimal("15000.00"),
