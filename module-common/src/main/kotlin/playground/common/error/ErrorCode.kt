@@ -20,6 +20,9 @@ enum class ErrorCode(
     PASSWORD_MISMATCH("PASSWORD_MISMATCH", HttpStatus.BAD_REQUEST, "기존 비밀번호가 일치하지 않습니다."),
     BAD_CREDENTIALS("BAD_CREDENTIALS", HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다."),
 
+    // Address
+    ADDRESS_LIMIT_EXCEEDED("ADDRESS_LIMIT_EXCEEDED", HttpStatus.BAD_REQUEST, "주소 등록은 최대 %d개까지 가능합니다."),
+
     // Product
     PRODUCT_NOT_FOUND("PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다. (ID: %d)"),
     INSUFFICIENT_STOCK("INSUFFICIENT_STOCK", HttpStatus.BAD_REQUEST, "재고가 부족합니다. (상품 ID: %d, 현재 재고: %d, 요청 수량: %d)"),

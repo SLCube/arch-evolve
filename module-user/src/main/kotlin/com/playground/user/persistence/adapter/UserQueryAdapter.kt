@@ -11,18 +11,15 @@ import java.util.Optional
 class UserQueryAdapter(
     private val userRepository: UserRepository,
 ) : UserQueryPort {
-    override fun findById(userId: Long): Optional<User> =
-        userRepository
-            .findById(userId)
-            .map { it.toDomain() }
+    override fun findById(userId: Long): Optional<User> = userRepository.findById(userId).map { it.toDomain() }
 
     override fun findByLoginId(loginId: String): Optional<User> =
-        userRepository
-            .findByLoginId(loginId)
-            .map { it.toDomain() }
+        userRepository.findByLoginId(loginId).map { it.toDomain() }
 
     override fun findByNickname(nickname: String): Optional<User> =
-        userRepository
-            .findByNickname(nickname)
-            .map { it.toDomain() }
+        userRepository.findByNickname(nickname).map { it.toDomain() }
+
+    override fun findUserWithAddressById(userId: Long): Optional<User> =
+        userRepository.findWithAddressById(userId).map { it.toDomain() }
+
 }

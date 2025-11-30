@@ -4,7 +4,7 @@ import com.playground.user.persistence.entity.UserJpaEntity
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.Optional
 
-interface UserRepository : JpaRepository<UserJpaEntity, Long> {
+interface UserRepository : JpaRepository<UserJpaEntity, Long>, UserQueryRepository {
     fun findByLoginId(loginId: String): Optional<UserJpaEntity>
 
     fun findByNickname(nickname: String): Optional<UserJpaEntity>

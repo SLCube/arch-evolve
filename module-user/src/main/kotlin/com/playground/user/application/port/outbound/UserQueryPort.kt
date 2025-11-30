@@ -9,4 +9,6 @@ interface UserQueryPort {
     fun findByLoginId(loginId: String): Optional<User>
 
     fun findByNickname(nickname: String): Optional<User>
+
+    fun findUserWithAddressById(userId: Long): Optional<User>
 }
