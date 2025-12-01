@@ -16,7 +16,7 @@ class UserAddressJpaEntity(
     val id: Long? = null,
     @Column(name = "user_id", insertable = false, updatable = false)
     val userId: Long,
-    val revceiverName: String,
+    val receiverName: String,
     val receiverPhoneNumber: String,
     val zipCode: String,
     val baseAddress: String,
