@@ -39,13 +39,13 @@ subprojects {
         }
     }
 
+    val libs = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
+
     configure<DependencyManagementExtension> {
         imports {
             mavenBom(libs.findLibrary("spring-boot-dependencies").get())
         }
     }
-
-    val libs = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
     dependencies {
         "implementation"(libs.findLibrary("spring-boot-starter").get())
