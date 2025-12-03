@@ -43,7 +43,7 @@ subprojects {
 
     configure<DependencyManagementExtension> {
         imports {
-            mavenBom(libs.findLibrary("spring-boot-dependencies").get())
+            mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.8")
         }
     }
 
