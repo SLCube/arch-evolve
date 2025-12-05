@@ -7,7 +7,6 @@ springDependencyManagement = "1.1.7"
 jackson = "2.15.0"
 jjwt = "0.13.0"
 kotest = "6.0.7"
-mockk = "1.13.10"
 kotestSpringExtension = "1.3.0"
 archunit = "1.4.1"
 asciidoctor = "4.0.5"
@@ -42,9 +41,6 @@ spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-do
 # --- Kotlin ---
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
-
-# --- mockk ---
-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 # --- Database ---
 postgres = { module = "org.postgresql:postgresql", version = "42.7.8" }

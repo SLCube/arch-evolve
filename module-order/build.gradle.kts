@@ -12,7 +12,5 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.security.core)
 
-    testImplementation(libs.mockk)
-
     runtimeOnly(libs.postgres)
 }
