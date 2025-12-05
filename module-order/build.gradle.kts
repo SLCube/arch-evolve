@@ -12,7 +12,7 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.security.core)
 
-    testImplementation("io.mockk:mockk:1.13.10")
+    testImplementation("io.mockk:mockk:1.14.6")
 
     runtimeOnly(libs.postgres)
 }
