@@ -19,7 +19,7 @@ import org.springframework.restdocs.payload.PayloadDocumentation.responseFields
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import java.util.UUID
+import java.util.*
 
 @Suppress("NonAsciiCharacters")
 class OrderCreateApiTest(
@@ -34,6 +34,8 @@ class OrderCreateApiTest(
         createPaymentMethod(user.id!!)
         val orderRequest =
             OrderCreateRequestDto(
+                // todo -> 주소지아이디 임시로 입력
+                addressId = 1L,
                 orderProducts =
                     listOf(
                         OrderProductRequestDto(productId = productJpaEntity1.id!!, quantity = 2),
@@ -65,6 +67,7 @@ class OrderCreateApiTest(
             snippets =
                 arrayOf(
                     requestFields(
+                        fieldWithPath("addressId").description("주소지 ID"),
                         fieldWithPath("orderProducts[].productId").description("주문 상품 ID"),
                         fieldWithPath("orderProducts[].quantity").description("주문 수량"),
                     ),
@@ -102,6 +105,8 @@ class OrderCreateApiTest(
 
         val orderRequest =
             OrderCreateRequestDto(
+                // todo -> 주소지아이디 임시로 입력
+                addressId = 1L,
                 orderProducts =
                     listOf(
                         OrderProductRequestDto(productId = nonExistingProductId, quantity = 1),
@@ -135,6 +140,8 @@ class OrderCreateApiTest(
 
         val orderRequest =
             OrderCreateRequestDto(
+                // todo -> 주소지아이디 임시로 입력
+                addressId = 1L,
                 orderProducts =
                     listOf(
                         OrderProductRequestDto(productId = productJpaEntity.id!!, quantity = 10), // 재고보다 많은 수량
@@ -172,6 +179,8 @@ class OrderCreateApiTest(
 
         val orderRequest =
             OrderCreateRequestDto(
+                // todo -> 주소지아이디 임시로 입력
+                addressId = 1L,
                 orderProducts = listOf(), // 비어있는 주문 상품 목록
             )
         val jwtToken = getAccessToken(user.loginId, "password123")
@@ -201,9 +210,10 @@ class OrderCreateApiTest(
     fun `주문 생성 - 실패, 주문 수량이 1개 미만`() {
         val user = createUser("testUser", "password123", "테스트유저")
         val productJpaEntity = productRepository.save(ProductJpaEntity(name = "상품1", stock = 10, price = 10000.toBigDecimal()))
-
         val orderRequest =
             OrderCreateRequestDto(
+                // todo -> 주소지아이디 임시로 입력
+                addressId = 1L,
                 orderProducts =
                     listOf(
                         OrderProductRequestDto(productId = productJpaEntity.id!!, quantity = 0), // 1개 미만 수량
