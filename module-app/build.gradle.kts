@@ -34,17 +34,17 @@ dependencies {
     testRuntimeOnly(libs.h2.database)
 }
 
-tasks.asciidoctor {
-    val snippetsDir = layout.buildDirectory.dir("generated-snippets")
-
-    sourceDir(file("src/docs/asciidoc"))
-    inputs.dir(snippetsDir)
-    dependsOn(tasks.named("test"))
-
-    attributes(
-        mapOf("snippets" to snippetsDir.get().asFile)
-    )
-}
+//tasks.asciidoctor {
+//    val snippetsDir = layout.buildDirectory.dir("generated-snippets")
+//
+//    sourceDir(file("src/docs/asciidoc"))
+//    inputs.dir(snippetsDir)
+//    dependsOn(tasks.named("test"))
+//
+//    attributes(
+//        mapOf("snippets" to snippetsDir.get().asFile)
+//    )
+//}
 
 tasks.register("buildDocs") {
     group = "documentation"

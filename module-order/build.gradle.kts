@@ -12,5 +12,16 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.security.core)
 
+    testImplementation(libs.restdocs.mockmvc)
+    testImplementation(libs.spring.security.test)
+
+    testImplementation(libs.kotest.runner)
+    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.kotest.spring)
+
     runtimeOnly(libs.postgres)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
