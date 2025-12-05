@@ -8,6 +8,7 @@ import com.playground.order.presentation.request.OrderProductRequestDto
 fun OrderCreateRequestDto.toCommand(userId: Long): OrderCreateCommand =
     OrderCreateCommand(
         userId = userId,
+        addressId = addressId,
         orderProducts = orderProducts.map { it.toCommand() },
     )
 
