@@ -11,8 +11,11 @@ import com.playground.order.application.provider.ProductDataProvider
 import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
+import com.playground.order.domain.model.OrderAddress
 import com.playground.order.domain.model.OrderProduct
+import com.playground.order.domain.model.OrderReceiver
 import com.playground.product.contract.domain.vo.ProductInfo
+import com.playground.user.contract.application.port.outbound.AddressInfoQueryPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -24,6 +27,7 @@ class OrderCommandService(
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
     private val productDataProvider: ProductDataProvider,
+    private val addressInfoQueryPort: AddressInfoQueryPort,
     private val orderOwnerValidator: OrderOwnerValidator,
 ) : OrderCommandUseCase {
     override fun createOrder(command: OrderCreateCommand): Order {
@@ -49,10 +53,13 @@ class OrderCommandService(
         command: OrderCreateCommand,
         productInfoMap: Map<Long, ProductInfo>,
     ): Order {
+        val addressInfo = addressInfoQueryPort.getAddressInfoByAddressId(command.userId, command.addressId)
         val order =
             Order(
                 userId = command.userId,
                 totalPrice = BigDecimal.ZERO,
+                orderAddress = OrderAddress.fromAddressInfo(addressInfo),
+                orderReceiver = OrderReceiver.fromAddressInfo(addressInfo)
             )
 
         val orderProducts =

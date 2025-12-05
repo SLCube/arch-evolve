@@ -1,6 +1,6 @@
 package com.playground.user.contract.application.port.outbound
 
-import com.playground.user.contract.domain.vo.AddressInfo
+import com.playground.user.contract.domain.vo.ReceiverAddressInfo
 
 /**
  * 사용자 도메인의 특정 주소 정보를 조회하는 아웃바운드 포트 계약.
@@ -19,5 +19,5 @@ fun interface AddressInfoQueryPort {
      * @return AddressSnapshotVO (도로명, 상세주소 등을 포함하는 불변 값 객체)
      * @throws AddressNotFoundException 주소를 찾을 수 없거나 소유권이 일치하지 않을 경우
      */
-    fun getAddressInfoByAddressId(userId: Long, addressId: Long): AddressInfo
+    fun getAddressInfoByAddressId(userId: Long, addressId: Long): ReceiverAddressInfo
 }

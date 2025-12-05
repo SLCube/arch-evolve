@@ -11,6 +11,8 @@ class Order(
     var totalPrice: BigDecimal,
     var status: OrderStatus = OrderStatus.PENDING,
     val orderProducts: MutableList<OrderProduct> = mutableListOf(),
+    val orderAddress: OrderAddress,
+    val orderReceiver: OrderReceiver,
     var pgTransactionId: String? = null,
     val createdAt: LocalDateTime = LocalDateTime.now(),
     var updatedAt: LocalDateTime = LocalDateTime.now(),

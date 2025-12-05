@@ -4,6 +4,7 @@ import com.playground.common.persistence.jpa.BaseEntity
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.model.Order
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -27,6 +28,10 @@ class OrderJpaEntity(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: OrderStatus = OrderStatus.PENDING,
+    @Embedded
+    val orderAddress: OrderAddressEmbedded,
+    @Embedded
+    val orderReceiver: OrderReceiverEmbedded,
     @Column(nullable = true, length = 50)
     var pgTransactionId: String? = null,
 ) : BaseEntity() {
@@ -37,6 +42,8 @@ class OrderJpaEntity(
                 userId = domain.userId,
                 totalPrice = domain.totalPrice,
                 status = domain.status,
+                orderAddress = OrderAddressEmbedded.toEmbedded(domain.orderAddress),
+                orderReceiver = OrderReceiverEmbedded.toEmbedded(domain.orderReceiver),
             )
     }
 
