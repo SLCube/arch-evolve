@@ -1,7 +1,7 @@
 package com.playground.order.infra.event.adapter
 
+import com.playground.common.event.DomainEvent
 import com.playground.order.application.port.outbound.OrderEventPort
-import com.playground.order.contract.domain.event.OrderCreatedEvent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 class OrderEventAdapter(
     private val publisher: ApplicationEventPublisher,
 ) : OrderEventPort {
-    override fun publish(event: OrderCreatedEvent) {
+    override fun publish(event: DomainEvent) {
         publisher.publishEvent(event)
     }
 }

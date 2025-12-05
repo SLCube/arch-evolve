@@ -1,8 +1,8 @@
 package com.playground.order.application.port.outbound
 
-import com.playground.order.contract.domain.event.OrderCreatedEvent
+import com.playground.common.event.DomainEvent
 
 
 fun interface OrderEventPort {
-    fun publish(event: OrderCreatedEvent)
+    fun publish(event: DomainEvent)
 }
