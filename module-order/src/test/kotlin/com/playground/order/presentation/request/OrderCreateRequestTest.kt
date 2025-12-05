@@ -1,8 +1,11 @@
 package com.playground.order.presentation.request
 
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
 import jakarta.validation.Validation
 import jakarta.validation.Validator
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Size
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -23,9 +26,13 @@ class OrderCreateRequestTest {
             orderProducts = mutableListOf()
         )
 
-        val result = validator.validate(request)
+        val validations = validator.validate(request)
 
-        result shouldHaveSize 1
+        validations shouldHaveSize 1
+
+        val validation = validations.first()
+        validation.propertyPath.toString() shouldBe "orderProducts"
+        validation.constraintDescriptor.annotation.annotationClass.java shouldBe Size::class.java
     }
 
     @Test
@@ -40,7 +47,11 @@ class OrderCreateRequestTest {
             )
         )
 
-        val result = validator.validate(request)
-        result shouldHaveSize 1
+        val validations = validator.validate(request)
+        validations shouldHaveSize 1
+
+        val validation = validations.first()
+        validation.propertyPath.toString() shouldBe "orderProducts[0].quantity"
+        validation.constraintDescriptor.annotation.annotationClass.java shouldBe Min::class.java
     }
 }
