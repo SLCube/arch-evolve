@@ -8,7 +8,6 @@ import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderExternalDataProvider
-import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderAddress
@@ -26,7 +25,6 @@ class OrderCommandService(
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
     private val orderExternalDataProvider: OrderExternalDataProvider,
-    private val orderOwnerValidator: OrderOwnerValidator,
 ) : OrderCommandUseCase {
     override fun createOrder(command: OrderCreateCommand): Order {
         val productIds = command.orderProducts.map { it.productId }
@@ -96,9 +94,8 @@ class OrderCommandService(
     }
 
     override fun cancelOrder(command: OrderCancelCommand): Order {
-        orderOwnerValidator.validate(command.userId, command.orderId)
-
         val foundOrder = orderQueryPort.findById(command.orderId)
+        foundOrder.validateOwner(command.userId)
         foundOrder.cancelOrder()
         return orderCommandPort.update(foundOrder)
     }

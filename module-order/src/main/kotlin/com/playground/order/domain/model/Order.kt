@@ -1,6 +1,7 @@
 package com.playground.order.domain.model
 
 import com.playground.order.domain.enum.OrderStatus
+import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderStatusInvalidException
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -41,6 +42,12 @@ class Order(
         }
         this.status = OrderStatus.CANCELLED
         this.updatedAt = LocalDateTime.now()
+    }
+
+    fun validateOwner(currentUserId: Long) {
+        if (this.userId != currentUserId) {
+            throw OrderAccessDeniedException(this.id!!, currentUserId)
+        }
     }
 
     override fun toString(): String =
