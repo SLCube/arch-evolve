@@ -41,6 +41,6 @@ fun OrderAddressEmbedded.toDomain(): OrderAddress {
 fun OrderReceiverEmbedded.toDomain(): OrderReceiver {
     return OrderReceiver(
         receiverName = this.receiverName,
-        reveiverPhoneNumber = this.receiverPhoneNumber,
+        receiverPhoneNumber = this.receiverPhoneNumber,
     )
 }

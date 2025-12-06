@@ -20,9 +20,6 @@ abstract class RestDocsTest {
     lateinit var objectMapper: ObjectMapper
 
     @Autowired
-    lateinit var mockMvc: MockMvc
-
-    @Autowired
     lateinit var restDocsMockMvc: MockMvc
 
     @Autowired

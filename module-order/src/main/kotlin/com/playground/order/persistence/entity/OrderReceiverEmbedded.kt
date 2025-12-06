@@ -15,7 +15,7 @@ class OrderReceiverEmbedded(
         fun toEmbedded(domain: OrderReceiver): OrderReceiverEmbedded {
             return OrderReceiverEmbedded(
                 receiverName = domain.receiverName,
-                receiverPhoneNumber = domain.reveiverPhoneNumber,
+                receiverPhoneNumber = domain.receiverPhoneNumber,
             )
         }
     }
