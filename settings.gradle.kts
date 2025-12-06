@@ -28,3 +28,5 @@ include("module-delivery")
 include("module-delivery-contract")
 
 include("module-app")
+
+include("module-test-support")
