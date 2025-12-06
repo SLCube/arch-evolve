@@ -7,7 +7,7 @@ import com.playground.order.application.port.inbound.command.OrderCreateCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
-import com.playground.order.application.provider.ProductDataProvider
+import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.application.validator.OrderOwnerValidator
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
@@ -15,7 +15,6 @@ import com.playground.order.domain.model.OrderAddress
 import com.playground.order.domain.model.OrderProduct
 import com.playground.order.domain.model.OrderReceiver
 import com.playground.product.contract.domain.vo.ProductInfo
-import com.playground.user.contract.application.port.outbound.AddressInfoQueryPort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -26,13 +25,12 @@ class OrderCommandService(
     private val orderCommandPort: OrderCommandPort,
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
-    private val productDataProvider: ProductDataProvider,
-    private val addressInfoQueryPort: AddressInfoQueryPort,
+    private val orderExternalDataProvider: OrderExternalDataProvider,
     private val orderOwnerValidator: OrderOwnerValidator,
 ) : OrderCommandUseCase {
     override fun createOrder(command: OrderCreateCommand): Order {
         val productIds = command.orderProducts.map { it.productId }
-        val productInfoMap = productDataProvider.getVerifiedProductInfos(productIds)
+        val productInfoMap = orderExternalDataProvider.getVerifiedProductInfos(productIds)
 
         val order = createOrderAggregate(command, productInfoMap)
 
@@ -53,7 +51,7 @@ class OrderCommandService(
         command: OrderCreateCommand,
         productInfoMap: Map<Long, ProductInfo>,
     ): Order {
-        val addressInfo = addressInfoQueryPort.getAddressInfoByAddressId(command.userId, command.addressId)
+        val addressInfo = orderExternalDataProvider.getAddressInfoByAddressId(command.userId, command.addressId)
         val order =
             Order(
                 userId = command.userId,

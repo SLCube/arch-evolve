@@ -4,7 +4,7 @@ import com.playground.common.application.query.PageQuery
 import com.playground.common.application.query.PagedResult
 import com.playground.order.application.port.inbound.OrderQueryUseCase
 import com.playground.order.application.port.outbound.OrderQueryPort
-import com.playground.order.application.provider.ProductDataProvider
+import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.application.service.result.OrderSummaryResult
 import com.playground.order.application.validator.OrderOwnerValidator
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class OrderQueryService(
     private val orderQueryPort: OrderQueryPort,
-    private val productDataProvider: ProductDataProvider,
+    private val orderExternalDataProvider: OrderExternalDataProvider,
     private val orderOwnerValidator: OrderOwnerValidator,
 ) : OrderQueryUseCase {
     override fun getOrder(
@@ -27,7 +27,7 @@ class OrderQueryService(
 
         val order = orderQueryPort.findById(orderId)
         val productIds = order.orderProducts.map { it.productId }
-        val productInfoMap = productDataProvider.getVerifiedProductInfos(productIds)
+        val productInfoMap = orderExternalDataProvider.getVerifiedProductInfos(productIds)
 
         return OrderDetailResult.of(order, productInfoMap)
     }
@@ -42,7 +42,7 @@ class OrderQueryService(
 
         val productInfoMap: Map<Long, ProductInfo> =
             if (allProductIdsInPage.isNotEmpty()) {
-                productDataProvider.getVerifiedProductInfos(allProductIdsInPage)
+                orderExternalDataProvider.getVerifiedProductInfos(allProductIdsInPage)
             } else {
                 emptyMap()
             }
