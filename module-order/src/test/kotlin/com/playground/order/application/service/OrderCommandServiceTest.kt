@@ -8,6 +8,7 @@ import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.enum.OrderStatus
+import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderStatusInvalidException
 import com.playground.order.domain.model.Order
 import com.playground.order.fixture.AddressInfoTestFixture
@@ -194,6 +195,34 @@ class OrderCommandServiceTest {
 
         // then
         shouldThrow<OrderStatusInvalidException> {
+            orderCommandService.cancelOrder(command)
+        }
+
+        verify(orderCommandPort, never()).update(any())
+    }
+
+    @Test
+    fun `다른 사용자의 주문을 취소할 경우 OrderAccessDenied예외를 던져야 한다`() {
+        // given
+        val orderId = 10L
+        val authenticatedUserId = 3L
+        val requestUserId = 2L
+        val command = OrderCancelCommand(
+            userId = requestUserId,
+            orderId = orderId,
+        )
+
+        val pendingOrder = OrderTestFixture.mockOrder(
+            id = orderId,
+            userId = authenticatedUserId,
+            status = OrderStatus.PENDING
+        )
+
+        // when
+        given(orderQueryPort.findById(orderId)).willReturn(pendingOrder)
+
+        // then
+        shouldThrow<OrderAccessDeniedException> {
             orderCommandService.cancelOrder(command)
         }
 
