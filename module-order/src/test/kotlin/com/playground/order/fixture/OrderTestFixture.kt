@@ -19,7 +19,7 @@ object OrderTestFixture {
     )
 
     fun mockOrder(
-        id: Long = 1L,
+        id: Long? = 1L,
         userId: Long = 2L,
         status: OrderStatus = OrderStatus.PENDING,
         orderProducts: MutableList<OrderProduct> = mockOrderProducts(),
@@ -90,6 +90,11 @@ object OrderTestFixture {
     fun mockOrderProducts(): MutableList<OrderProduct> = mutableListOf(
         OrderProduct(id = 1L, productId = 1L, quantity = 2, price = 5000.toBigDecimal()),
         OrderProduct(id = 2L, productId = 2L, quantity = 3, price = 3000.toBigDecimal()),
+    )
+
+    fun mockUnsavedOrderProducts(): MutableList<OrderProduct> = mutableListOf(
+        OrderProduct(productId = 1L, quantity = 2, price = 5000.toBigDecimal()),
+        OrderProduct(productId = 2L, quantity = 3, price = 3000.toBigDecimal()),
     )
 
     fun mockOrderAddress() = OrderAddress(

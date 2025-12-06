@@ -20,7 +20,7 @@ dependencies {
     testImplementation(libs.kotest.spring)
 
     testImplementation(project(":module-test-support"))
-
+    testRuntimeOnly(libs.h2.database)
     runtimeOnly(libs.postgres)
 }
 
