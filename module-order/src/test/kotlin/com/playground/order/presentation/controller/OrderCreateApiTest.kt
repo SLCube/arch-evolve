@@ -2,23 +2,18 @@ package com.playground.order.presentation.controller
 
 import com.playground.common.error.ErrorCode
 import com.playground.order.application.port.inbound.OrderCommandUseCase
-import com.playground.order.application.port.inbound.OrderQueryUseCase
 import com.playground.order.domain.exception.OrderableProductNotFoundException
 import com.playground.order.fixture.OrderTestFixture
-import com.playground.order.presentation.config.OrderControllerTestConfig
+import com.playground.order.presentation.annotation.OrderControllerSliceTest
 import com.playground.order.presentation.request.OrderProductRequestDto
-import com.playground.order.presentation.web.OrderController
 import com.playground.support.RestDocsTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import com.playground.support.security.annotation.WithMockAuthUser
-import com.playground.support.security.config.TestSecurityConfig
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.given
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
 import org.springframework.restdocs.payload.PayloadDocumentation.requestFields
@@ -27,15 +22,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPat
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
-@WebMvcTest(OrderController::class)
-@Import(OrderControllerTestConfig::class, TestSecurityConfig::class)
-class OrderCreateApiTest : RestDocsTest() {
-
-    @Autowired
-    private lateinit var orderCommandUseCase: OrderCommandUseCase
-
-    @Autowired
-    private lateinit var orderQueryUseCase: OrderQueryUseCase
+@OrderControllerSliceTest
+class OrderCreateApiTest(
+    @param:Autowired private val orderCommandUseCase: OrderCommandUseCase,
+) : RestDocsTest() {
 
     @Test
     @WithMockAuthUser
