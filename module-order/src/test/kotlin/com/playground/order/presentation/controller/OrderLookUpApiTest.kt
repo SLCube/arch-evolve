@@ -5,6 +5,7 @@ import com.playground.order.application.port.inbound.OrderQueryUseCase
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.fixture.OrderTestFixture
+import com.playground.order.fixture.ProductInfoTestFixture
 import com.playground.order.presentation.annotation.OrderControllerSliceTest
 import com.playground.support.RestDocsTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
@@ -35,7 +36,7 @@ class OrderLookUpApiTest(
     fun `주문 상세 조회 - 성공`() {
         val mockOrder = OrderTestFixture.mockOrder()
         val authenticatedUserId = 2L
-        val mockOrderDetailResult = OrderDetailResult.of(mockOrder, OrderTestFixture.mockProductInfo())
+        val mockOrderDetailResult = OrderDetailResult.of(mockOrder, ProductInfoTestFixture.mockProductInfo())
         given(orderQueryUseCase.getOrder(eq(authenticatedUserId), eq(mockOrder.id!!)))
             .willReturn(mockOrderDetailResult)
 

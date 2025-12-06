@@ -30,7 +30,9 @@ class Order(
     }
 
     fun completeOrder(pgTransactionId: String) {
-        require(this.status == OrderStatus.PENDING) { "주문 상태가 PENDING일 때만 완료할 수 있습니다." }
+        if (this.status != OrderStatus.PENDING) {
+            throw OrderStatusInvalidException(this.status)
+        }
         this.status = OrderStatus.COMPLETED
         this.pgTransactionId = pgTransactionId
         this.updatedAt = LocalDateTime.now()

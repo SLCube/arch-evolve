@@ -3,6 +3,7 @@ package com.playground.order.presentation.controller
 import com.playground.common.error.ErrorCode
 import com.playground.order.application.port.inbound.OrderCommandUseCase
 import com.playground.order.domain.exception.OrderableProductNotFoundException
+import com.playground.order.fixture.OrderRequestTestFixture
 import com.playground.order.fixture.OrderTestFixture
 import com.playground.order.presentation.annotation.OrderControllerSliceTest
 import com.playground.order.presentation.request.OrderProductRequestDto
@@ -30,7 +31,7 @@ class OrderCreateApiTest(
     @Test
     @WithMockAuthUser
     fun `주문 생성 - 성공`() {
-        val orderCreateRequestDto = OrderTestFixture.createOrderRequest()
+        val orderCreateRequestDto = OrderRequestTestFixture.createOrderRequest()
 
         val mockOrder = OrderTestFixture.mockOrder()
 
@@ -82,7 +83,7 @@ class OrderCreateApiTest(
     fun `주문 생성 - 실패, 상품이 존재하지 않음`() {
         val nonExistingProductId = 999L
 
-        val request = OrderTestFixture.createOrderRequest(
+        val request = OrderRequestTestFixture.createOrderRequest(
             orderProducts = listOf(
                 OrderProductRequestDto(productId = nonExistingProductId, quantity = 1),
             )
@@ -111,7 +112,7 @@ class OrderCreateApiTest(
     @Test
     @WithMockAuthUser
     fun `주문 생성 - 실패, 주문 상품이 비어있음`() {
-        val request = OrderTestFixture.createOrderRequest(
+        val request = OrderRequestTestFixture.createOrderRequest(
             orderProducts = mutableListOf()
         )
 

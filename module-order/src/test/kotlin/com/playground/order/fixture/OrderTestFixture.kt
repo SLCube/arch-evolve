@@ -7,9 +7,7 @@ import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderAddress
 import com.playground.order.domain.model.OrderProduct
 import com.playground.order.domain.model.OrderReceiver
-import com.playground.order.presentation.request.OrderCreateRequestDto
 import com.playground.order.presentation.request.OrderProductRequestDto
-import com.playground.product.contract.domain.vo.ProductInfo
 import java.time.LocalDateTime
 
 object OrderTestFixture {
@@ -18,14 +16,6 @@ object OrderTestFixture {
     fun defaultOrderProductList(): List<OrderProductRequestDto> = listOf(
         OrderProductRequestDto(productId = 1L, quantity = 2),
         OrderProductRequestDto(productId = 2L, quantity = 3),
-    )
-
-    fun createOrderRequest(
-        addressId: Long = 1L,
-        orderProducts: List<OrderProductRequestDto> = defaultOrderProductList()
-    ) = OrderCreateRequestDto(
-        addressId = addressId,
-        orderProducts = orderProducts
     )
 
     fun mockOrder(
@@ -70,7 +60,7 @@ object OrderTestFixture {
         pageSize: Int = 10,
     ): PagedResult<OrderSummaryResult> {
         val mockOrders = mockOrders()
-        val mockProductInfo = mockProductInfo()
+        val mockProductInfo = ProductInfoTestFixture.mockProductInfo()
         val mockOrdersSummary = mockOrders.map { order ->
             OrderSummaryResult.of(order, mockProductInfo)
         }
@@ -112,14 +102,4 @@ object OrderTestFixture {
         receiverName = "홍길동",
         receiverPhoneNumber = "010-1234-5678",
     )
-
-    fun mockProductInfo(): Map<Long, ProductInfo> {
-        return listOf(
-            ProductInfo(productId = 1L, price = 5000.toBigDecimal(), productName = "상품1"),
-            ProductInfo(productId = 2L, price = 3000.toBigDecimal(), productName = "상품2"),
-        ).associateBy(
-            keySelector = { it.productId },
-            valueTransform = { it }
-        )
-    }
 }
