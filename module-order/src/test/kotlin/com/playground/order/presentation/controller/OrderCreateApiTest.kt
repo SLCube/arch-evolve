@@ -1,11 +1,15 @@
 package com.playground.order.presentation.controller
 
+import com.playground.common.error.ErrorCode
 import com.playground.order.application.port.inbound.OrderCommandUseCase
 import com.playground.order.application.port.inbound.OrderQueryUseCase
+import com.playground.order.domain.exception.OrderableProductNotFoundException
 import com.playground.order.fixture.OrderTestFixture
 import com.playground.order.presentation.config.OrderControllerTestConfig
+import com.playground.order.presentation.request.OrderProductRequestDto
 import com.playground.order.presentation.web.OrderController
 import com.playground.support.RestDocsTest
+import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import com.playground.support.security.annotation.WithMockAuthUser
 import com.playground.support.security.config.TestSecurityConfig
@@ -34,7 +38,7 @@ class OrderCreateApiTest : RestDocsTest() {
     private lateinit var orderQueryUseCase: OrderQueryUseCase
 
     @Test
-    @WithMockAuthUser(userId = 2L)
+    @WithMockAuthUser
     fun `주문 생성 - 성공`() {
         val orderCreateRequestDto = OrderTestFixture.createOrderRequest()
 
@@ -78,6 +82,64 @@ class OrderCreateApiTest : RestDocsTest() {
                         fieldWithPath("orderProducts[].productId").description("상품 ID"),
                         fieldWithPath("orderProducts[].quantity").description("주문 수량"),
                         fieldWithPath("orderProducts[].price").description("주문 당시 상품 단가"),
+                    )
+                )
+        }
+    }
+
+    @Test
+    @WithMockAuthUser
+    fun `주문 생성 - 실패, 상품이 존재하지 않음`() {
+        val nonExistingProductId = 999L
+
+        val request = OrderTestFixture.createOrderRequest(
+            orderProducts = listOf(
+                OrderProductRequestDto(productId = nonExistingProductId, quantity = 1),
+            )
+        )
+
+        given(orderCommandUseCase.createOrder(any()))
+            .willThrow(OrderableProductNotFoundException(nonExistingProductId))
+
+        performAndDocument("주문 생성 - 실패, 상품이 존재하지 않음") {
+            httpMethod = HttpMethod.POST
+            urlTemplate = "/orders"
+            requestBody = request
+            expectedStatus = status().isNotFound
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.code").value(ErrorCode.ORDERABLE_PRODUCT_NOT_FOUND.code),
+                    jsonPath("$.message").value(ErrorCode.ORDERABLE_PRODUCT_NOT_FOUND.message(nonExistingProductId))
+                )
+            snippets =
+                arrayOf(
+                    responseFields(commonErrorResponseSnippet())
+                )
+        }
+    }
+
+    @Test
+    @WithMockAuthUser
+    fun `주문 생성 - 실패, 주문 상품이 비어있음`() {
+        val request = OrderTestFixture.createOrderRequest(
+            orderProducts = mutableListOf()
+        )
+
+        performAndDocument("주문 생성 - 실패, 주문 상품이 비어있음") {
+            httpMethod = HttpMethod.POST
+            urlTemplate = "/orders"
+            requestBody = request
+            expectedStatus = status().isBadRequest
+            additionalMatchers =
+                arrayOf(
+                    jsonPath("$.message").value("입력값이 유효하지 않습니다."),
+                    jsonPath("$.errors.orderProducts").value("주문 상품은 최소 1개 이상이어야 합니다."),
+                )
+            snippets =
+                arrayOf(
+                    responseFields(
+                        commonErrorResponseSnippet() +
+                                fieldWithPath("errors.orderProducts").description("주문 상품 목록 필드의 에러 메세지")
                     )
                 )
         }
