@@ -1,4 +1,5 @@
 dependencies {
+    implementation(libs.spring.boot.starter.validation)
     implementation(libs.restdocs.mockmvc)
     implementation(libs.kotest.runner)
     implementation(libs.kotest.spring)

@@ -1,23 +1,14 @@
 package com.playground.order.presentation.request
 
+import com.playground.support.validate.ValidateTest
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import jakarta.validation.Validation
-import jakarta.validation.Validator
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @Suppress("NonAsciiCharacters")
-class OrderCreateRequestTest {
-
-    private lateinit var validator: Validator
-
-    @BeforeEach
-    fun setUp() {
-        validator = Validation.buildDefaultValidatorFactory().validator
-    }
+class OrderCreateRequestTest: ValidateTest() {
 
     @Test
     fun `상품없이 주문을 생성할 수 없다`() {

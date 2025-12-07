@@ -1,22 +1,13 @@
 package com.playground.product.presentation.request
 
+import com.playground.support.validate.ValidateTest
 import io.kotest.matchers.shouldBe
-import jakarta.validation.Validation
-import jakarta.validation.Validator
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.PositiveOrZero
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @Suppress("NonAsciiCharacters")
-class ProductSaveRequestValidateTest {
-
-    private lateinit var validator: Validator
-
-    @BeforeEach
-    fun setUp() {
-        validator = Validation.buildDefaultValidatorFactory().validator
-    }
+class ProductSaveRequestValidateTest: ValidateTest() {
 
     @Test
     fun `삼품 등록 시 이름이 비어있을 수 없다`() {
