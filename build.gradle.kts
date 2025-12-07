@@ -132,6 +132,7 @@ tasks.register<JacocoReport>("jacocoTestReport") {
                 "**/com/playground/*/presentation/response/*",
                 "**/com/playground/*/consumer/*",
                 "**/com/playground/*/domain/exception/*",
+                "**/com/playground/*/infra/event/adapter/*",
             )
         },
     )
