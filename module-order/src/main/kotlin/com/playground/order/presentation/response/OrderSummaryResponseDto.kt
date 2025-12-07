@@ -13,13 +13,19 @@ data class OrderSummaryResponseDto(
     val createdAt: String,
 ) {
     companion object {
-        fun of(result: OrderSummaryResult): OrderSummaryResponseDto =
-            OrderSummaryResponseDto(
+        private const val DEFAULT_PRODUCT_NAME = "주문 상품 없음"
+
+        fun of(result: OrderSummaryResult): OrderSummaryResponseDto {
+            val name = result.representativeProductName.takeIf { it.isNotBlank() } ?: DEFAULT_PRODUCT_NAME
+
+            return OrderSummaryResponseDto(
                 id = result.id,
-                representativeProductName = result.representativeProductName,
+                representativeProductName = name,
                 totalPrice = result.totalPrice,
                 status = result.status,
                 createdAt = result.createdAt.format(DateTimeUtils.API_DATE_TIME_FORMATTER),
             )
+        }
+
     }
 }

@@ -18,18 +18,15 @@ data class OrderSummaryResult(
             order: Order,
             productInfoMap: Map<Long, ProductInfo>,
         ): OrderSummaryResult {
-            val representativeProductName =
-                if (order.orderProducts.isEmpty()) {
-                    "주문 상품 없음"
+            val representativeProductName = order.orderProducts.firstOrNull()?.let { firstProduct ->
+                val firstProductId = firstProduct.id
+                val firstProductName = productInfoMap[firstProductId]?.productName ?: "알 수 없는 상품"
+                if (order.orderProducts.size > 1) {
+                    "$firstProductName 외 ${order.orderProducts.size - 1}건"
                 } else {
-                    val firstProductId = order.orderProducts.first().productId
-                    val firstProductName = productInfoMap[firstProductId]?.productName ?: "알 수 없는 상품"
-                    if (order.orderProducts.size > 1) {
-                        "$firstProductName 외 ${order.orderProducts.size - 1}건"
-                    } else {
-                        firstProductName
-                    }
+                    firstProductName
                 }
+            } ?: ""
 
             return OrderSummaryResult(
                 id = order.id!!,
