@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
 @OrderControllerSliceTest
-class OrderCreateApiTest(
+class OrderSaveApiTest(
     @param:Autowired private val orderCommandUseCase: OrderCommandUseCase,
 ) : RestDocsTest() {
 

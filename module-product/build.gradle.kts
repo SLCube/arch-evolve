@@ -8,4 +8,14 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
 
     runtimeOnly(libs.postgres)
+
+    testImplementation(libs.restdocs.mockmvc)
+    testImplementation(libs.spring.security.test)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.kotest.runner)
+    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.kotest.spring)
+
+    testImplementation(project(":module-test-support"))
+    testRuntimeOnly(libs.h2.database)
 }
