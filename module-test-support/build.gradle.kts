@@ -6,5 +6,6 @@ dependencies {
     implementation(libs.spring.boot.starter.test)
     implementation(libs.spring.security.test)
 
+    implementation(project(":module-common"))
     implementation(project(":module-auth-contract"))
 }
