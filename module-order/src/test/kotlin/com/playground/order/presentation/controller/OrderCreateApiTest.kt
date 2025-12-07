@@ -3,8 +3,8 @@ package com.playground.order.presentation.controller
 import com.playground.common.error.ErrorCode
 import com.playground.order.application.port.inbound.OrderCommandUseCase
 import com.playground.order.domain.exception.OrderableProductNotFoundException
-import com.playground.order.fixture.OrderRequestTestFixture
-import com.playground.order.fixture.OrderTestFixture
+import com.playground.order.fixture.presentation.request.OrderRequestTestFixture
+import com.playground.order.fixture.application.domain.OrderDomainTestFixture
 import com.playground.order.presentation.annotation.OrderControllerSliceTest
 import com.playground.order.presentation.request.OrderProductRequestDto
 import com.playground.support.RestDocsTest
@@ -33,7 +33,7 @@ class OrderCreateApiTest(
     fun `주문 생성 - 성공`() {
         val orderCreateRequestDto = OrderRequestTestFixture.createOrderRequest()
 
-        val mockOrder = OrderTestFixture.mockOrder()
+        val mockOrder = OrderDomainTestFixture.mockOrder()
 
         given(orderCommandUseCase.createOrder(any()))
             .willReturn(mockOrder)

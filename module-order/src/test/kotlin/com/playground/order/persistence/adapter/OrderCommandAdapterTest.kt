@@ -2,7 +2,7 @@ package com.playground.order.persistence.adapter
 
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderNotFoundException
-import com.playground.order.fixture.OrderTestFixture
+import com.playground.order.fixture.application.domain.OrderDomainTestFixture
 import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
 import io.kotest.assertions.throwables.shouldThrow
@@ -27,8 +27,8 @@ class OrderCommandAdapterTest(
     @Test
     fun `save 호출 시 Order 도메인 모델을 DB에 저장하고 ID가 할당된 객체를 반환해야 한다`() {
         // Given
-        val unsavedProducts = OrderTestFixture.mockUnsavedOrderProducts()
-        val unsavedOrder = OrderTestFixture.mockOrder(
+        val unsavedProducts = OrderDomainTestFixture.mockUnsavedOrderProducts()
+        val unsavedOrder = OrderDomainTestFixture.mockOrder(
             id = null,
             userId = initialUserId,
             orderProducts = unsavedProducts
@@ -61,10 +61,10 @@ class OrderCommandAdapterTest(
     fun `update 호출 시 Order 도메인 모델의 변경 사항이 DB에 반영되어야 한다`() {
         // Given
         val initialOrder = orderCommandAdapter.save(
-            OrderTestFixture.mockOrder(
+            OrderDomainTestFixture.mockOrder(
                 id = null,
                 userId = initialUserId,
-                orderProducts = OrderTestFixture.mockUnsavedOrderProducts(),
+                orderProducts = OrderDomainTestFixture.mockUnsavedOrderProducts(),
             )
         )
 
@@ -86,7 +86,7 @@ class OrderCommandAdapterTest(
     fun `존재하지 않는 주문에 대한 update 호출 시 OrderNotFoundException을 던져야 한다`() {
         // given
         val nonExistingOrderId = 999L
-        val mockOrder = OrderTestFixture.mockOrder(
+        val mockOrder = OrderDomainTestFixture.mockOrder(
             id = nonExistingOrderId,
             userId = initialUserId
         )

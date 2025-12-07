@@ -4,8 +4,9 @@ import com.playground.common.error.ErrorCode
 import com.playground.order.application.port.inbound.OrderQueryUseCase
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.domain.exception.OrderAccessDeniedException
-import com.playground.order.fixture.OrderTestFixture
-import com.playground.order.fixture.ProductInfoTestFixture
+import com.playground.order.fixture.application.domain.OrderDomainTestFixture
+import com.playground.order.fixture.application.query.OrderQueryTestFixture
+import com.playground.order.fixture.application.domain.ProductInfoTestFixture
 import com.playground.order.presentation.annotation.OrderControllerSliceTest
 import com.playground.support.RestDocsTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
@@ -34,7 +35,7 @@ class OrderLookUpApiTest(
     @Test
     @WithMockAuthUser(userId = 2L)
     fun `주문 상세 조회 - 성공`() {
-        val mockOrder = OrderTestFixture.mockOrder()
+        val mockOrder = OrderDomainTestFixture.mockOrder()
         val authenticatedUserId = 2L
         val mockOrderDetailResult = OrderDetailResult.of(mockOrder, ProductInfoTestFixture.mockProductInfos())
         given(orderQueryUseCase.getOrder(eq(authenticatedUserId), eq(mockOrder.id!!)))
@@ -118,7 +119,7 @@ class OrderLookUpApiTest(
     @WithMockAuthUser
     fun `주문 목록 조회 - 성공`() {
         val authenticatedUserId = 2L
-        val mockOrders = OrderTestFixture.mockOrderSummaryPage()
+        val mockOrders = OrderQueryTestFixture.mockOrderSummaryPage()
 
         given(orderQueryUseCase.getOrders(eq(authenticatedUserId), any()))
             .willReturn(mockOrders)
@@ -172,7 +173,7 @@ class OrderLookUpApiTest(
     @WithMockAuthUser(userId = 3L)
     fun `주문 목록 조회 - 실패 (다른 사용자의 주문은 조회되지 않음)`() {
         val requestUserId = 3L
-        val emptyOrder = OrderTestFixture.mockEmptyOrderSummaryPage()
+        val emptyOrder = OrderQueryTestFixture.mockEmptyOrderSummaryPage()
 
         given(orderQueryUseCase.getOrders(eq(requestUserId), any()))
             .willReturn(emptyOrder)

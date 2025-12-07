@@ -7,7 +7,7 @@ import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.exception.OrderStatusInvalidException
-import com.playground.order.fixture.OrderTestFixture
+import com.playground.order.fixture.application.domain.OrderDomainTestFixture
 import com.playground.order.presentation.annotation.OrderControllerSliceTest
 import com.playground.support.RestDocsTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
@@ -34,7 +34,7 @@ class OrderCancelApiTest(
     @Test
     @WithMockAuthUser(userId = 2L)
     fun `주문 취소 - 성공`() {
-        val mockOrder = OrderTestFixture.mockOrder()
+        val mockOrder = OrderDomainTestFixture.mockOrder()
         mockOrder.cancelOrder()
 
         val authenticatedUserId = 2L

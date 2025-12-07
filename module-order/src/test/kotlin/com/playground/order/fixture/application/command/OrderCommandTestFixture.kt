@@ -1,4 +1,4 @@
-package com.playground.order.fixture
+package com.playground.order.fixture.application.command
 
 import com.playground.order.application.port.inbound.command.OrderCreateCommand
 import com.playground.order.application.port.inbound.command.OrderProductCreateCommand

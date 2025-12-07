@@ -1,4 +1,4 @@
-package com.playground.order.fixture
+package com.playground.order.fixture.application.domain
 
 import com.playground.product.contract.domain.vo.ProductInfo
 

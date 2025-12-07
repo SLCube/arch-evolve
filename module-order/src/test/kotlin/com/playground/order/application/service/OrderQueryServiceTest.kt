@@ -7,8 +7,9 @@ import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
-import com.playground.order.fixture.OrderTestFixture
-import com.playground.order.fixture.ProductInfoTestFixture
+import com.playground.order.fixture.application.domain.OrderDomainTestFixture
+import com.playground.order.fixture.application.query.OrderQueryTestFixture
+import com.playground.order.fixture.application.domain.ProductInfoTestFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -38,7 +39,7 @@ class OrderQueryServiceTest {
         // given
         val orderId = 1L
         val userId = 2L
-        val mockOrder = OrderTestFixture.mockOrder(
+        val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = userId,
         )
@@ -88,7 +89,7 @@ class OrderQueryServiceTest {
         val ownerUserId = 2L
         val requestUserId = 3L
 
-        val mockOrder = OrderTestFixture.mockOrder(
+        val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = ownerUserId,
         )
@@ -113,13 +114,13 @@ class OrderQueryServiceTest {
             pageSize = 10,
         )
 
-        val mockOrdersPage = OrderTestFixture.mockOrdersPage(
+        val mockOrdersPage = OrderDomainTestFixture.mockOrdersPage(
             userId = userId,
             pageNumber = pageQuery.pageNumber,
             pageSize = pageQuery.pageSize,
         )
 
-        val mockOrderSummaryPage = OrderTestFixture.mockOrderSummaryPage(
+        val mockOrderSummaryPage = OrderQueryTestFixture.mockOrderSummaryPage(
             orders = mockOrdersPage.content
         )
 

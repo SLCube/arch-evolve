@@ -1,22 +1,15 @@
-package com.playground.order.fixture
+package com.playground.order.fixture.application.domain
 
 import com.playground.common.application.query.PagedResult
-import com.playground.order.application.service.result.OrderSummaryResult
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderAddress
 import com.playground.order.domain.model.OrderProduct
 import com.playground.order.domain.model.OrderReceiver
-import com.playground.order.presentation.request.OrderProductRequestDto
 import java.time.LocalDateTime
 
-object OrderTestFixture {
+object OrderDomainTestFixture {
     private val DEFAULT_CREATED_AT = LocalDateTime.of(2025, 12, 1, 10, 0, 0)
-
-    fun defaultOrderProductList(): List<OrderProductRequestDto> = listOf(
-        OrderProductRequestDto(productId = 1L, quantity = 2),
-        OrderProductRequestDto(productId = 2L, quantity = 3),
-    )
 
     fun mockOrder(
         id: Long? = 1L,
@@ -69,38 +62,6 @@ object OrderTestFixture {
                 createdAt = DEFAULT_CREATED_AT
             )
         }
-    }
-
-    fun mockOrderSummaryPage(
-        pageNumber: Int = 0,
-        pageSize: Int = 10,
-        orders: List<Order> = mockOrders(),
-    ): PagedResult<OrderSummaryResult> {
-        val mockProductInfo = ProductInfoTestFixture.mockProductInfos()
-        val mockOrdersSummary = orders.map { order ->
-            OrderSummaryResult.of(order, mockProductInfo)
-        }
-
-        return PagedResult(
-            content = mockOrdersSummary,
-            pageNumber = pageNumber,
-            pageSize = pageSize,
-            totalElements = mockOrdersSummary.size.toLong(),
-            totalPages = mockOrdersSummary.size / pageSize + 1
-        )
-    }
-
-    fun mockEmptyOrderSummaryPage(
-        pageNumber: Int = 0,
-        pageSize: Int = 10,
-    ): PagedResult<OrderSummaryResult> {
-        return PagedResult(
-            content = emptyList(),
-            pageNumber = pageNumber,
-            pageSize = pageSize,
-            totalElements = 0,
-            totalPages = 0
-        )
     }
 
     fun mockOrderProducts(): MutableList<OrderProduct> = mutableListOf(

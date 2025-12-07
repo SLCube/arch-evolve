@@ -11,10 +11,10 @@ import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderStatusInvalidException
 import com.playground.order.domain.model.Order
-import com.playground.order.fixture.AddressInfoTestFixture
-import com.playground.order.fixture.OrderCommandTestFixture
-import com.playground.order.fixture.OrderTestFixture
-import com.playground.order.fixture.ProductInfoTestFixture
+import com.playground.order.fixture.application.domain.AddressInfoTestFixture
+import com.playground.order.fixture.application.command.OrderCommandTestFixture
+import com.playground.order.fixture.application.domain.OrderDomainTestFixture
+import com.playground.order.fixture.application.domain.ProductInfoTestFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeEmpty
@@ -50,7 +50,7 @@ class OrderCommandServiceTest {
         val command = OrderCommandTestFixture.createOrderCommand(userId = userId)
         val mockProductInfo = ProductInfoTestFixture.mockProductInfos()
         val mockAddressInfo = AddressInfoTestFixture.mockAddressInfo()
-        val mockOrder = OrderTestFixture.mockOrder(
+        val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = userId,
         )
@@ -83,7 +83,7 @@ class OrderCommandServiceTest {
     fun `결제 완료 Command 수신 시 주문상태가 PAID로 변경되고 PG_TXID가 기록되서 저장된다`() {
         // given
         val orderId = 1L
-        val mockOrder = OrderTestFixture.mockOrder(
+        val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             status = OrderStatus.PENDING,
         )
@@ -116,7 +116,7 @@ class OrderCommandServiceTest {
     fun `결제 완료 Command 수신 시 주문상태가 PENDING이 아니라면 OrderStatusValidException을 던진다`() {
         // given
         val orderId = 1L
-        val mockOrder = OrderTestFixture.mockOrder(
+        val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             status = OrderStatus.CANCELLED
         )
@@ -125,7 +125,7 @@ class OrderCommandServiceTest {
         val command = OrderCompleteCommand(
             orderId = orderId,
             pgTransactionId = pgTxId,
-            paidAmount = OrderTestFixture.mockOrder().totalPrice
+            paidAmount = OrderDomainTestFixture.mockOrder().totalPrice
         )
 
         // when
@@ -151,7 +151,7 @@ class OrderCommandServiceTest {
             orderId = orderId
         )
 
-        val pendingOrder = OrderTestFixture.mockOrder(
+        val pendingOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = authenticatedUserId,
             status = OrderStatus.PENDING
@@ -184,7 +184,7 @@ class OrderCommandServiceTest {
             orderId = orderId
         )
 
-        val cancelledOrder = OrderTestFixture.mockOrder(
+        val cancelledOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = authenticatedUserId,
             status = OrderStatus.CANCELLED
@@ -212,7 +212,7 @@ class OrderCommandServiceTest {
             orderId = orderId,
         )
 
-        val pendingOrder = OrderTestFixture.mockOrder(
+        val pendingOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = authenticatedUserId,
             status = OrderStatus.PENDING
