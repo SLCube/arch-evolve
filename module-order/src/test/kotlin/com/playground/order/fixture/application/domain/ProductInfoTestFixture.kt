@@ -12,4 +12,14 @@ object ProductInfoTestFixture {
             valueTransform = { it }
         )
     }
+
+    fun mockProductInfo(
+        productId: Long = 1L,
+        price: Int = 5000,
+        productName: String = "상품1",
+    ) = ProductInfo(
+        productId = productId,
+        price = price.toBigDecimal(),
+        productName = productName,
+    )
 }
