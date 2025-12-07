@@ -8,6 +8,7 @@ import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderExternalDataProvider
+import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderAddress
@@ -41,8 +42,18 @@ class OrderCommandService(
 
     override fun completeOrder(command: OrderCompleteCommand): Order {
         val order = orderQueryPort.findById(command.orderId)
+
         order.completeOrder(command.pgTransactionId)
-        return orderCommandPort.update(order)
+        val updatedOrder = orderCommandPort.update(order)
+
+        val orderCompletedEvent = OrderCompletedEvent(
+            userId = updatedOrder.userId,
+            orderId = updatedOrder.id!!,
+            totalAmount = updatedOrder.totalPrice
+        )
+
+        orderEventPort.publish(orderCompletedEvent)
+        return updatedOrder
     }
 
     private fun createOrderAggregate(

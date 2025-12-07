@@ -6,6 +6,7 @@ import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderExternalDataProvider
+import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
@@ -99,7 +100,12 @@ class OrderCommandServiceTest {
         given(orderQueryPort.findById(eq(mockOrder.id!!)))
             .willReturn(mockOrder)
 
-        orderCommandService.completeOrder(command)
+        given(orderCommandPort.update(any<Order>()))
+            .willAnswer { invocation ->
+                invocation.arguments[0] as Order
+            }
+
+        val completeOrder = orderCommandService.completeOrder(command)
 
         // then
         verify(orderQueryPort).findById(mockOrder.id)
@@ -110,6 +116,12 @@ class OrderCommandServiceTest {
                 savedOrder.status shouldBe OrderStatus.COMPLETED
             }
         )
+
+        verify(orderEventPort).publish(check<OrderCompletedEvent> { event ->
+            event.orderId shouldBe orderId
+            event.userId shouldBe completeOrder.userId
+            event.totalAmount shouldBe completeOrder.totalPrice
+        })
     }
 
     @Test
