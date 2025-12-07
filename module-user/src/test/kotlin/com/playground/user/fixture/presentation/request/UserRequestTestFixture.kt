@@ -1,5 +1,7 @@
 package com.playground.user.fixture.presentation.request
 
+import com.playground.user.presentation.request.UserNicknameUpdateRequestDto
+import com.playground.user.presentation.request.UserPasswordUpdateRequestDto
 import com.playground.user.presentation.request.UserSignUpRequestDto
 
 object UserRequestTestFixture {
@@ -11,5 +13,19 @@ object UserRequestTestFixture {
         loginId = loginId,
         password = password,
         nickname = nickname,
+    )
+
+    fun mockUserNicknamdUpdateRequest(
+        nickname: String = "새로운닉네임"
+    ) = UserNicknameUpdateRequestDto(
+        nickname = nickname,
+    )
+
+    fun mockUserPasswordUpdateRequest(
+        oldPassword: String = "oldPassword",
+        newPassword: String = "newPassword"
+    ) = UserPasswordUpdateRequestDto(
+        oldPassword = oldPassword,
+        newPassword = newPassword,
     )
 }

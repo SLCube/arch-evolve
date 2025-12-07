@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,31 +30,27 @@ class UserController(
         return ResponseEntity.status(HttpStatus.CREATED).body(UserResponseDto.toResponse(savedUser))
     }
 
-    @PatchMapping("/{userId}/nickname")
+    @PatchMapping("/nickname")
     fun updateNickname(
-        @PathVariable userId: Long,
         @AuthenticationPrincipal userDetails: AuthUserDetails,
         @RequestBody @Valid request: UserNicknameUpdateRequestDto,
     ): ResponseEntity<UserResponseDto> {
         val updatedUser = userUseCase.updateNickname(
             request.toCommand(
-                requestUserId = userId,
-                targetUserId = userDetails.getUserId(),
+                userId = userDetails.getUserId(),
             )
         )
         return ResponseEntity.ok(UserResponseDto.toResponse(updatedUser))
     }
 
-    @PatchMapping("/{userId}/password")
+    @PatchMapping("/password")
     fun updatePassword(
-        @PathVariable userId: Long,
         @AuthenticationPrincipal userDetails: AuthUserDetails,
         @RequestBody @Valid request: UserPasswordUpdateRequestDto,
     ): ResponseEntity<UserResponseDto> {
         val updatedUser = userUseCase.updatePassword(
             request.toCommand(
-                requestUserId = userId,
-                targetUserId = userDetails.getUserId(),
+                userId = userDetails.getUserId(),
             )
         )
         return ResponseEntity.ok(UserResponseDto.toResponse(updatedUser))
