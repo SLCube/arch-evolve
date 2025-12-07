@@ -48,7 +48,7 @@ class OrderCommandServiceTest {
         val userId = 2L
         val orderId = 1L
         val command = OrderCommandTestFixture.createOrderCommand(userId = userId)
-        val mockProductInfo = ProductInfoTestFixture.mockProductInfo()
+        val mockProductInfo = ProductInfoTestFixture.mockProductInfos()
         val mockAddressInfo = AddressInfoTestFixture.mockAddressInfo()
         val mockOrder = OrderTestFixture.mockOrder(
             id = orderId,

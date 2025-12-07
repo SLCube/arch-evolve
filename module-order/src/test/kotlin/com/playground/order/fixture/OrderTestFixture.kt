@@ -40,6 +40,22 @@ object OrderTestFixture {
         )
     }
 
+    fun mockOrdersPage(
+        userId: Long = 2L,
+        startId: Long = 1L,
+        pageNumber: Int = 0,
+        pageSize: Int = 10,
+    ): PagedResult<Order> {
+        val mockOrders = mockOrders(userId = userId, startId = startId)
+        return PagedResult(
+            content = mockOrders,
+            pageNumber = pageNumber,
+            pageSize = pageSize,
+            totalElements = mockOrders.size.toLong(),
+            totalPages = mockOrders.size / pageSize + 1
+        )
+    }
+
     fun mockOrders(
         count: Int = 3,
         userId: Long = 2L,
@@ -58,10 +74,10 @@ object OrderTestFixture {
     fun mockOrderSummaryPage(
         pageNumber: Int = 0,
         pageSize: Int = 10,
+        orders: List<Order> = mockOrders(),
     ): PagedResult<OrderSummaryResult> {
-        val mockOrders = mockOrders()
-        val mockProductInfo = ProductInfoTestFixture.mockProductInfo()
-        val mockOrdersSummary = mockOrders.map { order ->
+        val mockProductInfo = ProductInfoTestFixture.mockProductInfos()
+        val mockOrdersSummary = orders.map { order ->
             OrderSummaryResult.of(order, mockProductInfo)
         }
 

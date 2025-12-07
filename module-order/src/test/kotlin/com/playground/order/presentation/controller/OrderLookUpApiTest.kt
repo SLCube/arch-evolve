@@ -36,7 +36,7 @@ class OrderLookUpApiTest(
     fun `주문 상세 조회 - 성공`() {
         val mockOrder = OrderTestFixture.mockOrder()
         val authenticatedUserId = 2L
-        val mockOrderDetailResult = OrderDetailResult.of(mockOrder, ProductInfoTestFixture.mockProductInfo())
+        val mockOrderDetailResult = OrderDetailResult.of(mockOrder, ProductInfoTestFixture.mockProductInfos())
         given(orderQueryUseCase.getOrder(eq(authenticatedUserId), eq(mockOrder.id!!)))
             .willReturn(mockOrderDetailResult)
 
