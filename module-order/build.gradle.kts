@@ -24,7 +24,3 @@ dependencies {
     testImplementation(project(":module-test-support"))
     testRuntimeOnly(libs.h2.database)
 }
-
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
