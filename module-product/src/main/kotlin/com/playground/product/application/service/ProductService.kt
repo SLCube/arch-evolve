@@ -2,9 +2,9 @@ package com.playground.product.application.service
 
 import com.playground.product.application.port.inbound.ProductUseCase
 import com.playground.product.application.port.inbound.command.DecreaseStockCommand
-import com.playground.product.application.port.inbound.command.SaveProductCommand
-import com.playground.product.application.port.inbound.command.UpdateProductCommand
-import com.playground.product.application.port.inbound.query.GetProductQuery
+import com.playground.product.application.port.inbound.command.ProductSaveCommand
+import com.playground.product.application.port.inbound.command.ProductUpdateCommand
+import com.playground.product.application.port.inbound.query.ProductGetQuery
 import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.application.port.outbound.ProductEventPort
 import com.playground.product.application.port.outbound.ProductQueryPort
@@ -22,7 +22,7 @@ class ProductService(
     private val productQueryPort: ProductQueryPort,
     private val productEventPort: ProductEventPort,
 ) : ProductUseCase {
-    override fun saveProduct(command: SaveProductCommand): Product {
+    override fun saveProduct(command: ProductSaveCommand): Product {
         val product =
             Product(
                 name = command.name,
@@ -44,7 +44,7 @@ class ProductService(
         return savedProduct
     }
 
-    override fun updateProduct(command: UpdateProductCommand): Product {
+    override fun updateProduct(command: ProductUpdateCommand): Product {
         val product = productQueryPort.findById(command.id)
 
         val oldName = product.name
@@ -75,7 +75,7 @@ class ProductService(
     }
 
     @Transactional(readOnly = true)
-    override fun getProduct(query: GetProductQuery): Product = productQueryPort.findById(query.id)
+    override fun getProduct(query: ProductGetQuery): Product = productQueryPort.findById(query.id)
 
     @Transactional(readOnly = true)
     override fun getAllProducts(): List<Product> = productQueryPort.findAll()

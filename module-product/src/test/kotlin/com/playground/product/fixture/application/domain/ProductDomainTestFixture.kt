@@ -14,6 +14,18 @@ object ProductDomainTestFixture {
         name = name,
         stock = stock,
         price = price,
-
     )
+
+    fun mockProducts(
+        count: Int = 3
+    ): List<Product> {
+        return (0 until count).map { index ->
+            mockProduct(
+                id = index.toLong(),
+                name = "상품$index",
+                stock = 10 * index,
+                price = 10000.toBigDecimal().multiply(index.toBigDecimal()),
+            )
+        }
+    }
 }

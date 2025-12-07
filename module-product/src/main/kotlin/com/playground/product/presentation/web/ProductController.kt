@@ -1,7 +1,7 @@
 package com.playground.product.presentation.web
 
 import com.playground.product.application.port.inbound.ProductUseCase
-import com.playground.product.application.port.inbound.query.GetProductQuery
+import com.playground.product.application.port.inbound.query.ProductGetQuery
 import com.playground.product.presentation.mapper.toCommand
 import com.playground.product.presentation.request.ProductSaveRequestDto
 import com.playground.product.presentation.request.ProductUpdateRequestDto
@@ -34,7 +34,7 @@ class ProductController(
     fun findById(
         @PathVariable id: Long,
     ): ResponseEntity<ProductResponseDto> {
-        val foundProduct = productUseCase.getProduct(GetProductQuery(id))
+        val foundProduct = productUseCase.getProduct(ProductGetQuery(id))
         return ResponseEntity.ok(ProductResponseDto.toResponse(foundProduct))
     }
 

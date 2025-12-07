@@ -21,7 +21,7 @@ class TestSecurityConfig {
                     .requestMatchers("/users/sign-up", "/users/login")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, ApiConstants.PRODUCT_API_BASE_PATH)
-                    .hasAnyRole("USER", "ADMIN")
+                    .permitAll()
                     .requestMatchers(HttpMethod.POST, ApiConstants.PRODUCT_API_BASE_PATH)
                     .hasAnyRole("ADMIN")
                     .requestMatchers(HttpMethod.PATCH, ApiConstants.PRODUCT_API_BASE_PATH)
