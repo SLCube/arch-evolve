@@ -10,6 +10,10 @@ class ProductInfoQueryAdapter(
     private val productQueryPort: ProductQueryPort,
 ) : ProductInfoQueryPort {
     override fun getProductInfos(productIds: List<Long>): Map<Long, ProductInfo> {
+        if (productIds.isEmpty()) {
+            return emptyMap()
+        }
+
         val products = productQueryPort.findAllByIds(productIds)
 
         return products.associateBy(
