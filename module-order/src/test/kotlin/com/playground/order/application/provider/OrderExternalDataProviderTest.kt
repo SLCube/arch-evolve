@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 
 @Suppress("NonAsciiCharacters")
@@ -69,9 +68,12 @@ class OrderExternalDataProviderTest {
     }
 
     @Test
-    fun `비어있는 상품 ID으로 호출 시 비어있는 Map을 호출하고 외부 호출은 하지 않아야 한다`() {
+    fun `비어있는 상품 ID으로 호출 시 비어있는 Map을 반환한다`() {
         // given
         val productIds = emptyList<Long>()
+
+        given(productInfoQueryPort.getProductInfos(eq(productIds)))
+            .willReturn(emptyMap())
 
         // when
         val productInfos = orderExternalDataProvider.getVerifiedProductInfos(productIds)
@@ -79,7 +81,7 @@ class OrderExternalDataProviderTest {
         // then
         productInfos shouldBe emptyMap()
 
-        verify(productInfoQueryPort, never()).getProductInfos(eq(productIds))
+        verify(productInfoQueryPort).getProductInfos(eq(productIds))
     }
 
     @Test

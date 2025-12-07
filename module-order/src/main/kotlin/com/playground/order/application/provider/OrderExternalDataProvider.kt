@@ -17,10 +17,6 @@ class OrderExternalDataProvider(
 ) {
 
     fun getVerifiedProductInfos(productIds: List<Long>): Map<Long, ProductInfo> {
-        if (productIds.isEmpty()) {
-            return emptyMap()
-        }
-
         val productInfoMap = productInfoQueryPort.getProductInfos(productIds)
 
         if (productInfoMap.size != productIds.distinct().size) {
