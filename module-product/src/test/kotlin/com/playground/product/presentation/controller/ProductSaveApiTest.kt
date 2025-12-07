@@ -9,9 +9,14 @@ import com.playground.support.RestDocsTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
 import com.playground.support.docs.performAndDocument
 import com.playground.support.security.annotation.WithMockAuthUser
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
+import org.mockito.kotlin.never
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
 import org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath
@@ -26,6 +31,10 @@ class ProductSaveApiTest(
     @param:Autowired private val productUseCase: ProductUseCase,
 ) : RestDocsTest() {
 
+    @BeforeEach
+    fun setUp() {
+        reset(productUseCase)
+    }
 
     @Test
     @WithMockAuthUser(role = "ADMIN")
@@ -92,6 +101,8 @@ class ProductSaveApiTest(
                     ),
                 )
         }
+
+        verify(productUseCase, never()).saveProduct(any())
     }
 
     @Test
@@ -112,5 +123,7 @@ class ProductSaveApiTest(
                 )
             )
         }
+
+        verify(productUseCase, never()).saveProduct(any())
     }
 }
