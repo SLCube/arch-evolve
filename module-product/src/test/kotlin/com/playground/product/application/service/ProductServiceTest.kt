@@ -1,7 +1,5 @@
 package com.playground.product.application.service
 
-import com.playground.product.application.port.inbound.command.ProductUpdateCommand
-import com.playground.product.application.port.inbound.query.ProductGetQuery
 import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.application.port.outbound.ProductEventPort
 import com.playground.product.application.port.outbound.ProductQueryPort
@@ -12,6 +10,7 @@ import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.domain.model.Product
 import com.playground.product.fixture.application.command.ProductCommandTestFixture
 import com.playground.product.fixture.application.domain.ProductDomainTestFixture
+import com.playground.product.fixture.application.query.ProductQueryTestFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
@@ -74,11 +73,15 @@ class ProductServiceTest {
         val newName = "새로운 상품명"
 
         val initialProduct = ProductDomainTestFixture.mockProduct(
-            id = productId, name = "오래된 이름", stock = oldStock
+            id = productId,
+            name = "오래된 이름",
+            stock = oldStock,
         )
 
-        val command = ProductUpdateCommand(
-            id = productId, name = newName, stock = newStock, price = initialProduct.price
+        val command = ProductCommandTestFixture.mockProductUpdateCommand(
+            id = productId,
+            name = newName,
+            stock = newStock,
         )
 
         given(productQueryPort.findById(productId)).willReturn(initialProduct)
@@ -112,7 +115,8 @@ class ProductServiceTest {
         val initialStock = 100
         val quantityToDecrease = 10
         val command = ProductCommandTestFixture.mockDecreaseStockCommand(
-            id = productId, quantity = quantityToDecrease
+            id = productId,
+            quantity = quantityToDecrease,
         )
 
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
@@ -149,7 +153,8 @@ class ProductServiceTest {
         val initialStock = 10
         val quantityToDecrease = 20
         val command = ProductCommandTestFixture.mockDecreaseStockCommand(
-            id = productId, quantity = quantityToDecrease
+            id = productId,
+            quantity = quantityToDecrease,
         )
 
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
@@ -168,10 +173,11 @@ class ProductServiceTest {
     @Test
     fun `단일 상품 조회 시 QueryPort를 통해 상품을 조회하고 반환해야 한다`() {
         // given
-        val query = ProductGetQuery(1L)
+        val query = ProductQueryTestFixture.mockProductQuery()
         val mockProduct = ProductDomainTestFixture.mockProduct(id = 1L)
 
-        given(productQueryPort.findById(1L)).willReturn(mockProduct)
+        given(productQueryPort.findById(1L))
+            .willReturn(mockProduct)
 
         // when
         val result = productService.getProduct(query)
