@@ -1,13 +1,14 @@
 package com.playground.product.presentation.controller
 
 import com.playground.product.application.port.inbound.ProductUseCase
-import com.playground.product.presentation.mapper.toCommand
-import com.playground.support.RestDocsTest
-import com.playground.support.docs.performAndDocument
-import com.playground.support.security.annotation.WithMockAuthUser
 import com.playground.product.fixture.application.domain.ProductDomainTestFixture
 import com.playground.product.fixture.presentation.request.ProductRequestTestFIxture
 import com.playground.product.presentation.annotation.ProductControllerSliceTest
+import com.playground.product.presentation.mapper.toCommand
+import com.playground.support.RestDocsTest
+import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
+import com.playground.support.docs.performAndDocument
+import com.playground.support.security.annotation.WithMockAuthUser
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
@@ -23,7 +24,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @ProductControllerSliceTest
 class ProductSaveApiTest(
     @param:Autowired private val productUseCase: ProductUseCase,
-): RestDocsTest() {
+) : RestDocsTest() {
 
 
     @Test
@@ -62,6 +63,54 @@ class ProductSaveApiTest(
                         fieldWithPath("price").description("상품 가격"),
                     )
                 )
+        }
+    }
+
+    @Test
+    @WithMockAuthUser(role = "ADMIN")
+    fun `상품 등록 - 실패, 이름이 비어있음`() {
+        // given
+        val request = ProductRequestTestFIxture.mockProductSaveRequest(
+            name = "",
+        )
+
+        // when & then
+        performAndDocument("상품 등록 - 실패, 이름이 비어있음") {
+            httpMethod = HttpMethod.POST
+            urlTemplate = "/products"
+            requestBody = request
+            expectedStatus = status().isBadRequest
+            additionalMatchers = arrayOf(
+                jsonPath("$.message").value("입력값이 유효하지 않습니다."),
+                jsonPath("$.errors.name").value("상품 이름은 필수입니다."),
+            )
+            snippets =
+                arrayOf(
+                    responseFields(
+                        commonErrorResponseSnippet() +
+                                fieldWithPath("errors.name").description("상품 이름 필드의 에러 메세지")
+                    ),
+                )
+        }
+    }
+
+    @Test
+    @WithMockAuthUser(role = "USER")
+    fun `상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
+        // given
+        val request = ProductRequestTestFIxture.mockProductSaveRequest()
+
+        // when & then
+        performAndDocument("상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도") {
+            httpMethod = HttpMethod.POST
+            urlTemplate = "/products"
+            requestBody = request
+            expectedStatus = status().isForbidden
+            snippets = arrayOf(
+                responseFields(
+                    commonErrorResponseSnippet()
+                )
+            )
         }
     }
 }
