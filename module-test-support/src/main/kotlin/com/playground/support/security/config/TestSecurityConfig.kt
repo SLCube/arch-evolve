@@ -1,6 +1,7 @@
 package com.playground.support.security.config
 
 import com.playground.common.constant.ApiConstants
+import com.playground.support.security.handler.TestAccessDeniedHandler
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpMethod
@@ -29,6 +30,9 @@ class TestSecurityConfig {
                     .hasAnyRole("ADMIN")
                     .anyRequest()
                     .authenticated()
+            }
+            .exceptionHandling {
+                it.accessDeniedHandler(TestAccessDeniedHandler())
             }
             .build()
     }
