@@ -12,13 +12,8 @@ import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
-import com.playground.order.domain.model.OrderAddress
-import com.playground.order.domain.model.OrderProduct
-import com.playground.order.domain.model.OrderReceiver
-import com.playground.product.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 
 @Service
 @Transactional
@@ -31,8 +26,8 @@ class OrderCommandService(
     override fun createOrder(command: OrderCreateCommand): Order {
         val productIds = command.orderProducts.map { it.productId }
         val productInfoMap = orderExternalDataProvider.getVerifiedProductInfos(productIds)
-
-        val order = createOrderAggregate(command, productInfoMap)
+        val addressInfo = orderExternalDataProvider.getAddressInfoByAddressId(command.userId, command.addressId)
+        val order = Order.createOrder(command, addressInfo, productInfoMap)
 
         val savedOrder = orderCommandPort.save(order)
         orderEventPort.publish(OrderCreatedEvent.from(savedOrder))
@@ -48,35 +43,6 @@ class OrderCommandService(
 
         orderEventPort.publish(OrderCompletedEvent.from(updatedOrder))
         return updatedOrder
-    }
-
-    private fun createOrderAggregate(
-        command: OrderCreateCommand,
-        productInfoMap: Map<Long, ProductInfo>,
-    ): Order {
-        val addressInfo = orderExternalDataProvider.getAddressInfoByAddressId(command.userId, command.addressId)
-        val order =
-            Order(
-                userId = command.userId,
-                totalPrice = BigDecimal.ZERO,
-                orderAddress = OrderAddress.fromAddressInfo(addressInfo),
-                orderReceiver = OrderReceiver.fromAddressInfo(addressInfo)
-            )
-
-        val orderProducts =
-            command.orderProducts.map { orderProductCommand ->
-                val productInfo = productInfoMap.getValue(orderProductCommand.productId)
-
-                OrderProduct(
-                    productId = orderProductCommand.productId,
-                    quantity = orderProductCommand.quantity,
-                    price = productInfo.price,
-                )
-            }
-
-        orderProducts.forEach(order::addOrderProduct)
-        order.calculateTotalPrice()
-        return order
     }
 
     override fun cancelOrder(command: OrderCancelCommand): Order {
