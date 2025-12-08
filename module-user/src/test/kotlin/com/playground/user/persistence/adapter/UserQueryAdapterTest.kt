@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
-import java.util.UUID
 
 @Suppress("NonAsciiCharacters")
 @DataJpaTest
@@ -38,10 +37,24 @@ class UserQueryAdapterTest(
     @Test
     fun `존재하지 않는 로그인 아이디로 조회하면 Optional empty 를 반환한다`() {
         // when
-        val found = userQueryAdapter.findByLoginId("unknown-${UUID.randomUUID()}")
+        val found = userQueryAdapter.findByLoginId("unknown-login")
 
         // then
         found.isEmpty.shouldBeTrue()
+    }
+
+    @Test
+    fun `닉네임으로 사용자 조회 시 Optional 에 도메인이 담긴다`() {
+        // given
+        val nickname = "테스트닉네임"
+        val savedUser = persistUser(nickname = nickname)
+
+        // when
+        val found = userQueryAdapter.findByNickname(nickname)
+
+        // then
+        found.isPresent.shouldBeTrue()
+        found.get().id shouldBe savedUser.id
     }
 
     @Test
@@ -60,9 +73,9 @@ class UserQueryAdapterTest(
     }
 
     private fun persistUser(
-        loginId: String = "user-${UUID.randomUUID()}",
-        password: String = "password-${UUID.randomUUID()}",
-        nickname: String = "사용자-${UUID.randomUUID()}",
+        loginId: String = "user-login",
+        password: String = "user-password",
+        nickname: String = "사용자",
         addressEntities: MutableList<UserAddressJpaEntity> = mutableListOf(),
     ): UserJpaEntity {
         val entity = UserJpaEntity(
@@ -84,7 +97,8 @@ class UserQueryAdapterTest(
             receiverPhoneNumber = "01000000000",
             zipCode = "12345",
             baseAddress = "서울시",
-            detailAddress = "어딘가 1-1",
+            detailAddress = "영등포구 당산동",
             isDefault = true,
         )
+
 }

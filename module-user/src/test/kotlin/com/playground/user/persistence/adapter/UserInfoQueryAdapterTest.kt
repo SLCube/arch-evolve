@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.security.core.userdetails.UsernameNotFoundException
-import java.util.UUID
 
 @Suppress("NonAsciiCharacters")
 @DataJpaTest
@@ -25,8 +24,8 @@ class UserInfoQueryAdapterTest(
     @Test
     fun `로그인 아이디로 사용자 정보를 조회하면 UserInfo 를 반환한다`() {
         // given
-        val loginId = "login-${UUID.randomUUID()}"
-        val password = "encoded-${UUID.randomUUID()}"
+        val loginId = "login-id"
+        val password = "encoded-password"
         val savedUser = userRepository.save(
             UserJpaEntity(
                 loginId = loginId,
@@ -50,7 +49,7 @@ class UserInfoQueryAdapterTest(
     fun `존재하지 않는 로그인 아이디로 조회 시 UsernameNotFoundException 을 던진다`() {
         // when & then
         shouldThrow<UsernameNotFoundException> {
-            userInfoQueryAdapter.getUserInfoByLoginId("missing-${UUID.randomUUID()}")
+            userInfoQueryAdapter.getUserInfoByLoginId("missing-login")
         }
     }
 }
