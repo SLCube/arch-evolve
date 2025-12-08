@@ -1,5 +1,6 @@
 package com.playground.order.application.service
 
+import com.playground.order.application.factory.from
 import com.playground.order.application.port.inbound.OrderCommandUseCase
 import com.playground.order.application.port.inbound.command.OrderCancelCommand
 import com.playground.order.application.port.inbound.command.OrderCompleteCommand
@@ -34,8 +35,7 @@ class OrderCommandService(
         val order = createOrderAggregate(command, productInfoMap)
 
         val savedOrder = orderCommandPort.save(order)
-
-        publishOrderCreationEvent(savedOrder)
+        orderEventPort.publish(OrderCreatedEvent.from(savedOrder))
 
         return savedOrder
     }
@@ -46,13 +46,7 @@ class OrderCommandService(
         order.completeOrder(command.pgTransactionId)
         val updatedOrder = orderCommandPort.update(order)
 
-        val orderCompletedEvent = OrderCompletedEvent(
-            userId = updatedOrder.userId,
-            orderId = updatedOrder.id!!,
-            totalAmount = updatedOrder.totalPrice
-        )
-
-        orderEventPort.publish(orderCompletedEvent)
+        orderEventPort.publish(OrderCompletedEvent.from(updatedOrder))
         return updatedOrder
     }
 
@@ -83,25 +77,6 @@ class OrderCommandService(
         orderProducts.forEach(order::addOrderProduct)
         order.calculateTotalPrice()
         return order
-    }
-
-    private fun publishOrderCreationEvent(order: Order) {
-        val orderProductDetails =
-            order.orderProducts.map {
-                OrderCreatedEvent.OrderProductDetail(
-                    productId = it.productId,
-                    quantity = it.quantity,
-                )
-            }
-
-        val orderCreatedEvent =
-            OrderCreatedEvent(
-                orderId = order.id!!,
-                userId = order.userId,
-                orderProductDetails,
-                order.totalPrice,
-            )
-        orderEventPort.publish(orderCreatedEvent)
     }
 
     override fun cancelOrder(command: OrderCancelCommand): Order {

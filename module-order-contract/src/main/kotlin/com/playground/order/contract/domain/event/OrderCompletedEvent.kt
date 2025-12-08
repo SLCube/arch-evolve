@@ -9,4 +9,5 @@ data class OrderCompletedEvent(
     val totalAmount: BigDecimal,
 
 ) : DomainEvent {
+    companion object
 }

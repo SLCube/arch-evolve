@@ -27,4 +27,5 @@ data class OrderCreatedEvent(
         val productId: Long,
         val quantity: Int,
     )
+    companion object
 }
