@@ -12,6 +12,7 @@ import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
+import com.playground.order.domain.model.OrderProduct
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -27,7 +28,20 @@ class OrderCommandService(
         val productIds = command.orderProducts.map { it.productId }
         val productInfoMap = orderExternalDataProvider.getVerifiedProductInfos(productIds)
         val addressInfo = orderExternalDataProvider.getAddressInfoByAddressId(command.userId, command.addressId)
-        val order = Order.createOrder(command, addressInfo, productInfoMap)
+        val orderProducts = command.orderProducts.map { orderProductCommand ->
+            val productInfo = productInfoMap.getValue(orderProductCommand.productId)
+            OrderProduct(
+                productId = orderProductCommand.productId,
+                quantity = orderProductCommand.quantity,
+                price = productInfo.price,
+            )
+        }
+
+        val order = Order.createOrder(
+            userId = command.userId,
+            addressInfo = addressInfo,
+            orderProducts = orderProducts,
+        )
 
         val savedOrder = orderCommandPort.save(order)
         orderEventPort.publish(OrderCreatedEvent.from(savedOrder))

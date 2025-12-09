@@ -1,10 +1,8 @@
 package com.playground.order.domain.model
 
-import com.playground.order.application.port.inbound.command.OrderCreateCommand
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderStatusInvalidException
-import com.playground.product.contract.domain.vo.ProductInfo
 import com.playground.user.contract.domain.vo.ReceiverAddressInfo
 import java.math.BigDecimal
 import java.time.LocalDateTime
@@ -60,28 +58,18 @@ class Order(
 
     companion object {
         fun createOrder(
-            command: OrderCreateCommand,
+            userId: Long,
             addressInfo: ReceiverAddressInfo,
-            productInfoMap: Map<Long, ProductInfo>,
+            orderProducts: List<OrderProduct>,
         ): Order {
             val order = Order(
-                userId = command.userId,
+                userId = userId,
                 totalPrice = BigDecimal.ZERO,
                 orderAddress = OrderAddress.fromAddressInfo(addressInfo),
                 orderReceiver = OrderReceiver.fromAddressInfo(addressInfo),
             )
 
-            command.orderProducts
-                .map { orderProductCommand ->
-                    val productInfo = productInfoMap.getValue(orderProductCommand.productId)
-
-                    OrderProduct(
-                        productId = orderProductCommand.productId,
-                        quantity = orderProductCommand.quantity,
-                        price = productInfo.price,
-                    )
-                }
-                .forEach(order::addOrderProduct)
+            orderProducts.forEach(order::addOrderProduct)
 
             order.calculateTotalPrice()
             return order
