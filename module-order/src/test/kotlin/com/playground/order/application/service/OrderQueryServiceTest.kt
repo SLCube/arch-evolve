@@ -142,11 +142,13 @@ class OrderQueryServiceTest {
 
         val firstSummaryResult = result.content.first()
         firstSummaryResult.id shouldBe mockOrderSummaryPage.content.first().id
-        firstSummaryResult.representativeProductName shouldContain mockProductInfos.getValue(1L).productName
+        val firstProductId = mockOrdersPage.content.first().orderProducts.first().productId
+        firstSummaryResult.representativeProductName shouldContain mockProductInfos.getValue(firstProductId).productName
 
         verify(orderQueryPort).findOrdersByUserId(eq(userId), eq(pageQuery))
         verify(orderExternalDataProvider).getVerifiedProductInfos(eq(productIds))
     }
+
 
     @Test
     fun `사용자의 주문 목록이 아닌 주문 목록 조회 시 비어있는 PageedResult를 반환해야 한다`() {
