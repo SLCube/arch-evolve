@@ -10,6 +10,7 @@ import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.comparables.shouldBeGreaterThanOrEqualTo
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -119,5 +120,26 @@ class OrderQueryAdapterTest(
         // Then
         result.content.first().id shouldBe 3L
         result.content.last().id shouldBe 1L
+    }
+
+    @Test
+    fun `정렬 파라미터가 잘못되었을 때 createdAt 기준의 기본 정렬이 적용되어야 한다`() {
+        // Given
+        val targetUserId = 15L
+
+        saveTestOrder(userId = targetUserId, orderId = null)
+        saveTestOrder(userId = targetUserId, orderId = null)
+        saveTestOrder(userId = targetUserId, orderId = null)
+
+        val invalidDirectionQuery = PageQuery(pageNumber = 0, pageSize = 10, sortBy = "id", direction = "ascending")
+
+        // When
+        val result = orderQueryAdapter.findOrdersByUserId(targetUserId, invalidDirectionQuery)
+
+        // Then
+        result.content shouldHaveSize 3
+        result.content.zipWithNext().forEach { (current, next) ->
+            current.createdAt.shouldBeGreaterThanOrEqualTo(next.createdAt)
+        }
     }
 }
