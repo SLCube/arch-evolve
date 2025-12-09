@@ -19,7 +19,7 @@ data class OrderSummaryResult(
             productInfoMap: Map<Long, ProductInfo>,
         ): OrderSummaryResult {
             val representativeProductName = order.orderProducts.firstOrNull()?.let { firstProduct ->
-                val firstProductId = firstProduct.id
+                val firstProductId = firstProduct.productId
                 val firstProductName = productInfoMap[firstProductId]?.productName ?: "알 수 없는 상품"
                 if (order.orderProducts.size > 1) {
                     "$firstProductName 외 ${order.orderProducts.size - 1}건"
