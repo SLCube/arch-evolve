@@ -21,7 +21,8 @@ class JsonAuthenticationFilter(
         request: HttpServletRequest,
         response: HttpServletResponse,
     ): Authentication {
-        if (!request.contentType.equals("application/json", ignoreCase = true)) {
+        val isJsonRequest = request.contentType?.equals("application/json", ignoreCase = true) == true
+        if (!isJsonRequest) {
             return super.attemptAuthentication(request, response)
         }
 
