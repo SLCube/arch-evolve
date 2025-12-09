@@ -13,6 +13,7 @@ import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
+import com.playground.product.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -28,14 +29,7 @@ class OrderCommandService(
         val productIds = command.orderProducts.map { it.productId }
         val productInfoMap = orderExternalDataProvider.getVerifiedProductInfos(productIds)
         val addressInfo = orderExternalDataProvider.getAddressInfoByAddressId(command.userId, command.addressId)
-        val orderProducts = command.orderProducts.map { orderProductCommand ->
-            val productInfo = productInfoMap.getValue(orderProductCommand.productId)
-            OrderProduct(
-                productId = orderProductCommand.productId,
-                quantity = orderProductCommand.quantity,
-                price = productInfo.price,
-            )
-        }
+        val orderProducts = mapToOrderProducts(command, productInfoMap)
 
         val order = Order.createOrder(
             userId = command.userId,
@@ -64,5 +58,19 @@ class OrderCommandService(
         foundOrder.validateOwner(command.userId)
         foundOrder.cancelOrder()
         return orderCommandPort.update(foundOrder)
+    }
+
+    private fun mapToOrderProducts(
+        command: OrderCreateCommand,
+        productInfoMap: Map<Long, ProductInfo>,
+    ): List<OrderProduct> {
+        return command.orderProducts.map { orderProductCommand ->
+            val productInfo = productInfoMap.getValue(orderProductCommand.productId)
+            OrderProduct(
+                productId = orderProductCommand.productId,
+                quantity = orderProductCommand.quantity,
+                price = productInfo.price,
+            )
+        }
     }
 }
