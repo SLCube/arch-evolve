@@ -34,19 +34,29 @@ class OrderQueryAdapter(
         userId: Long,
         pageQuery: PageQuery,
     ): PagedResult<Order> {
-        val direction = pageQuery.direction
-        val sortBy = pageQuery.sortBy
-        val sort =
-            if (sortBy != null && direction != null) {
-                Sort.by(Sort.Direction.valueOf(direction.uppercase()), sortBy)
-            } else {
-                Sort.by(Sort.Direction.DESC, "createdAt")
-            }
+        val sort = createSort(pageQuery)
         val pageable = PageRequest.of(pageQuery.pageNumber, pageQuery.pageSize, sort)
 
         val orderJpaEntitiesPage = orderRepository.findByUserId(userId, pageable)
 
         return mapToPagedResultOrder(orderJpaEntitiesPage)
+    }
+
+    private fun createSort(pageQuery: PageQuery): Sort {
+        val sortBy = pageQuery.sortBy
+        val direction = pageQuery.direction
+
+        if (sortBy.isNullOrBlank() || direction.isNullOrBlank()) {
+            return Sort.by(Sort.Direction.DESC, "createdAt")
+        }
+
+        val directionEnum = runCatching {
+            Sort.Direction.valueOf(direction.uppercase())
+        }.getOrElse {
+            Sort.Direction.DESC
+        }
+
+        return Sort.by(directionEnum, sortBy)
     }
 
     private fun mapToPagedResultOrder(orderJpaEntitiesPage: Page<OrderJpaEntity>): PagedResult<Order> {
