@@ -39,7 +39,7 @@ class PaymentMethodService(
             billingKey = billingKey,
             cardCompany = command.cardCompany,
             cardNumberMasked = command.cardNumberMasked,
-            isDefault = command.setAsDefault,
+            isDefault = shouldBeDefault,
         )
 
         return paymentMethodCommandPort.save(newPaymentMethod)
