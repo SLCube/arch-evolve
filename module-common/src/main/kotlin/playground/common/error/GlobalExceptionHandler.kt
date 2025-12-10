@@ -37,4 +37,12 @@ class GlobalExceptionHandler {
         val errorResponse = ErrorResponse(errorCode.code, errorMessage, errors)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
     }
+
+    @ExceptionHandler(Exception::class)
+    fun handleUnhandledException(e: Exception): ResponseEntity<ErrorResponse> {
+        log.error("Unhandled exception occurred", e)
+        val errorCode = ErrorCode.INTERNAL_SERVER_ERROR
+        val errorResponse = ErrorResponse(errorCode.code, errorCode.message())
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse)
+    }
 }
