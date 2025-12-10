@@ -5,13 +5,14 @@ import com.playground.auth.presentation.request.AuthLoginRequestDto
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 class JsonAuthenticationFilter(
     private val objectMapper: ObjectMapper,
-    authenticationManager: AuthenticationManager,
+    private val authenticationManager: AuthenticationManager,
 ) : UsernamePasswordAuthenticationFilter(authenticationManager) {
     init {
         this.setFilterProcessesUrl("/users/login")
@@ -26,7 +27,12 @@ class JsonAuthenticationFilter(
             return super.attemptAuthentication(request, response)
         }
 
-        val loginRequest = objectMapper.readValue(request.inputStream, AuthLoginRequestDto::class.java)
+        val loginRequest =
+            try {
+                objectMapper.readValue(request.inputStream, AuthLoginRequestDto::class.java)
+            } catch (e: Exception) {
+                throw AuthenticationServiceException("로그인 요청 파싱에 실패했습니다.", e)
+            }
 
         val authenticationToken = UsernamePasswordAuthenticationToken(loginRequest.loginId, loginRequest.password)
 

@@ -2,18 +2,21 @@ package com.playground.auth.filter
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.playground.auth.presentation.request.AuthLoginRequestDto
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
+import org.springframework.security.authentication.AuthenticationServiceException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -75,5 +78,23 @@ class JsonAuthenticationFilterTest {
 
         verify(authenticationManager, times(1)).authenticate(any())
         result shouldBe authenticationResult
+    }
+
+    @Test
+    fun `잘못된 JSON 요청은 AuthenticationServiceException 을 발생시킨다`() {
+        val request =
+            MockHttpServletRequest().apply {
+                method = HttpMethod.POST.toString()
+                contentType = MediaType.APPLICATION_JSON_VALUE
+                setContent("invalid-json".toByteArray())
+            }
+
+        val response = MockHttpServletResponse()
+
+        shouldThrow<AuthenticationServiceException> {
+            jsonAuthenticationFilter.attemptAuthentication(request, response)
+        }
+
+        verify(authenticationManager, never()).authenticate(any())
     }
 }
