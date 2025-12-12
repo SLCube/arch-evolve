@@ -23,10 +23,12 @@ class OrderLoggingEventConsumer {
     @TransactionalEventListener
     fun handleOrderCompletedEvent(event: OrderCompletedEvent) {
         log.info(
-            "Order completed. orderId={}, userId={}, totalAmount={}",
+            "Order completed. orderId={}, userId={}, totalAmount={}, receiverName={}, zipCode={}",
             event.orderId,
             event.userId,
             event.totalAmount,
+            event.receiverName,
+            event.zipCode,
         )
     }
 }

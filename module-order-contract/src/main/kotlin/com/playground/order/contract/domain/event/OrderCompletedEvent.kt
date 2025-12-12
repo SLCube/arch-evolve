@@ -7,7 +7,11 @@ data class OrderCompletedEvent(
     val userId: Long,
     val orderId: Long,
     val totalAmount: BigDecimal,
-
+    val receiverName: String,
+    val receiverPhoneNumber: String,
+    val zipCode: String,
+    val baseAddress: String,
+    val detailAddress: String,
 ) : DomainEvent {
     companion object
 }

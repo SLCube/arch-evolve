@@ -15,7 +15,13 @@ class DeliveryEventConsumer(
     fun handleOrderCompletedEvent(event: OrderCompletedEvent) {
         deliveryUsecase.createDelivery(
             DeliveryCreateCommand(
-                foo = "foo"
+                orderId = event.orderId,
+                userId = event.userId,
+                receiverName = event.receiverName,
+                receiverPhoneNumber = event.receiverPhoneNumber,
+                zipCode = event.zipCode,
+                baseAddress = event.baseAddress,
+                detailAddress = event.detailAddress,
             )
         )
     }

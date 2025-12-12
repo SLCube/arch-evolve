@@ -25,5 +25,10 @@ fun OrderCompletedEvent.Companion.from(order: Order): OrderCompletedEvent {
         userId = order.userId,
         orderId = order.id!!,
         totalAmount = order.totalPrice,
+        receiverName = order.orderReceiver.receiverName,
+        receiverPhoneNumber = order.orderReceiver.receiverPhoneNumber,
+        zipCode = order.orderAddress.zipCode,
+        baseAddress = order.orderAddress.baseAddress,
+        detailAddress = order.orderAddress.detailAddress,
     )
 }

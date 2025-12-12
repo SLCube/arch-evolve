@@ -121,6 +121,11 @@ class OrderCommandServiceTest {
             event.orderId shouldBe orderId
             event.userId shouldBe completeOrder.userId
             event.totalAmount shouldBe completeOrder.totalPrice
+            event.receiverName shouldBe mockOrder.orderReceiver.receiverName
+            event.receiverPhoneNumber shouldBe mockOrder.orderReceiver.receiverPhoneNumber
+            event.zipCode shouldBe mockOrder.orderAddress.zipCode
+            event.baseAddress shouldBe mockOrder.orderAddress.baseAddress
+            event.detailAddress shouldBe mockOrder.orderAddress.detailAddress
         })
     }
 
