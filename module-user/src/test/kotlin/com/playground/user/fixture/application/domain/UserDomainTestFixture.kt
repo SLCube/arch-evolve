@@ -20,4 +20,24 @@ object UserDomainTestFixture {
         role = role,
         addresses = addresses,
     )
+
+    fun mockUserAddress(
+        id: Long? = 1L,
+        userId: Long = 1L,
+        receiverName: String = "홍길동",
+        receiverPhoneNumber: String = "01011112222",
+        zipCode: String = "12345",
+        baseAddress: String = "서울특별시 중구 세종대로",
+        detailAddress: String = "101동 1001호",
+        isDefault: Boolean = false,
+    ) = UserAddress(
+        id = id,
+        userId = userId,
+        receiverName = receiverName,
+        receiverPhoneNumber = receiverPhoneNumber,
+        zipCode = zipCode,
+        baseAddress = baseAddress,
+        detailAddress = detailAddress,
+        isDefault = isDefault,
+    )
 }

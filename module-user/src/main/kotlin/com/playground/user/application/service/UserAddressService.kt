@@ -23,7 +23,7 @@ class UserAddressService(
         return user
     }
 
-    override fun registerAddress(command: AddressRegisterCommand) : UserAddress {
+    override fun registerAddress(command: AddressRegisterCommand) {
         val user = loadUserAggregate(command.userId)
 
         val newAddress = UserAddress(
@@ -37,9 +37,7 @@ class UserAddressService(
 
         user.addAddress(newAddress)
 
-        val updatedUser = userCommandPort.update(user)
-
-        return updatedUser.addresses.last()
+        userCommandPort.update(user)
     }
 
     override fun setDefaultAddress(command: AddressDefaultSetCommand) {

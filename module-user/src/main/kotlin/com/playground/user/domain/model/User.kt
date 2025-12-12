@@ -2,6 +2,7 @@ package com.playground.user.domain.model
 
 import com.playground.user.domain.enum.UserRole
 import com.playground.user.domain.exception.AddressLimitExceededException
+import com.playground.user.domain.exception.AddressNotFoundException
 import com.playground.user.domain.exception.SameNicknameException
 
 class User(
@@ -26,7 +27,7 @@ class User(
     private val maxAddressCount = 4
 
     fun addAddress(address: UserAddress) {
-        if (addresses.size > maxAddressCount) {
+        if (addresses.size >= maxAddressCount) {
             throw AddressLimitExceededException(maxAddressCount)
         }
         if (addresses.isEmpty()) {
@@ -38,7 +39,11 @@ class User(
 
     fun setDefaultAddress(addressId: Long) {
         val targetAddress = addresses.find { it.id == addressId }
-            ?: throw IllegalStateException()
+            ?: throw AddressNotFoundException(this.id!!, addressId)
+
+        if (targetAddress.isDefault) {
+            return
+        }
 
         addresses.find { it.isDefault }?.unsetDefault()
 

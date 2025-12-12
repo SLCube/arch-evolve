@@ -1,6 +1,6 @@
 package com.playground.user.domain.model
 
-data class UserAddress(
+class UserAddress(
     val id: Long? = null,
     val userId: Long,
     val receiverName: String,
