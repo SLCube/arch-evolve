@@ -47,6 +47,9 @@ enum class ErrorCode(
     PAYMENT_LIMIT_EXCEEDED("PAYMENT_LIMIT_EXCEEDED", HttpStatus.BAD_REQUEST, "결제 한도 초과"),
     PAYMENT_GATEWAY_ERROR("PAYMENT_GATEWAY_ERROR", HttpStatus.BAD_GATEWAY, "PG사 오류 발생"),
 
+    // Delivery
+    DELIVERY_NOT_FOUND("DELIVERY_NOT_FOUND", HttpStatus.NOT_FOUND, "배송 정보를 찾을 수 없습니다. (주문 ID: %d)"),
+
     ;
 
     fun message(vararg args: Any?): String = String.format(messageFormat, *args)
