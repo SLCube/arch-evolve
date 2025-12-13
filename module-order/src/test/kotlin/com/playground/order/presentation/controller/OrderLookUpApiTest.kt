@@ -4,6 +4,7 @@ import com.playground.common.error.ErrorCode
 import com.playground.order.application.port.inbound.OrderQueryUseCase
 import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.domain.exception.OrderAccessDeniedException
+import com.playground.order.fixture.application.domain.DeliveryInfoTestFixture
 import com.playground.order.fixture.application.domain.OrderDomainTestFixture
 import com.playground.order.fixture.application.query.OrderQueryTestFixture
 import com.playground.order.fixture.application.domain.ProductInfoTestFixture
@@ -37,7 +38,8 @@ class OrderLookUpApiTest(
     fun `주문 상세 조회 - 성공`() {
         val mockOrder = OrderDomainTestFixture.mockOrder()
         val authenticatedUserId = 2L
-        val mockOrderDetailResult = OrderDetailResult.of(mockOrder, ProductInfoTestFixture.mockProductInfos())
+        val mockDeliveryInfo = DeliveryInfoTestFixture.mockDeliveryInfo(orderId = mockOrder.id!!, userId = mockOrder.userId)
+        val mockOrderDetailResult = OrderDetailResult.of(mockOrder, ProductInfoTestFixture.mockProductInfos(), mockDeliveryInfo)
         given(orderQueryUseCase.getOrder(eq(authenticatedUserId), eq(mockOrder.id!!)))
             .willReturn(mockOrderDetailResult)
 
@@ -63,6 +65,13 @@ class OrderLookUpApiTest(
                     jsonPath("$.orderProducts[1].productName").value(mockOrderDetailResult.orderProducts[1].productName),
                     jsonPath("$.orderProducts[1].quantity").value(mockOrderDetailResult.orderProducts[1].quantity),
                     jsonPath("$.orderProducts[1].price").value(mockOrderDetailResult.orderProducts[1].price),
+                    jsonPath("$.delivery.deliveryId").value(mockOrderDetailResult.delivery.deliveryId),
+                    jsonPath("$.delivery.receiverName").value(mockOrderDetailResult.delivery.receiverName),
+                    jsonPath("$.delivery.receiverPhoneNumber").value(mockOrderDetailResult.delivery.receiverPhoneNumber),
+                    jsonPath("$.delivery.zipCode").value(mockOrderDetailResult.delivery.zipCode),
+                    jsonPath("$.delivery.baseAddress").value(mockOrderDetailResult.delivery.baseAddress),
+                    jsonPath("$.delivery.detailAddress").value(mockOrderDetailResult.delivery.detailAddress),
+                    jsonPath("$.delivery.deliveryStatus").value(mockOrderDetailResult.delivery.deliveryStatus),
                     jsonPath("$.createdAt").exists()
                 )
             snippets =
@@ -80,6 +89,13 @@ class OrderLookUpApiTest(
                         fieldWithPath("orderProducts[].productName").description("주문 상품 이름"),
                         fieldWithPath("orderProducts[].quantity").description("주문 상품 수량"),
                         fieldWithPath("orderProducts[].price").description("주문 상품 가격"),
+                        fieldWithPath("delivery.deliveryId").description("배송 ID"),
+                        fieldWithPath("delivery.receiverName").description("수령인 이름"),
+                        fieldWithPath("delivery.receiverPhoneNumber").description("수령인 전화번호"),
+                        fieldWithPath("delivery.zipCode").description("우편번호"),
+                        fieldWithPath("delivery.baseAddress").description("기본 주소"),
+                        fieldWithPath("delivery.detailAddress").description("상세 주소"),
+                        fieldWithPath("delivery.deliveryStatus").description("배송 상태"),
                         fieldWithPath("createdAt").description("주문 생성 시간")
                     )
                 )

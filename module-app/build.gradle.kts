@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":module-user"))
     implementation(project(":module-auth"))
     implementation(project(":module-order"))
+    implementation(project(":module-delivery"))
     implementation(project(":module-payment"))
 
     implementation(libs.spring.boot.starter.web)

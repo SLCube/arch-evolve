@@ -11,6 +11,7 @@ data class OrderDetailResponseDto(
     val totalPrice: BigDecimal,
     val status: OrderStatus,
     val orderProducts: List<OrderProductDetailResponseDto>,
+    val delivery: OrderDeliveryDetailResponseDto,
     val createdAt: String,
 ) {
     companion object {
@@ -26,17 +27,39 @@ data class OrderDetailResponseDto(
                     )
                 }
 
+            val deliveryDetail =
+                OrderDeliveryDetailResponseDto(
+                    deliveryId = result.delivery.deliveryId,
+                    receiverName = result.delivery.receiverName,
+                    receiverPhoneNumber = result.delivery.receiverPhoneNumber,
+                    zipCode = result.delivery.zipCode,
+                    baseAddress = result.delivery.baseAddress,
+                    detailAddress = result.delivery.detailAddress,
+                    deliveryStatus = result.delivery.deliveryStatus,
+                )
+
             return OrderDetailResponseDto(
                 id = result.id,
                 userId = result.userId,
                 totalPrice = result.totalPrice,
                 status = result.status,
                 orderProducts = orderProductDetails,
+                delivery = deliveryDetail,
                 createdAt = result.createdAt.format(DateTimeUtils.API_DATE_TIME_FORMATTER),
             )
         }
     }
 }
+
+data class OrderDeliveryDetailResponseDto(
+    val deliveryId: Long,
+    val receiverName: String,
+    val receiverPhoneNumber: String,
+    val zipCode: String,
+    val baseAddress: String,
+    val detailAddress: String,
+    val deliveryStatus: String,
+)
 
 data class OrderProductDetailResponseDto(
     val id: Long,

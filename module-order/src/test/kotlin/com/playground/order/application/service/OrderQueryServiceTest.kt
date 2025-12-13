@@ -2,11 +2,13 @@ package com.playground.order.application.service
 
 import com.playground.common.application.query.PageQuery
 import com.playground.common.application.query.PagedResult
+import com.playground.delivery.contract.application.outbound.DeliveryInfoQueryPort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
+import com.playground.order.fixture.application.domain.DeliveryInfoTestFixture
 import com.playground.order.fixture.application.domain.OrderDomainTestFixture
 import com.playground.order.fixture.application.query.OrderQueryTestFixture
 import com.playground.order.fixture.application.domain.ProductInfoTestFixture
@@ -28,10 +30,12 @@ class OrderQueryServiceTest {
 
     private val orderQueryPort: OrderQueryPort = mock()
     private val orderExternalDataProvider: OrderExternalDataProvider = mock()
+    private val deliveryInfoQueryPort: DeliveryInfoQueryPort = mock()
 
     private val orderQueryService: OrderQueryService = OrderQueryService(
         orderQueryPort = orderQueryPort,
         orderExternalDataProvider = orderExternalDataProvider,
+        deliveryInfoQueryPort = deliveryInfoQueryPort,
     )
 
     @Test
@@ -53,6 +57,10 @@ class OrderQueryServiceTest {
         given(orderExternalDataProvider.getVerifiedProductInfos(eq(productIds)))
             .willReturn(mockProductInfos)
 
+        val mockDeliveryInfo = DeliveryInfoTestFixture.mockDeliveryInfo(orderId = orderId, userId = userId)
+        given(deliveryInfoQueryPort.getDeliveryInfoByOrderId(eq(orderId)))
+            .willReturn(mockDeliveryInfo)
+
         // when
         val foundOrder = orderQueryService.getOrder(userId, orderId)
 
@@ -60,9 +68,12 @@ class OrderQueryServiceTest {
         foundOrder.id shouldBe orderId
         foundOrder.userId shouldBe userId
         foundOrder.orderProducts shouldHaveSize mockOrder.orderProducts.size
+        foundOrder.delivery.deliveryId shouldBe 100L
+        foundOrder.delivery.deliveryStatus shouldBe "PENDING"
 
         verify(orderQueryPort).findById(orderId)
         verify(orderExternalDataProvider).getVerifiedProductInfos(eq(productIds))
+        verify(deliveryInfoQueryPort).getDeliveryInfoByOrderId(eq(orderId))
     }
 
     @Test
@@ -81,6 +92,7 @@ class OrderQueryServiceTest {
 
         verify(orderQueryPort).findById(nonExistingOrderId)
         verify(orderExternalDataProvider, never()).getVerifiedProductInfos(any())
+        verify(deliveryInfoQueryPort, never()).getDeliveryInfoByOrderId(any())
     }
 
     @Test
@@ -103,6 +115,7 @@ class OrderQueryServiceTest {
 
         verify(orderQueryPort).findById(orderId)
         verify(orderExternalDataProvider, never()).getVerifiedProductInfos(any())
+        verify(deliveryInfoQueryPort, never()).getDeliveryInfoByOrderId(any())
     }
 
     @Test
