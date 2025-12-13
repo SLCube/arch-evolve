@@ -1,3 +1,8 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+}
+
 dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.restdocs.mockmvc)

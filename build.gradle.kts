@@ -1,4 +1,3 @@
-import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -26,58 +25,44 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = "org.springframework.boot")
-    apply(plugin = "io.spring.dependency-management")
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
-    apply(plugin = "org.jetbrains.kotlin.plugin.jpa")
     apply(plugin = "jacoco")
-
-    configure<JavaPluginExtension> {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(21))
-        }
-    }
 
     val libs = rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-    configure<DependencyManagementExtension> {
-        imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.8")
+    plugins.withId("java") {
+        configure<JavaPluginExtension> {
+            toolchain {
+                languageVersion.set(JavaLanguageVersion.of(21))
+            }
+        }
+
+        dependencies {
+            add("implementation", platform(libs.findLibrary("spring-boot-dependencies").get()))
+            add("implementation", libs.findLibrary("jackson-module-kotlin").get())
+            add("implementation", libs.findLibrary("kotlin-reflect").get())
+            add("testImplementation", libs.findLibrary("spring-boot-starter-test").get())
         }
     }
 
-    dependencies {
-        "implementation"(libs.findLibrary("spring-boot-starter").get())
-        "implementation"(libs.findLibrary("jackson-module-kotlin").get())
-        "implementation"(libs.findLibrary("kotlin-reflect").get())
-        "testImplementation"(libs.findLibrary("spring-boot-starter-test").get())
-    }
-
-    tasks.withType<KotlinCompile> {
-        compilerOptions {
-            freeCompilerArgs.add("-Xjsr305=strict")
-            jvmTarget.set(JvmTarget.JVM_21)
+    plugins.withId("org.jetbrains.kotlin.jvm") {
+        tasks.withType<KotlinCompile> {
+            compilerOptions {
+                freeCompilerArgs.add("-Xjsr305=strict")
+                jvmTarget.set(JvmTarget.JVM_21)
+            }
         }
     }
 
-    tasks.withType<Test> {
-        useJUnitPlatform()
-        systemProperty(
-            "org.springframework.restdocs.outputDir",
-            layout.buildDirectory
-                .dir("generated-snippets")
-                .get()
-                .asFile.path,
-        )
-    }
-
-    plugins.withId("org.springframework.boot") {
-        tasks.named("bootJar") {
-            enabled = false
-        }
-        tasks.named("jar") {
-            enabled = true
+    plugins.withId("java") {
+        tasks.withType<Test> {
+            useJUnitPlatform()
+            systemProperty(
+                "org.springframework.restdocs.outputDir",
+                layout.buildDirectory
+                    .dir("generated-snippets")
+                    .get()
+                    .asFile.path,
+            )
         }
     }
 
