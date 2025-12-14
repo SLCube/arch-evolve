@@ -49,6 +49,11 @@ enum class ErrorCode(
 
     // Delivery
     DELIVERY_NOT_FOUND("DELIVERY_NOT_FOUND", HttpStatus.NOT_FOUND, "배송 정보를 찾을 수 없습니다. (주문 ID: %d)"),
+    DELIVERY_STATUS_INVALID(
+        "DELIVERY_STATUS_INVALID",
+        HttpStatus.BAD_REQUEST,
+        "배송 상태가 유효하지 않습니다. (배송 ID: %s, 현재 상태: %s, 요청 상태: %s)",
+    ),
 
     ;
 

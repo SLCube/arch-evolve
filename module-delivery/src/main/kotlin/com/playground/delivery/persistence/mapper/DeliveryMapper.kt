@@ -18,6 +18,7 @@ fun DeliveryJpaEntity.toDomain(): Delivery =
         createdAt = createdAt,
         updatedAt = updatedAt,
         shippedAt = shippedAt,
+        deliveredAt = deliveredAt,
         failedAt = failedAt,
     )
 

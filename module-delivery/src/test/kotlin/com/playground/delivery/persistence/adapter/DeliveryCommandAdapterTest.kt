@@ -36,4 +36,25 @@ class DeliveryCommandAdapterTest(
         foundEntity.deliveryReceiver.receiverName shouldBe delivery.deliveryReceiver.receiverName
         foundEntity.deliveryAddress.zipCode shouldBe delivery.deliveryAddress.zipCode
     }
+
+    @Test
+    fun `배송 상태 변경 시 dirty checking으로 업데이트되어야 한다`() {
+        // given
+        val orderId = 10L
+        val saved = deliveryCommandAdapter.save(
+            DeliveryDomainTestFixture.createDelivery(id = null, orderId = orderId, status = DeliveryStatus.PENDING),
+        )
+        saved.id shouldNotBe null
+        saved.deliveryStatus shouldBe DeliveryStatus.PENDING
+
+        saved.startDelivery()
+
+        // when
+        deliveryCommandAdapter.update(saved)
+
+        // then
+        val updated = deliveryRepository.findByOrderId(orderId).orElseThrow()
+        updated.status shouldBe DeliveryStatus.SHIPPING
+        updated.shippedAt shouldNotBe null
+    }
 }

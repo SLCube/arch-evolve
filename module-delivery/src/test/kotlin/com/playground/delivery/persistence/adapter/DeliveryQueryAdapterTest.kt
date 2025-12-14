@@ -1,8 +1,10 @@
 package com.playground.delivery.persistence.adapter
 
+import com.playground.delivery.domain.exception.DeliveryNotFoundException
 import com.playground.delivery.fixture.application.domain.DeliveryDomainTestFixture
 import com.playground.delivery.persistence.entity.DeliveryJpaEntity
 import com.playground.delivery.persistence.repository.DeliveryRepository
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,12 +27,11 @@ class DeliveryQueryAdapterTest(
         deliveryRepository.save(deliveryJpaEntity)
 
         // when
-        val result = deliveryQueryAdapter.findByOrderId(10L)
+        val result = deliveryQueryAdapter.findByOrderIdOrThrow(10L)
 
         // then
-        val deliveryDomain = result.get()
-        deliveryDomain.orderId shouldBe 10L
-        deliveryDomain.deliveryReceiver.receiverName shouldBe delivery.deliveryReceiver.receiverName
+        result.orderId shouldBe 10L
+        result.deliveryReceiver.receiverName shouldBe delivery.deliveryReceiver.receiverName
     }
 
     @Test
@@ -40,5 +41,12 @@ class DeliveryQueryAdapterTest(
 
         // then
         result.isPresent shouldBe false
+    }
+
+    @Test
+    fun `존재하지 않는 주문 ID로 조회 시 findByOrderIdOrThrow는 DeliveryNotFoundException을 던져야 한다`() {
+        shouldThrow<DeliveryNotFoundException> {
+            deliveryQueryAdapter.findByOrderIdOrThrow(999L)
+        }
     }
 }

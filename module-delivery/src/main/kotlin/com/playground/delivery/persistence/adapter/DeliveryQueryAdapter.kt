@@ -1,6 +1,7 @@
 package com.playground.delivery.persistence.adapter
 
 import com.playground.delivery.application.port.outbound.DeliveryQueryPort
+import com.playground.delivery.domain.exception.DeliveryNotFoundException
 import com.playground.delivery.domain.model.Delivery
 import com.playground.delivery.persistence.mapper.toDomain
 import com.playground.delivery.persistence.repository.DeliveryRepository
@@ -14,5 +15,11 @@ class DeliveryQueryAdapter(
     override fun findByOrderId(orderId: Long): Optional<Delivery> {
         return deliveryRepository.findByOrderId(orderId)
             .map { it.toDomain() }
+    }
+
+    override fun findByOrderIdOrThrow(orderId: Long): Delivery {
+        return deliveryRepository.findByOrderId(orderId)
+            .map { it.toDomain() }
+            .orElseThrow { DeliveryNotFoundException(orderId) }
     }
 }

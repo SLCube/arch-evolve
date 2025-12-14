@@ -33,9 +33,23 @@ class DeliveryJpaEntity(
     var status: DeliveryStatus = DeliveryStatus.PENDING,
     @Column(name = "shipped_at")
     var shippedAt: LocalDateTime? = null,
+    @Column(name = "deliveredAt")
+    var deliveredAt: LocalDateTime? = null,
     @Column(name = "failed_at")
     var failedAt: LocalDateTime? = null,
 ) : BaseEntity() {
+    fun updateStatus(
+        status: DeliveryStatus,
+        shippedAt: LocalDateTime?,
+        deliveredAt: LocalDateTime?,
+        failedAt: LocalDateTime?,
+    ) {
+        this.status = status
+        this.shippedAt = shippedAt
+        this.deliveredAt = deliveredAt
+        this.failedAt = failedAt
+    }
+
     companion object {
         fun toJpaEntity(domain: com.playground.delivery.domain.model.Delivery): DeliveryJpaEntity =
             DeliveryJpaEntity(
@@ -46,6 +60,7 @@ class DeliveryJpaEntity(
                 deliveryAddress = DeliveryAddressEmbedded.from(domain.deliveryAddress),
                 status = domain.deliveryStatus,
                 shippedAt = domain.shippedAt,
+                deliveredAt = domain.deliveredAt,
                 failedAt = domain.failedAt,
             )
     }
