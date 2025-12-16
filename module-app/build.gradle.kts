@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":module-order"))
     implementation(project(":module-delivery"))
     implementation(project(":module-payment"))
+    implementation(project(":module-monitoring"))
 
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)

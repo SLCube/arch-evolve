@@ -4,7 +4,9 @@ jwt:
 
 spring:
   profiles:
-    include: secret
+    include:
+      - secret
+      - monitoring
   jpa:
     hibernate:
       ddl-auto: create

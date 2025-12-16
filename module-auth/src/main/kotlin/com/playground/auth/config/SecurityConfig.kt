@@ -52,6 +52,8 @@ class SecurityConfig(
                 requests
                     .requestMatchers("/users/sign-up", "/users/login")
                     .permitAll()
+                    .requestMatchers("/actuator/**")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, ApiConstants.PRODUCT_API_BASE_PATH)
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, ApiConstants.PRODUCT_API_BASE_PATH)
