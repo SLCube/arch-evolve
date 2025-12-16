@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "main"
-      - "phase/2.0-multi-module-architecture"
+      - "phase/2.5-high-performed-monolith"
   pull_request:
     branches:
       - "main"
