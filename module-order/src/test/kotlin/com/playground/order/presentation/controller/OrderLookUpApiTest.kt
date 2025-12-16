@@ -40,7 +40,7 @@ class OrderLookUpApiTest(
         val authenticatedUserId = 2L
         val mockDeliveryInfo = DeliveryInfoTestFixture.mockDeliveryInfo(orderId = mockOrder.id!!, userId = mockOrder.userId)
         val mockOrderDetailResult = OrderDetailResult.of(mockOrder, ProductInfoTestFixture.mockProductInfos(), mockDeliveryInfo)
-        given(orderQueryUseCase.getOrder(eq(authenticatedUserId), eq(mockOrder.id!!)))
+        given(orderQueryUseCase.getOrder(eq(authenticatedUserId), eq(mockOrder.id)))
             .willReturn(mockOrderDetailResult)
 
         performAndDocument("주문 상세 조회 - 성공") {
