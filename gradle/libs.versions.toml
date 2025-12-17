@@ -14,7 +14,7 @@ asciidoctor = "4.0.5"
 ktlint = "14.0.1"
 
 openfeignQuerydsl = "7.1"
-ksp = "2.3.3"
+ksp = "2.3.4"
 
 [libraries]
 # --- kotlin plugin ---
