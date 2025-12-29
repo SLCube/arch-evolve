@@ -6,3 +6,4 @@ services:
       - ./k6:/scripts
     working_dir: /scripts
     entrypoint: ["k6"]
+    command: ["run", "smoke.js"]
