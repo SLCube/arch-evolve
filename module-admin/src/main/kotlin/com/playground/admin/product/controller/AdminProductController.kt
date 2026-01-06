@@ -1,5 +1,6 @@
 package com.playground.admin.product.controller
 
+import com.playground.admin.product.controller.mapper.toCommand
 import com.playground.admin.product.controller.request.AdminProductSaveRequestDto
 import com.playground.admin.product.controller.request.AdminProductUpdateRequestDto
 import com.playground.admin.product.service.AdminProductService
@@ -20,7 +21,7 @@ class AdminProductController(
     fun save(
         @RequestBody @Valid requestDto: AdminProductSaveRequestDto,
     ) {
-        adminProductService.saveProduct()
+        adminProductService.saveProduct(requestDto.toCommand())
     }
 
     @PatchMapping("/{id}")
@@ -28,6 +29,6 @@ class AdminProductController(
         @PathVariable id: Long,
         @RequestBody @Valid requestDto: AdminProductUpdateRequestDto,
     ) {
-        adminProductService.updateProduct()
+        adminProductService.updateProduct(requestDto.toCommand(id))
     }
 }
