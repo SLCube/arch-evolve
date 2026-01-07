@@ -3,6 +3,7 @@ package com.playground.product.application.service
 import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.application.port.outbound.ProductEventPort
 import com.playground.product.application.port.outbound.ProductQueryPort
+import com.playground.product.application.service.customer.ProductService
 import com.playground.product.domain.event.ProductCreatedEvent
 import com.playground.product.domain.event.ProductStockDecreasedEvent
 import com.playground.product.domain.event.ProductUpdatedEvent

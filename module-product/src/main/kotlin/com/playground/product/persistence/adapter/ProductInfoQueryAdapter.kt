@@ -1,7 +1,7 @@
 package com.playground.product.persistence.adapter
 
 import com.playground.product.application.port.outbound.ProductQueryPort
-import com.playground.product.contract.application.outbound.ProductInfoQueryPort
+import com.playground.product.contract.application.port.outbound.customer.ProductInfoQueryPort
 import com.playground.product.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Component
 

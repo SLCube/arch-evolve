@@ -1,4 +1,4 @@
-package com.playground.product.application.service
+package com.playground.product.application.service.customer
 
 import com.playground.product.application.port.inbound.ProductUseCase
 import com.playground.product.application.port.inbound.command.DecreaseStockCommand

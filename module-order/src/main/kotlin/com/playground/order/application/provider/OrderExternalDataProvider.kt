@@ -1,7 +1,7 @@
 package com.playground.order.application.provider
 
 import com.playground.order.domain.exception.OrderableProductNotFoundException
-import com.playground.product.contract.application.outbound.ProductInfoQueryPort
+import com.playground.product.contract.application.port.outbound.customer.ProductInfoQueryPort
 import com.playground.product.contract.domain.vo.ProductInfo
 import com.playground.user.contract.application.port.outbound.AddressInfoQueryPort
 import com.playground.user.contract.domain.vo.ReceiverAddressInfo

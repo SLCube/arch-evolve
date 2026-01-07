@@ -3,7 +3,7 @@ package com.playground.order.application.provider
 import com.playground.order.domain.exception.OrderableProductNotFoundException
 import com.playground.order.fixture.application.domain.AddressInfoTestFixture
 import com.playground.order.fixture.application.domain.ProductInfoTestFixture
-import com.playground.product.contract.application.outbound.ProductInfoQueryPort
+import com.playground.product.contract.application.port.outbound.customer.ProductInfoQueryPort
 import com.playground.user.contract.application.port.outbound.AddressInfoQueryPort
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
