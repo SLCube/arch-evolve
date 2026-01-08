@@ -5,6 +5,7 @@ import com.playground.admin.product.controller.request.AdminProductSaveRequestDt
 import com.playground.admin.product.controller.request.AdminProductUpdateRequestDto
 import com.playground.admin.product.service.AdminProductService
 import jakarta.validation.Valid
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,15 +21,17 @@ class AdminProductController(
     @PostMapping
     fun save(
         @RequestBody @Valid requestDto: AdminProductSaveRequestDto,
-    ) {
+    ): ResponseEntity<Unit> {
         adminProductService.saveProduct(requestDto.toCommand())
+        return ResponseEntity.ok().build()
     }
 
     @PatchMapping("/{id}")
     fun update(
         @PathVariable id: Long,
         @RequestBody @Valid requestDto: AdminProductUpdateRequestDto,
-    ) {
+    ): ResponseEntity<Unit> {
         adminProductService.updateProduct(requestDto.toCommand(id))
+        return ResponseEntity.ok().build()
     }
 }

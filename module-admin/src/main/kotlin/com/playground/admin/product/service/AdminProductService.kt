@@ -1,20 +1,20 @@
 package com.playground.admin.product.service
 
-import com.playground.product.contract.application.port.outbound.backoffice.AdminProductCommandUseCase
-import com.playground.product.contract.application.port.outbound.backoffice.command.AdminProductSaveCommand
-import com.playground.product.contract.application.port.outbound.backoffice.command.AdminProductUpdateCommand
+import com.playground.product.contract.application.port.inbound.backoffice.BackOfficeProductCommandUseCase
+import com.playground.product.contract.application.port.inbound.backoffice.command.AdminProductSaveCommand
+import com.playground.product.contract.application.port.inbound.backoffice.command.AdminProductUpdateCommand
 import org.springframework.stereotype.Service
 
 @Service
 class AdminProductService(
-    private val adminProductCommandUseCase: AdminProductCommandUseCase,
+    private val backOfficeProductCommandUseCase: BackOfficeProductCommandUseCase,
 ) {
 
     fun saveProduct(command: AdminProductSaveCommand) {
-        adminProductCommandUseCase.saveProduct(command)
+        backOfficeProductCommandUseCase.saveProduct(command)
     }
 
     fun updateProduct(command: AdminProductUpdateCommand) {
-        adminProductCommandUseCase.updateProduct(command)
+        backOfficeProductCommandUseCase.updateProduct(command)
     }
 }

@@ -1,4 +1,4 @@
-package com.playground.product.contract.application.port.outbound.backoffice.command
+package com.playground.product.contract.application.port.inbound.backoffice.command
 
 import java.math.BigDecimal
 

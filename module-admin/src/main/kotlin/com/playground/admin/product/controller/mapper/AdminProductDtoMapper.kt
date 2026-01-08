@@ -2,8 +2,8 @@ package com.playground.admin.product.controller.mapper
 
 import com.playground.admin.product.controller.request.AdminProductSaveRequestDto
 import com.playground.admin.product.controller.request.AdminProductUpdateRequestDto
-import com.playground.product.contract.application.port.outbound.backoffice.command.AdminProductSaveCommand
-import com.playground.product.contract.application.port.outbound.backoffice.command.AdminProductUpdateCommand
+import com.playground.product.contract.application.port.inbound.backoffice.command.AdminProductSaveCommand
+import com.playground.product.contract.application.port.inbound.backoffice.command.AdminProductUpdateCommand
 
 fun AdminProductSaveRequestDto.toCommand(): AdminProductSaveCommand =
     AdminProductSaveCommand(
