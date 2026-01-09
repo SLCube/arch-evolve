@@ -3,7 +3,7 @@ package com.playground.admin.product.controller
 import com.playground.admin.product.controller.mapper.toCommand
 import com.playground.admin.product.controller.request.AdminProductSaveRequestDto
 import com.playground.admin.product.controller.request.AdminProductUpdateRequestDto
-import com.playground.admin.product.service.AdminProductService
+import com.playground.admin.product.service.AdminProductFacade
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PatchMapping
@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/admin/products")
 class AdminProductController(
-    private val adminProductService: AdminProductService,
+    private val adminProductFacade: AdminProductFacade,
 ) {
     @PostMapping
     fun save(
         @RequestBody @Valid requestDto: AdminProductSaveRequestDto,
     ): ResponseEntity<Unit> {
-        adminProductService.saveProduct(requestDto.toCommand())
+        adminProductFacade.saveProduct(requestDto.toCommand())
         return ResponseEntity.ok().build()
     }
 
@@ -31,7 +31,7 @@ class AdminProductController(
         @PathVariable id: Long,
         @RequestBody @Valid requestDto: AdminProductUpdateRequestDto,
     ): ResponseEntity<Unit> {
-        adminProductService.updateProduct(requestDto.toCommand(id))
+        adminProductFacade.updateProduct(requestDto.toCommand(id))
         return ResponseEntity.ok().build()
     }
 }

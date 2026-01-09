@@ -6,7 +6,7 @@ import com.playground.product.contract.application.port.inbound.backoffice.comma
 import org.springframework.stereotype.Service
 
 @Service
-class AdminProductService(
+class AdminProductFacade(
     private val backOfficeProductCommandUseCase: BackOfficeProductCommandUseCase,
 ) {
 
