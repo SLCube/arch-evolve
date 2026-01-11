@@ -25,6 +25,11 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%-7.7thread] [%-40.40logger{39}] - %msg%n"
 
+server:
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
 ---
 spring:
   config:
