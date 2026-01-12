@@ -9,8 +9,8 @@ import com.playground.product.contract.application.port.inbound.backoffice.comma
 import com.playground.product.domain.event.ProductCreatedEvent
 import com.playground.product.domain.event.ProductUpdatedEvent
 import com.playground.product.domain.model.Product
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 @Transactional
