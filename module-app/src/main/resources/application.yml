@@ -20,10 +20,10 @@ logging:
   level:
     root: info
     com.playground: info
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    org.hibernate.SQL: off
+    org.hibernate.orm.jdbc.bind: off
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%-7.7thread] [%-40.40logger{39}] - %msg%n"
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%-7.7thread] [%-40.40logger{39}] - %msg method=%X{method}, path=%X{path}, requestId=%X{requestId}%n'
 
 server:
   tomcat:
