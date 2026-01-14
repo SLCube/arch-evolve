@@ -22,7 +22,7 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.aop)
     implementation("net.logstash.logback:logstash-logback-encoder:9.0")
-    implementation("com.github.loki4j:loki-logback-appender:1.5.1")
+    implementation("com.github.loki4j:loki-logback-appender:1.6.0")
 
     developmentOnly(libs.spring.boot.docker.compose)
 
