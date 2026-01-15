@@ -47,7 +47,7 @@ kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref =
 jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
 
 # --- Database ---
-postgres = { module = "org.postgresql:postgresql", version = "42.7.8" }
+postgres = { module = "org.postgresql:postgresql", version = "42.7.9" }
 h2-database = { module = "com.h2database:h2" }
 
 # --- QueryDSL ---
