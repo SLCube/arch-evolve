@@ -16,6 +16,9 @@ ktlint = "14.0.1"
 openfeignQuerydsl = "7.1"
 ksp = "2.3.4"
 
+logstashLogbackEncoder = "9.0"
+loki4j = "2.0.2"
+
 [libraries]
 # --- kotlin plugin ---
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -64,6 +67,11 @@ archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref
 restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc" }
 restdocs-asciidoctor = { module = "org.springframework.restdocs:spring-restdocs-asciidoctor" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+
+# --- Logging ---
+logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstashLogbackEncoder" }
+
+loki-logback-appender = { module = "com.github.loki4j:loki-logback-appender", version.ref = "loki4j" }
 
 [bundles]
 jjwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
