@@ -6,4 +6,6 @@ services:
       - ./k6:/scripts
     working_dir: /scripts
     entrypoint: ["k6"]
-    command: ["run", "smoke.js"]
+    environment:
+      - BASE_URL=http://host.docker.internal:8080
+    command: ["run", "order-test.js"]
