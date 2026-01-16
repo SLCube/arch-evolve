@@ -17,7 +17,7 @@ openfeignQuerydsl = "7.1"
 ksp = "2.3.4"
 
 logstashLogbackEncoder = "9.0"
-loki4j = "1.5.1"
+loki4j = "1.6.0"
 
 [libraries]
 # --- kotlin plugin ---
