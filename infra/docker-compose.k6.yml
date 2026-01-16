@@ -8,4 +8,19 @@ services:
     entrypoint: ["k6"]
     environment:
       - BASE_URL=http://host.docker.internal:8080
-    command: ["run", "order-test.js"]
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+    command: [
+      "run",
+      "--tag",
+      "test_id=order-test-vu1-1rps-local",
+      "--out",
+      "experimental-prometheus-rw",
+      "order-test.js"
+    ]
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    external: true
+    name: monitoring

@@ -4,8 +4,14 @@ services:
     container_name: prometheus
     volumes:
       - ./src/main/resources:/etc/prometheus:ro
+      - prometheus_data:/prometheus
     ports:
       - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana:latest
@@ -15,10 +21,14 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_DEFAULT_THEME=dark
       - GF_DATE_FORMATS_DEFAULT_TIMEZONE=Asia/Seoul
+    volumes:
+      - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
     depends_on:
       - prometheus
+    networks:
+      - monitoring
 
   loki:
     image: grafana/loki:2.9.4
@@ -28,3 +38,15 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - ./src/main/resources/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    name: monitoring
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
