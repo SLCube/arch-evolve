@@ -5,11 +5,11 @@ export const options = {
     scenarios: {
         order_rate_vu1: {
             executor: "constant-arrival-rate",
-            rate: parseInt(__ENV.RATE || "30", 10),     // 초당 iteration(=주문 1회) 목표
+            rate: parseInt(__ENV.RATE || "10", 10),     // 초당 iteration(=주문 1회) 목표
             timeUnit: "1s",
             duration: __ENV.DURATION || "180s",
-            preAllocatedVUs: 1,
-            maxVUs: 1,
+            preAllocatedVUs: 2,
+            maxVUs: 2,
             gracefulStop: "10s",
         },
     },
