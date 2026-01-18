@@ -12,9 +12,11 @@ services:
     command: [
       "run",
       "--tag",
-      "test_id=order-test-vu1-1rps-local",
+      "test_id=order-test-vu1-5rps-local",
       "--out",
       "experimental-prometheus-rw",
+      "--out",
+      "influxdb=http://influxdb:8086/k6",
       "order-test.js"
     ]
     networks:

@@ -42,6 +42,19 @@ services:
     networks:
       - monitoring
 
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_AUTH_ENABLED=false
+    volumes:
+      - influxdb_data:/var/lib/influxdb
+    networks:
+      - monitoring
+
 networks:
   monitoring:
     name: monitoring
@@ -50,3 +63,4 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
+  influxdb_data:
