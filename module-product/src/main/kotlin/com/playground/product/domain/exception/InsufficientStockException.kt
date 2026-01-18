@@ -5,9 +5,8 @@ import com.playground.common.error.ErrorCode
 
 class InsufficientStockException(
     productId: Long,
-    currentStock: Int,
     requestQuantity: Int,
 ) : BusinessException(
         errorCode = ErrorCode.INSUFFICIENT_STOCK,
-        message = ErrorCode.INSUFFICIENT_STOCK.message(productId, currentStock, requestQuantity),
+        message = ErrorCode.INSUFFICIENT_STOCK.message(productId, requestQuantity),
     )

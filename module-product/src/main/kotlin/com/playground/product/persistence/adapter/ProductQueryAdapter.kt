@@ -20,10 +20,4 @@ class ProductQueryAdapter(
     override fun findAll(): List<Product> = productRepository.findAll().map { it.toDomain() }
 
     override fun findAllByIds(productIds: List<Long>): List<Product> = productRepository.findAllById(productIds).map { it.toDomain() }
-
-    override fun findByIdWithPessimisticLock(id: Long): Product =
-        productRepository
-            .findByIdWithPessimisticLock(id)
-            .orElseThrow { ProductNotFoundException(id) }
-            .toDomain()
 }

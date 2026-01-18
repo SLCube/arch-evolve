@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.kotlin.jpa)
+    alias(libs.plugins.ksp)
 }
 
 dependencies {
@@ -12,6 +13,9 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.validation)
+    implementation(libs.openfeign.querydsl.jpa)
+
+    ksp(libs.openfeign.querydsl.ksp)
 
     runtimeOnly(libs.postgres)
 
@@ -24,4 +28,8 @@ dependencies {
 
     testImplementation(project(":module-test-support"))
     testRuntimeOnly(libs.h2.database)
+}
+
+sourceSets.main {
+    java.srcDirs("build/generated/ksp/main/kotlin")
 }

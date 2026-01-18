@@ -40,12 +40,10 @@ class ProductLoggingEventConsumer {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleProductStockDecreasedEvent(event: ProductStockDecreasedEvent) {
         log.info(
-            "Product stock decreased. productId={}, productName={}, oldStock={}, decreasedQuantity={}, newStock={}",
+            "Product stock decreased. productId={}, productName={}, decreasedQuantity={}",
             event.productId,
             event.productName,
-            event.oldStock,
             event.decreasedQuantity,
-            event.newStock,
         )
     }
 }

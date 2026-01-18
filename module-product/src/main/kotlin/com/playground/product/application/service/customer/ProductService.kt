@@ -11,6 +11,7 @@ import com.playground.product.application.port.outbound.ProductQueryPort
 import com.playground.product.domain.event.ProductCreatedEvent
 import com.playground.product.domain.event.ProductStockDecreasedEvent
 import com.playground.product.domain.event.ProductUpdatedEvent
+import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.domain.model.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -80,26 +81,27 @@ class ProductService(
     @Transactional(readOnly = true)
     override fun getAllProducts(): List<Product> = productQueryPort.findAll()
 
-    override fun decreaseStock(command: DecreaseStockCommand): Product {
-        val product = productQueryPort.findByIdWithPessimisticLock(command.id)
+    override fun decreaseStock(command: DecreaseStockCommand): Long {
+        val product = productQueryPort.findById(command.id)
 
-        val oldStock = product.stock
         val decreasedQuantity = command.quantity
 
-        product.decreaseStock(decreasedQuantity)
+        val result = productCommandPort.decreaseStock(product, decreasedQuantity)
 
-        val updatedProduct = productCommandPort.update(product)
+        val productId = product.id!!
+        if (result <= 0) {
+            throw InsufficientStockException(productId,  decreasedQuantity)
+        }
+
 
         val event =
             ProductStockDecreasedEvent(
-                productId = updatedProduct.id!!,
-                productName = updatedProduct.name,
-                oldStock = oldStock,
+                productId = productId,
+                productName = product.name,
                 decreasedQuantity = decreasedQuantity,
-                newStock = updatedProduct.stock,
             )
         productEventPort.publish(event)
 
-        return updatedProduct
+        return productId
     }
 }

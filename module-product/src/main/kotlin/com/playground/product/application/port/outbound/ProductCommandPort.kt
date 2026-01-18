@@ -6,4 +6,6 @@ interface ProductCommandPort {
     fun save(product: Product): Product
 
     fun update(product: Product): Product
+
+    fun decreaseStock(product: Product, quantity: Int): Long
 }

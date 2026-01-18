@@ -30,4 +30,9 @@ class ProductCommandAdapter(
 
         return productJpaEntity.toDomain()
     }
+
+    override fun decreaseStock(product: Product, quantity: Int): Long {
+        val productId = product.id!!
+        return productRepository.decreaseStockAtomic(productId, quantity)
+    }
 }

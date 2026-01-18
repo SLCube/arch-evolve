@@ -15,5 +15,5 @@ interface ProductUseCase {
 
     fun getAllProducts(): List<Product>
 
-    fun decreaseStock(command: DecreaseStockCommand): Product
+    fun decreaseStock(command: DecreaseStockCommand): Long
 }

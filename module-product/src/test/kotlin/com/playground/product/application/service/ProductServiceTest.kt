@@ -122,28 +122,23 @@ class ProductServiceTest {
 
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
 
-        given(productQueryPort.findByIdWithPessimisticLock(productId)).willReturn(mockProduct)
+        given(productQueryPort.findById(productId)).willReturn(mockProduct)
 
-        given(productCommandPort.update(any<Product>())).willAnswer { invocation ->
-                invocation.arguments[0] as Product
-            }
+        given(productCommandPort.decreaseStock(mockProduct, 10))
+            .willReturn(1L)
 
         // when
-        val updatedProduct = productService.decreaseStock(command)
+        productService.decreaseStock(command)
 
         // then
-        updatedProduct.stock shouldBe (initialStock - quantityToDecrease)
+        verify(productQueryPort).findById(productId)
 
-        verify(productQueryPort).findByIdWithPessimisticLock(productId)
-
-        verify(productCommandPort).update(any<Product>())
+        verify(productCommandPort).decreaseStock(mockProduct, quantityToDecrease)
 
         verify(productEventPort).publish(check<ProductStockDecreasedEvent> { event ->
             event.productId shouldBe productId
-            event.productName shouldBe updatedProduct.name
-            event.oldStock shouldBe initialStock
+            event.productName shouldBe mockProduct.name
             event.decreasedQuantity shouldBe quantityToDecrease
-            event.newStock shouldBe (initialStock - quantityToDecrease)
         })
     }
 
@@ -160,7 +155,7 @@ class ProductServiceTest {
 
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
 
-        given(productQueryPort.findByIdWithPessimisticLock(productId)).willReturn(mockProduct)
+        given(productQueryPort.findById(productId)).willReturn(mockProduct)
 
         // when & then
         shouldThrow<InsufficientStockException> {

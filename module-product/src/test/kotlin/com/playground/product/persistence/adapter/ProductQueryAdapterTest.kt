@@ -1,5 +1,6 @@
 package com.playground.product.persistence.adapter
 
+import com.playground.common.jpa.config.QuerydslConfig
 import com.playground.product.domain.exception.ProductNotFoundException
 import com.playground.product.fixture.application.domain.ProductDomainTestFixture
 import com.playground.product.persistence.entity.ProductJpaEntity
@@ -14,7 +15,7 @@ import org.springframework.context.annotation.Import
 
 @Suppress("NonAsciiCharacters")
 @DataJpaTest
-@Import(ProductQueryAdapter::class)
+@Import(ProductQueryAdapter::class, QuerydslConfig::class)
 class ProductQueryAdapterTest(
     @param:Autowired private val productQueryAdapter: ProductQueryAdapter,
     @param:Autowired private val productRepository: ProductRepository,
@@ -94,18 +95,5 @@ class ProductQueryAdapterTest(
         products shouldHaveSize 2
 
         products.map { it.id } shouldBe requestedIds
-    }
-
-    @Test
-    fun `findByIdWithPessimisticLock 호출 시 Lock이 걸린 Product 도메인 모델을 반환해야 한다`() {
-        // Given
-        val savedEntity = saveTestProduct()
-        val productId = savedEntity.id!!
-
-        // When
-        val foundProduct = productQueryAdapter.findByIdWithPessimisticLock(productId)
-
-        // Then
-        foundProduct.id shouldBe productId
     }
 }

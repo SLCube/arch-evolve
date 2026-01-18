@@ -8,6 +8,4 @@ interface ProductQueryPort {
     fun findAll(): List<Product>
 
     fun findAllByIds(productIds: List<Long>): List<Product>
-
-    fun findByIdWithPessimisticLock(id: Long): Product
 }
