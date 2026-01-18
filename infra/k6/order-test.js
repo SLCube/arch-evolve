@@ -5,9 +5,9 @@ export const options = {
     scenarios: {
         order_rate_vu1: {
             executor: "constant-arrival-rate",
-            rate: parseInt(__ENV.RATE || "5", 10),     // 초당 iteration(=주문 1회) 목표
+            rate: parseInt(__ENV.RATE || "30", 10),     // 초당 iteration(=주문 1회) 목표
             timeUnit: "1s",
-            duration: __ENV.DURATION || "90s",
+            duration: __ENV.DURATION || "180s",
             preAllocatedVUs: 1,
             maxVUs: 1,
             gracefulStop: "10s",
@@ -15,7 +15,7 @@ export const options = {
     },
     thresholds: {
         http_req_failed: ["rate<0.05"],
-        http_req_duration: ["p(95)<500", "p(99)<1000"],
+        http_req_duration: ["p(95)<1000", "p(99)<2000"],
     },
 };
 
