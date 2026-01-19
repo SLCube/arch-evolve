@@ -3,13 +3,18 @@ import { check, sleep } from "k6";
 
 export const options = {
     scenarios: {
-        order_rate_vu1: {
-            executor: "constant-arrival-rate",
-            rate: parseInt(__ENV.RATE || "10", 10),     // 초당 iteration(=주문 1회) 목표
+        order_ramp_rate: {
+            executor: "ramping-arrival-rate",
+            startRate: parseInt(__ENV.START_RATE || "100", 10), // 시작 RPS
             timeUnit: "1s",
-            duration: __ENV.DURATION || "180s",
-            preAllocatedVUs: 2,
-            maxVUs: 2,
+            stages: [
+                { target: parseInt(__ENV.RATE1 || "250", 10), duration: __ENV.DUR1 || "1m" },
+                { target: parseInt(__ENV.RATE2 || "400", 10), duration: __ENV.DUR2 || "1m" },
+                { target: parseInt(__ENV.RATE3 || "650", 10), duration: __ENV.DUR3 || "1m" },
+                { target: 0, duration: __ENV.DUR4 || "30s" }, // 그레이스풀 다운
+            ],
+            preAllocatedVUs: parseInt(__ENV.PRE_VUS || "200", 10),
+            maxVUs: parseInt(__ENV.MAX_VUS || "700", 10),
             gracefulStop: "10s",
         },
     },
@@ -33,7 +38,7 @@ const ITEMS_FIELD = __ENV.ITEMS_FIELD || "orderProducts";
 const tokenByVu = new Map();
 
 function getUserIndexForVu() {
-    return ((__VU - 1) % USER_COUNT) + 1; // VU=1이면 userIndex=1 고정
+    return ((__VU - 1) % USER_COUNT) + 1;
 }
 
 function loginAndGetToken(userIndex) {
@@ -89,6 +94,6 @@ export default function () {
         "order status 200/201": (r) => r.status === 200 || r.status === 201,
     });
 
-    // 여기 sleep은 "요청률 조절"이 아니라 iteration 내부 처리 시간만 늘림
+    // ramping-arrival-rate는 iteration sleep이 RPS 제어에 거의 영향 없음
     sleep(0.01);
 }
