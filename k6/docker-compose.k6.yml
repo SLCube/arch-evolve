@@ -11,13 +11,11 @@ services:
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
     command: [
       "run",
-      "--tag",
-      "test_id=order-test-vu1-5rps-local",
       "--out",
       "experimental-prometheus-rw",
       "--out",
       "influxdb=http://influxdb:8086/k6",
-      "order-test.js"
+      "order-constant-test.js"
     ]
     networks:
       - monitoring
