@@ -1,5 +1,6 @@
 package com.playground.product.application.service.customer
 
+import com.playground.common.log.utils.logger
 import com.playground.product.application.port.inbound.ProductUseCase
 import com.playground.product.application.port.inbound.command.DecreaseStockCommand
 import com.playground.product.application.port.inbound.command.ProductSaveCommand
@@ -13,8 +14,10 @@ import com.playground.product.domain.event.ProductStockDecreasedEvent
 import com.playground.product.domain.event.ProductUpdatedEvent
 import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.domain.model.Product
+import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.concurrent.TimeUnit
 
 @Service
 @Transactional
@@ -22,7 +25,9 @@ class ProductService(
     private val productCommandPort: ProductCommandPort,
     private val productQueryPort: ProductQueryPort,
     private val productEventPort: ProductEventPort,
+    private val redissonClient: RedissonClient,
 ) : ProductUseCase {
+    private val log = logger()
     override fun saveProduct(command: ProductSaveCommand): Product {
         val product =
             Product(
@@ -82,26 +87,45 @@ class ProductService(
     override fun getAllProducts(): List<Product> = productQueryPort.findAll()
 
     override fun decreaseStock(command: DecreaseStockCommand): Long {
-        val product = productQueryPort.findById(command.id)
+        val lockKey = "product:stock:${command.id}"
+        val lock = redissonClient.getLock(lockKey)
 
-        val decreasedQuantity = command.quantity
+        log.info("Attempting to acquire lock: {}", lockKey)
 
-        val result = productCommandPort.decreaseStock(product, decreasedQuantity)
+        try {
+            val acquired = lock.tryLock(10, 3, TimeUnit.SECONDS)
+            if (!acquired) {
+                log.error("Failed to acquire lock: {}", lockKey)
+                throw IllegalStateException("Failed to acquire lock for productId=${command.id}")
+            }
 
-        val productId = product.id!!
-        if (result <= 0) {
-            throw InsufficientStockException(productId,  decreasedQuantity)
+            log.info("Lock acquired: {}", lockKey)
+
+            val product = productQueryPort.findById(command.id)
+
+            val decreasedQuantity = command.quantity
+
+            val result = productCommandPort.decreaseStock(product, decreasedQuantity)
+
+            val productId = product.id!!
+            if (result <= 0) {
+                throw InsufficientStockException(productId, decreasedQuantity)
+            }
+
+            val event =
+                ProductStockDecreasedEvent(
+                    productId = productId,
+                    productName = product.name,
+                    decreasedQuantity = decreasedQuantity,
+                )
+            productEventPort.publish(event)
+
+            return productId
+        } finally {
+            if (lock.isHeldByCurrentThread) {
+                lock.unlock()
+                log.info("Lock released: {}", lockKey)
+            }
         }
-
-
-        val event =
-            ProductStockDecreasedEvent(
-                productId = productId,
-                productName = product.name,
-                decreasedQuantity = decreasedQuantity,
-            )
-        productEventPort.publish(event)
-
-        return productId
     }
 }
