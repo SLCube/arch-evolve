@@ -17,3 +17,6 @@ spring:
 logging:
   level:
     com.playground: debug
+
+loki4j:
+  enabled: false
