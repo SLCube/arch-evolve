@@ -19,7 +19,7 @@ ksp = "2.3.4"
 logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
 
-redisson = "3.25.0"
+redisson = "3.52.0"
 
 [libraries]
 # --- kotlin plugin ---
