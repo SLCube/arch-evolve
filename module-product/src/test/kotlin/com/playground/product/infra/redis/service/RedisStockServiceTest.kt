@@ -1,0 +1,223 @@
+package com.playground.product.infra.redis.service
+
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+
+@Suppress("NonAsciiCharacters")
+@Testcontainers
+@SpringBootTest
+class RedisStockServiceTest(
+    @param:Autowired private val redisStockService: RedisStockService,
+    @param:Autowired private val redisTemplate: RedisTemplate<String, String>,
+) {
+    companion object {
+        @Container
+        @JvmStatic
+        private val redis =
+            GenericContainer<Nothing>("redis:7-alpine").apply {
+                withExposedPorts(6379)
+            }
+
+        @Container
+        @JvmStatic
+        private val postgres =
+            PostgreSQLContainer<Nothing>("postgres:16-alpine").apply {
+                withDatabaseName("testdb")
+                withUsername("test")
+                withPassword("test")
+            }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.data.redis.host") { redis.host }
+            registry.add("spring.data.redis.port") { redis.firstMappedPort }
+            registry.add("spring.datasource.url") { postgres.jdbcUrl }
+            registry.add("spring.datasource.username") { postgres.username }
+            registry.add("spring.datasource.password") { postgres.password }
+            registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
+            registry.add("app.redis.stock.initializer.enabled") { "false" }
+        }
+    }
+
+    @BeforeEach
+    fun setUp() {
+        // Redis 초기화
+        redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
+    }
+
+    @Test
+    fun `재고 설정 및 조회가 정상 동작한다`() {
+        // given
+        val productId = 1L
+        val stock = 100
+
+        // when
+        redisStockService.setStock(productId, stock)
+        val result = redisStockService.getStock(productId)
+
+        // then
+        result shouldBe stock
+    }
+
+    @Test
+    fun `재고 차감이 정상 동작한다`() {
+        // given
+        val productId = 1L
+        redisStockService.setStock(productId, 100)
+
+        // when
+        val remaining = redisStockService.decreaseStockIfAvailable(productId, 30)
+
+        // then
+        remaining shouldBe 70
+        redisStockService.getStock(productId) shouldBe 70
+    }
+
+    @Test
+    fun `재고 부족 시 -1을 반환한다`() {
+        // given
+        val productId = 1L
+        redisStockService.setStock(productId, 10)
+
+        // when
+        val result = redisStockService.decreaseStockIfAvailable(productId, 20)
+
+        // then
+        result shouldBe -1
+        redisStockService.getStock(productId) shouldBe 10 // 재고는 변경되지 않음
+    }
+
+    @Test
+    fun `재고 차감 시 더티 플래그가 추가된다`() {
+        // given
+        val productId = 1L
+        redisStockService.setStock(productId, 100)
+
+        // when
+        redisStockService.decreaseStockIfAvailable(productId, 10)
+
+        // then
+        val dirtyIds = redisStockService.getDirtyProductIds()
+        dirtyIds shouldContain productId
+    }
+
+    @Test
+    fun `더티 플래그 초기화가 정상 동작한다`() {
+        // given
+        val productId = 1L
+        redisStockService.setStock(productId, 100)
+        redisStockService.decreaseStockIfAvailable(productId, 10)
+
+        // when
+        redisStockService.clearDirtyFlags()
+
+        // then
+        val dirtyIds = redisStockService.getDirtyProductIds()
+        dirtyIds.size shouldBe 0
+    }
+
+    @Test
+    fun `100개 스레드로 동시에 재고를 차감하면 최종 재고는 0이 된다`() {
+        // given
+        val productId = 1L
+        val initialStock = 100
+        redisStockService.setStock(productId, initialStock)
+
+        val threadCount = 100
+        val executorService = Executors.newFixedThreadPool(32)
+        val latch = CountDownLatch(threadCount)
+
+        // when
+        for (i in 1..threadCount) {
+            executorService.submit {
+                try {
+                    redisStockService.decreaseStockIfAvailable(productId, 1)
+                } finally {
+                    latch.countDown()
+                }
+            }
+        }
+
+        latch.await()
+        executorService.shutdown()
+
+        // then
+        val finalStock = redisStockService.getStock(productId)
+        finalStock shouldBe 0
+    }
+
+    @Test
+    fun `동시 요청 시 재고 부족으로 일부 요청은 실패한다`() {
+        // given
+        val productId = 1L
+        val initialStock = 50
+        redisStockService.setStock(productId, initialStock)
+
+        val threadCount = 100
+        val executorService = Executors.newFixedThreadPool(32)
+        val latch = CountDownLatch(threadCount)
+        val successCount = java.util.concurrent.atomic.AtomicInteger(0)
+
+        // when
+        for (i in 1..threadCount) {
+            executorService.submit {
+                try {
+                    val result = redisStockService.decreaseStockIfAvailable(productId, 1)
+                    if (result >= 0) {
+                        successCount.incrementAndGet()
+                    }
+                } finally {
+                    latch.countDown()
+                }
+            }
+        }
+
+        latch.await()
+        executorService.shutdown()
+
+        // then
+        successCount.get() shouldBe initialStock
+        redisStockService.getStock(productId) shouldBe 0
+    }
+
+    @Test
+    fun `여러 상품의 재고를 차감하면 모든 상품이 더티 플래그에 추가된다`() {
+        // given
+        val productIds = listOf(1L, 2L, 3L)
+        productIds.forEach { productId ->
+            redisStockService.setStock(productId, 100)
+        }
+
+        // when
+        productIds.forEach { productId ->
+            redisStockService.decreaseStockIfAvailable(productId, 10)
+        }
+
+        // then
+        val dirtyIds = redisStockService.getDirtyProductIds()
+        dirtyIds.size shouldBe productIds.size
+        productIds.forEach { productId ->
+            dirtyIds shouldContain productId
+        }
+    }
+}

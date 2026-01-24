@@ -2,6 +2,7 @@ package com.playground.product.application.service
 
 import com.playground.product.application.port.inbound.ProductUseCase
 import com.playground.product.application.port.inbound.command.DecreaseStockCommand
+import com.playground.product.infra.redis.service.RedisStockService
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import io.kotest.matchers.shouldBe
@@ -10,31 +11,79 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.GenericContainer
+import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
 @Suppress("NonAsciiCharacters")
+@Testcontainers
 @SpringBootTest
 class ProductConcurrencyTest(
     @param:Autowired private val productUseCase: ProductUseCase,
     @param:Autowired private val productRepository: ProductRepository,
+    @param:Autowired private val redisStockService: RedisStockService,
+    @param:Autowired private val redisTemplate: RedisTemplate<String, String>,
 ) {
+    companion object {
+        @Container
+        @JvmStatic
+        private val redis =
+            GenericContainer<Nothing>("redis:7-alpine").apply {
+                withExposedPorts(6379)
+            }
+
+        @Container
+        @JvmStatic
+        private val postgres =
+            PostgreSQLContainer<Nothing>("postgres:16-alpine").apply {
+                withDatabaseName("testdb")
+                withUsername("test")
+                withPassword("test")
+            }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun properties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.data.redis.host") { redis.host }
+            registry.add("spring.data.redis.port") { redis.firstMappedPort }
+            registry.add("spring.datasource.url") { postgres.jdbcUrl }
+            registry.add("spring.datasource.username") { postgres.username }
+            registry.add("spring.datasource.password") { postgres.password }
+            registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
+            registry.add("app.redis.stock.initializer.enabled") { "false" }
+        }
+    }
     private var productId: Long = 0L
 
     @BeforeEach
     fun setUp() {
-        val productJpaEntity = productRepository.save(
-            ProductJpaEntity(
-                name = "테스트 상품",
-                stock = 100,
-                price = 10000.toBigDecimal()
+        // Redis 초기화
+        redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
+
+        // 상품 생성
+        val productJpaEntity =
+            productRepository.save(
+                ProductJpaEntity(
+                    name = "테스트 상품",
+                    stock = 100,
+                    price = 10000.toBigDecimal(),
+                ),
             )
-        )
         productId = productJpaEntity.id!!
+
+        // Redis에 재고 설정
+        redisStockService.setStock(productId, 100)
     }
 
     @AfterEach
     fun tearDown() {
+        redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
         productRepository.deleteAll()
     }
 
@@ -55,8 +104,14 @@ class ProductConcurrencyTest(
         }
 
         latch.await()
+        executorService.shutdown()
 
-        val finalProduct = productRepository.findById(productId).get()
-        finalProduct.stock shouldBe 0
+        // Redis 재고 확인 (실시간 재고)
+        val redisStock = redisStockService.getStock(productId)
+        redisStock shouldBe 0
+
+        // Redis의 더티 플래그 확인
+        val dirtyIds = redisStockService.getDirtyProductIds()
+        dirtyIds shouldBe setOf(productId)
     }
 }

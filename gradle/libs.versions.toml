@@ -20,6 +20,7 @@ logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
 
 redisson = "3.52.0"
+testcontainers = "1.20.4"
 
 [libraries]
 # --- kotlin plugin ---
@@ -73,6 +74,9 @@ archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref
 restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc" }
 restdocs-asciidoctor = { module = "org.springframework.restdocs:spring-restdocs-asciidoctor" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
+testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
 
 # --- Logging ---
 logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstashLogbackEncoder" }
