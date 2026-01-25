@@ -105,6 +105,29 @@ end
     }
 
     /**
+     * 재고 일괄 설정 (MSET 사용)
+     *
+     * Redis MSET 명령어를 사용하여 대량의 재고 데이터를 한 번에 설정합니다.
+     * 네트워크 왕복을 최소화하여 성능을 크게 개선합니다.
+     *
+     * @param stockMap 상품 ID -> 재고 수량 맵
+     */
+    fun setStockBatch(stockMap: Map<Long, Int>) {
+        if (stockMap.isEmpty()) {
+            return
+        }
+
+        val redisMap =
+            stockMap
+                .mapKeys { getStockKey(it.key) }
+                .mapValues { it.value.toString() }
+
+        redisTemplate.opsForValue().multiSet(redisMap)
+
+        logger.debug("재고 일괄 설정 완료: ${stockMap.size}개 상품")
+    }
+
+    /**
      * 재고 조회
      *
      * @param productId 상품 ID
