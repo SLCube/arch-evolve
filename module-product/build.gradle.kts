@@ -16,7 +16,6 @@ dependencies {
     implementation(libs.openfeign.querydsl.jpa)
 
     implementation(libs.spring.boot.starter.data.redis)
-    implementation(libs.redisson.spring.boot.starter)
 
     ksp(libs.openfeign.querydsl.ksp)
 
