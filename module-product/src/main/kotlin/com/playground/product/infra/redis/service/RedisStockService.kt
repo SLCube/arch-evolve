@@ -1,6 +1,6 @@
 package com.playground.product.infra.redis.service
 
-import org.slf4j.LoggerFactory
+import com.playground.common.log.utils.logger
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.core.script.DefaultRedisScript
 import org.springframework.stereotype.Service
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class RedisStockService(
     private val redisTemplate: RedisTemplate<String, String>,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val logger = logger()
 
     companion object {
         private const val STOCK_KEY_PREFIX = "product:stock:"
@@ -42,7 +42,22 @@ else
     return -1
 end
             """
+
+        /**
+         * 재사용 가능한 Redis Script 인스턴스
+         * 매 요청마다 객체를 생성하지 않고 캐싱하여 사용 (GC 부담 감소)
+         */
+        private val DECREASE_STOCK_SCRIPT: DefaultRedisScript<Long> =
+            DefaultRedisScript<Long>().apply {
+                setScriptText(DECREASE_AND_MARK_DIRTY_SCRIPT)
+                resultType = Long::class.java
+            }
     }
+
+    /**
+     * Redis 재고 Key 생성
+     */
+    private fun getStockKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId"
 
     /**
      * 재고 차감 (Atomic)
@@ -55,19 +70,15 @@ end
         productId: Long,
         quantity: Int,
     ): Long {
-        val stockKey = "$STOCK_KEY_PREFIX$productId"
-
-        val script = DefaultRedisScript<Long>()
-        script.setScriptText(DECREASE_AND_MARK_DIRTY_SCRIPT)
-        script.resultType = Long::class.java
+        val stockKey = getStockKey(productId)
 
         val result: Long =
             redisTemplate.execute(
-                script,
+                DECREASE_STOCK_SCRIPT,
                 listOf(stockKey, DIRTY_SET_KEY),
                 quantity.toString(),
                 productId.toString(),
-            ) ?: -1
+            )
 
         if (result >= 0) {
             logger.debug("재고 차감 성공: productId=$productId, quantity=$quantity, remaining=$result")
@@ -88,8 +99,8 @@ end
         productId: Long,
         stock: Int,
     ) {
-        val key = "$STOCK_KEY_PREFIX$productId"
-        redisTemplate.opsForValue().set(key, stock.toString())
+        val key = getStockKey(productId)
+        redisTemplate.opsForValue()[key] = stock.toString()
         logger.debug("재고 설정: productId=$productId, stock=$stock")
     }
 
@@ -100,8 +111,8 @@ end
      * @return 현재 재고 수량 (없으면 0)
      */
     fun getStock(productId: Long): Int {
-        val key = "$STOCK_KEY_PREFIX$productId"
-        return redisTemplate.opsForValue().get(key)?.toInt() ?: 0
+        val key = getStockKey(productId)
+        return redisTemplate.opsForValue()[key]?.toInt() ?: 0
     }
 
     /**
