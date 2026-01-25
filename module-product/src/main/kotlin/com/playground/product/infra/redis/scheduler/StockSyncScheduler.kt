@@ -1,8 +1,8 @@
 package com.playground.product.infra.redis.scheduler
 
+import com.playground.common.log.utils.logger
 import com.playground.product.infra.redis.service.RedisStockService
 import com.playground.product.persistence.repository.ProductRepository
-import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
@@ -17,34 +17,38 @@ class StockSyncScheduler(
     private val redisStockService: RedisStockService,
     private val productRepository: ProductRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    private val logger = logger()
 
     /**
      * 10초마다 Redis → DB 재고 동기화
+     *
+     * Snapshot 기반으로 동작하여 동시성 안전성을 보장합니다.
+     * 처리 시작 시점의 더티 플래그만 처리하고, 처리 완료된 것만 제거합니다.
      */
     @Scheduled(fixedRate = 10000)
     fun syncToDatabase() {
         try {
-            val dirtyProductIds = redisStockService.getDirtyProductIds()
+            // 1. 현재 시점의 더티 플래그 스냅샷 조회
+            val snapshot = redisStockService.getDirtyProductIds()
 
-            if (dirtyProductIds.isEmpty()) {
+            if (snapshot.isEmpty()) {
                 logger.debug("변경된 재고 없음 - 동기화 스킵")
                 return
             }
 
-            logger.info("===== Redis → DB 재고 동기화 시작: ${dirtyProductIds.size}개 상품 =====")
+            logger.info("===== Redis → DB 재고 동기화 시작: ${snapshot.size}개 상품 =====")
 
-            // Redis에서 현재 재고 조회
+            // 2. 스냅샷 기준 Redis 재고 조회
             val stockMap =
-                dirtyProductIds.associateWith { productId ->
+                snapshot.associateWith { productId ->
                     redisStockService.getStock(productId)
                 }
 
-            // Batch UPDATE
+            // 3. DB Batch UPDATE
             productRepository.batchUpdateStock(stockMap)
 
-            // 더티 플래그 초기화
-            redisStockService.clearDirtyFlags()
+            // 4. 처리 완료된 상품만 더티 플래그 제거
+            redisStockService.removeDirtyFlags(snapshot)
 
             logger.info("===== Redis → DB 재고 동기화 완료 =====")
         } catch (e: Exception) {

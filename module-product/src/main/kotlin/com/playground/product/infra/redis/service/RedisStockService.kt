@@ -131,11 +131,32 @@ end
     }
 
     /**
-     * 더티 플래그 초기화
+     * 더티 플래그 초기화 (전체 삭제)
      * 배치 동기화 완료 후 호출
      */
     fun clearDirtyFlags() {
         redisTemplate.delete(DIRTY_SET_KEY)
         logger.debug("더티 플래그 초기화 완료")
+    }
+
+    /**
+     * 특정 상품들의 더티 플래그만 제거
+     *
+     * 동시성 안전을 위해 처리 완료된 상품만 개별 제거합니다.
+     *
+     * @param productIds 제거할 상품 ID 집합
+     */
+    fun removeDirtyFlags(productIds: Set<Long>) {
+        if (productIds.isEmpty()) {
+            return
+        }
+
+        val removed =
+            redisTemplate.opsForSet().remove(
+                DIRTY_SET_KEY,
+                *productIds.map { it.toString() }.toTypedArray(),
+            ) ?: 0
+
+        logger.debug("더티 플래그 제거: ${productIds.size}개 요청, ${removed}개 제거됨")
     }
 }
