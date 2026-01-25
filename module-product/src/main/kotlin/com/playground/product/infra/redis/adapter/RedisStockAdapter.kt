@@ -1,7 +1,6 @@
 package com.playground.product.infra.redis.adapter
 
 import com.playground.product.application.port.outbound.ProductCommandPort
-import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.domain.exception.ProductNotFoundException
 import com.playground.product.domain.model.Product
 import com.playground.product.infra.redis.service.RedisStockService
@@ -54,8 +53,7 @@ class RedisStockAdapter(
      *
      * @param product 상품
      * @param quantity 차감할 수량
-     * @return 남은 재고 수량
-     * @throws InsufficientStockException 재고 부족 시
+     * @return 남은 재고 수량 (재고 부족 시 -1)
      */
     override fun decreaseStock(
         product: Product,
@@ -64,11 +62,6 @@ class RedisStockAdapter(
         val productId = product.id!!
 
         val remaining = redisStockService.decreaseStockIfAvailable(productId, quantity)
-
-        if (remaining < 0) {
-            throw InsufficientStockException(productId, quantity)
-        }
-
         return remaining
     }
 }

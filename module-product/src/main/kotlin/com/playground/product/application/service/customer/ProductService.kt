@@ -89,7 +89,7 @@ class ProductService(
         val result = productCommandPort.decreaseStock(product, decreasedQuantity)
 
         val productId = product.id!!
-        if (result <= 0) {
+        if (result < 0) {
             throw InsufficientStockException(productId,  decreasedQuantity)
         }
 

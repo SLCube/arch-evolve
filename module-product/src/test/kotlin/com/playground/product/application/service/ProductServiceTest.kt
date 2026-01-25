@@ -156,6 +156,8 @@ class ProductServiceTest {
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
 
         given(productQueryPort.findById(productId)).willReturn(mockProduct)
+        given(productCommandPort.decreaseStock(mockProduct, quantityToDecrease))
+            .willReturn(-1L)
 
         // when & then
         shouldThrow<InsufficientStockException> {
