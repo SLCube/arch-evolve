@@ -3,6 +3,7 @@ package com.playground.product.application.service
 import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.application.port.outbound.ProductEventPort
 import com.playground.product.application.port.outbound.ProductQueryPort
+import com.playground.product.application.port.outbound.StockCachePort
 import com.playground.product.application.service.customer.ProductService
 import com.playground.product.domain.event.ProductCreatedEvent
 import com.playground.product.domain.event.ProductStockDecreasedEvent
@@ -28,11 +29,13 @@ class ProductServiceTest {
     private val productCommandPort: ProductCommandPort = mock()
     private val productQueryPort: ProductQueryPort = mock()
     private val productEventPort: ProductEventPort = mock()
+    private val stockCachePort: StockCachePort = mock()
 
     private val productService = ProductService(
         productCommandPort = productCommandPort,
         productQueryPort = productQueryPort,
         productEventPort = productEventPort,
+        stockCachePort = stockCachePort,
     )
 
     @Test
@@ -124,8 +127,8 @@ class ProductServiceTest {
 
         given(productQueryPort.findById(productId)).willReturn(mockProduct)
 
-        given(productCommandPort.decreaseStock(mockProduct, 10))
-            .willReturn(1L)
+        given(stockCachePort.decreaseStock(productId, 10))
+            .willReturn(90L)
 
         // when
         productService.decreaseStock(command)
@@ -133,7 +136,7 @@ class ProductServiceTest {
         // then
         verify(productQueryPort).findById(productId)
 
-        verify(productCommandPort).decreaseStock(mockProduct, quantityToDecrease)
+        verify(stockCachePort).decreaseStock(productId, quantityToDecrease)
 
         verify(productEventPort).publish(check<ProductStockDecreasedEvent> { event ->
             event.productId shouldBe productId
@@ -156,7 +159,7 @@ class ProductServiceTest {
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
 
         given(productQueryPort.findById(productId)).willReturn(mockProduct)
-        given(productCommandPort.decreaseStock(mockProduct, quantityToDecrease))
+        given(stockCachePort.decreaseStock(productId, quantityToDecrease))
             .willReturn(-1L)
 
         // when & then
@@ -164,7 +167,6 @@ class ProductServiceTest {
             productService.decreaseStock(command)
         }
 
-        verify(productCommandPort, never()).update(any())
         verify(productEventPort, never()).publish(any())
     }
 

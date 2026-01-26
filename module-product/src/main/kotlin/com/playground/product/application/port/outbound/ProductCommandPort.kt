@@ -7,5 +7,5 @@ interface ProductCommandPort {
 
     fun update(product: Product): Product
 
-    fun decreaseStock(product: Product, quantity: Int): Long
+    fun batchUpdateStock(stockMap: Map<Long, Int>)
 }

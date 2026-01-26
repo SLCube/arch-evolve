@@ -2,7 +2,7 @@ package com.playground.product.application.service
 
 import com.playground.product.application.port.inbound.ProductUseCase
 import com.playground.product.application.port.inbound.command.DecreaseStockCommand
-import com.playground.product.infra.redis.service.RedisStockService
+import com.playground.product.infra.redis.client.RedisStockClient
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import io.kotest.matchers.shouldBe
@@ -27,7 +27,7 @@ import java.util.concurrent.Executors
 class ProductConcurrencyTest(
     @param:Autowired private val productUseCase: ProductUseCase,
     @param:Autowired private val productRepository: ProductRepository,
-    @param:Autowired private val redisStockService: RedisStockService,
+    @param:Autowired private val redisStockClient: RedisStockClient,
     @param:Autowired private val redisTemplate: RedisTemplate<String, String>,
 ) {
     companion object {
@@ -78,7 +78,7 @@ class ProductConcurrencyTest(
         productId = productJpaEntity.id!!
 
         // Redis에 재고 설정
-        redisStockService.setStock(productId, 100)
+        redisStockClient.setStock(productId, 100)
     }
 
     @AfterEach
@@ -107,11 +107,11 @@ class ProductConcurrencyTest(
         executorService.shutdown()
 
         // Redis 재고 확인 (실시간 재고)
-        val redisStock = redisStockService.getStock(productId)
+        val redisStock = redisStockClient.getStock(productId)
         redisStock shouldBe 0
 
         // Redis의 더티 플래그 확인
-        val dirtyIds = redisStockService.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIds()
         dirtyIds shouldBe setOf(productId)
     }
 }

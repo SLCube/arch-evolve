@@ -8,6 +8,7 @@ import com.playground.product.application.port.inbound.query.ProductGetQuery
 import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.application.port.outbound.ProductEventPort
 import com.playground.product.application.port.outbound.ProductQueryPort
+import com.playground.product.application.port.outbound.StockCachePort
 import com.playground.product.domain.event.ProductCreatedEvent
 import com.playground.product.domain.event.ProductStockDecreasedEvent
 import com.playground.product.domain.event.ProductUpdatedEvent
@@ -22,6 +23,7 @@ class ProductService(
     private val productCommandPort: ProductCommandPort,
     private val productQueryPort: ProductQueryPort,
     private val productEventPort: ProductEventPort,
+    private val stockCachePort: StockCachePort,
 ) : ProductUseCase {
     override fun saveProduct(command: ProductSaveCommand): Product {
         val product =
@@ -84,15 +86,14 @@ class ProductService(
     override fun decreaseStock(command: DecreaseStockCommand): Long {
         val product = productQueryPort.findById(command.id)
 
+        val productId = product.id!!
         val decreasedQuantity = command.quantity
 
-        val result = productCommandPort.decreaseStock(product, decreasedQuantity)
+        val result = stockCachePort.decreaseStock(productId, decreasedQuantity)
 
-        val productId = product.id!!
         if (result < 0) {
-            throw InsufficientStockException(productId,  decreasedQuantity)
+            throw InsufficientStockException(productId, decreasedQuantity)
         }
-
 
         val event =
             ProductStockDecreasedEvent(

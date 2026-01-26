@@ -1,6 +1,6 @@
-package com.playground.product.infra.redis.scheduler
+package com.playground.product.application.scheduler
 
-import com.playground.product.infra.redis.service.RedisStockService
+import com.playground.product.infra.redis.client.RedisStockClient
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import io.kotest.matchers.shouldBe
@@ -22,7 +22,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @SpringBootTest
 class StockSyncSchedulerTest(
     @param:Autowired private val stockSyncScheduler: StockSyncScheduler,
-    @param:Autowired private val redisStockService: RedisStockService,
+    @param:Autowired private val redisStockClient: RedisStockClient,
     @param:Autowired private val productRepository: ProductRepository,
     @param:Autowired private val redisTemplate: RedisTemplate<String, String>,
 ) {
@@ -82,7 +82,7 @@ class StockSyncSchedulerTest(
         val productId = product.id!!
 
         // Redis 재고 설정 (더티 플래그 없음)
-        redisStockService.setStock(productId, 50)
+        redisStockClient.setStock(productId, 50)
 
         // when
         stockSyncScheduler.syncToDatabase()
@@ -106,8 +106,8 @@ class StockSyncSchedulerTest(
         val productId = product.id!!
 
         // Redis 재고 설정 및 차감 (더티 플래그 생성)
-        redisStockService.setStock(productId, 100)
-        redisStockService.decreaseStockIfAvailable(productId, 30)
+        redisStockClient.setStock(productId, 100)
+        redisStockClient.decreaseStock(productId, 30)
 
         // when
         stockSyncScheduler.syncToDatabase()
@@ -117,7 +117,7 @@ class StockSyncSchedulerTest(
         dbProduct.stock shouldBe 70
 
         // 더티 플래그 초기화 확인
-        val dirtyIds = redisStockService.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIds()
         dirtyIds.size shouldBe 0
     }
 
@@ -135,8 +135,8 @@ class StockSyncSchedulerTest(
 
         // Redis 재고 설정 및 차감
         productIds.forEachIndexed { index, productId ->
-            redisStockService.setStock(productId, (index + 1) * 100)
-            redisStockService.decreaseStockIfAvailable(productId, 10)
+            redisStockClient.setStock(productId, (index + 1) * 100)
+            redisStockClient.decreaseStock(productId, 10)
         }
 
         // when
@@ -149,7 +149,7 @@ class StockSyncSchedulerTest(
         dbProducts[2].stock shouldBe 290 // 300 - 10
 
         // 더티 플래그 초기화 확인
-        val dirtyIds = redisStockService.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIds()
         dirtyIds.size shouldBe 0
     }
 
@@ -167,18 +167,18 @@ class StockSyncSchedulerTest(
         val productId = product.id!!
 
         // Redis 재고 초기화
-        redisStockService.setStock(productId, 1000)
+        redisStockClient.setStock(productId, 1000)
 
         // 여러 번 재고 차감
         repeat(10) {
-            redisStockService.decreaseStockIfAvailable(productId, 50)
+            redisStockClient.decreaseStock(productId, 50)
         }
 
         // when - 동기화
         stockSyncScheduler.syncToDatabase()
 
         // then - Redis와 DB 재고가 일치
-        val redisStock = redisStockService.getStock(productId)
+        val redisStock = redisStockClient.getStock(productId)
         val dbStock = productRepository.findById(productId).get().stock
 
         redisStock shouldBe 500

@@ -1,4 +1,4 @@
-package com.playground.product.infra.redis.service
+package com.playground.product.infra.redis.client
 
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
@@ -20,8 +20,8 @@ import java.util.concurrent.Executors
 @Suppress("NonAsciiCharacters")
 @Testcontainers
 @SpringBootTest
-class RedisStockServiceTest(
-    @param:Autowired private val redisStockService: RedisStockService,
+class RedisStockClientTest(
+    @param:Autowired private val redisStockClient: RedisStockClient,
     @param:Autowired private val redisTemplate: RedisTemplate<String, String>,
 ) {
     companion object {
@@ -72,8 +72,8 @@ class RedisStockServiceTest(
         val stock = 100
 
         // when
-        redisStockService.setStock(productId, stock)
-        val result = redisStockService.getStock(productId)
+        redisStockClient.setStock(productId, stock)
+        val result = redisStockClient.getStock(productId)
 
         // then
         result shouldBe stock
@@ -83,56 +83,56 @@ class RedisStockServiceTest(
     fun `재고 차감이 정상 동작한다`() {
         // given
         val productId = 1L
-        redisStockService.setStock(productId, 100)
+        redisStockClient.setStock(productId, 100)
 
         // when
-        val remaining = redisStockService.decreaseStockIfAvailable(productId, 30)
+        val remaining = redisStockClient.decreaseStock(productId, 30)
 
         // then
         remaining shouldBe 70
-        redisStockService.getStock(productId) shouldBe 70
+        redisStockClient.getStock(productId) shouldBe 70
     }
 
     @Test
     fun `재고 부족 시 -1을 반환한다`() {
         // given
         val productId = 1L
-        redisStockService.setStock(productId, 10)
+        redisStockClient.setStock(productId, 10)
 
         // when
-        val result = redisStockService.decreaseStockIfAvailable(productId, 20)
+        val result = redisStockClient.decreaseStock(productId, 20)
 
         // then
         result shouldBe -1
-        redisStockService.getStock(productId) shouldBe 10 // 재고는 변경되지 않음
+        redisStockClient.getStock(productId) shouldBe 10 // 재고는 변경되지 않음
     }
 
     @Test
     fun `재고 차감 시 더티 플래그가 추가된다`() {
         // given
         val productId = 1L
-        redisStockService.setStock(productId, 100)
+        redisStockClient.setStock(productId, 100)
 
         // when
-        redisStockService.decreaseStockIfAvailable(productId, 10)
+        redisStockClient.decreaseStock(productId, 10)
 
         // then
-        val dirtyIds = redisStockService.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIds()
         dirtyIds shouldContain productId
     }
 
     @Test
-    fun `더티 플래그 초기화가 정상 동작한다`() {
+    fun `더티 플래그 개별 제거가 정상 동작한다`() {
         // given
         val productId = 1L
-        redisStockService.setStock(productId, 100)
-        redisStockService.decreaseStockIfAvailable(productId, 10)
+        redisStockClient.setStock(productId, 100)
+        redisStockClient.decreaseStock(productId, 10)
 
         // when
-        redisStockService.clearDirtyFlags()
+        redisStockClient.removeDirtyFlags(setOf(productId))
 
         // then
-        val dirtyIds = redisStockService.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIds()
         dirtyIds.size shouldBe 0
     }
 
@@ -141,7 +141,7 @@ class RedisStockServiceTest(
         // given
         val productId = 1L
         val initialStock = 100
-        redisStockService.setStock(productId, initialStock)
+        redisStockClient.setStock(productId, initialStock)
 
         val threadCount = 100
         val executorService = Executors.newFixedThreadPool(32)
@@ -151,7 +151,7 @@ class RedisStockServiceTest(
         for (i in 1..threadCount) {
             executorService.submit {
                 try {
-                    redisStockService.decreaseStockIfAvailable(productId, 1)
+                    redisStockClient.decreaseStock(productId, 1)
                 } finally {
                     latch.countDown()
                 }
@@ -162,7 +162,7 @@ class RedisStockServiceTest(
         executorService.shutdown()
 
         // then
-        val finalStock = redisStockService.getStock(productId)
+        val finalStock = redisStockClient.getStock(productId)
         finalStock shouldBe 0
     }
 
@@ -171,7 +171,7 @@ class RedisStockServiceTest(
         // given
         val productId = 1L
         val initialStock = 50
-        redisStockService.setStock(productId, initialStock)
+        redisStockClient.setStock(productId, initialStock)
 
         val threadCount = 100
         val executorService = Executors.newFixedThreadPool(32)
@@ -182,7 +182,7 @@ class RedisStockServiceTest(
         for (i in 1..threadCount) {
             executorService.submit {
                 try {
-                    val result = redisStockService.decreaseStockIfAvailable(productId, 1)
+                    val result = redisStockClient.decreaseStock(productId, 1)
                     if (result >= 0) {
                         successCount.incrementAndGet()
                     }
@@ -197,7 +197,7 @@ class RedisStockServiceTest(
 
         // then
         successCount.get() shouldBe initialStock
-        redisStockService.getStock(productId) shouldBe 0
+        redisStockClient.getStock(productId) shouldBe 0
     }
 
     @Test
@@ -205,16 +205,16 @@ class RedisStockServiceTest(
         // given
         val productIds = listOf(1L, 2L, 3L)
         productIds.forEach { productId ->
-            redisStockService.setStock(productId, 100)
+            redisStockClient.setStock(productId, 100)
         }
 
         // when
         productIds.forEach { productId ->
-            redisStockService.decreaseStockIfAvailable(productId, 10)
+            redisStockClient.decreaseStock(productId, 10)
         }
 
         // then
-        val dirtyIds = redisStockService.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIds()
         dirtyIds.size shouldBe productIds.size
         productIds.forEach { productId ->
             dirtyIds shouldContain productId
