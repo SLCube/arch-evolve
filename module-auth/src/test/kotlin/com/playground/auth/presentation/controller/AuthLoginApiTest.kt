@@ -47,7 +47,7 @@ class AuthLoginApiTest(
         given(authenticationManager.authenticate(any()))
             .willReturn(authenticatedToken)
 
-        given(jwtTokenProvider.generateToken(any()))
+        given(jwtTokenProvider.generateAccessToken(any()))
             .willReturn("mock-access-token")
 
         performAndDocument("로그인_성공") {

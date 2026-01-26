@@ -30,7 +30,7 @@ class JwtTokenProvider(
         Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
     }
 
-    fun generateToken(authentication: Authentication): String {
+    fun generateAccessToken(authentication: Authentication): String {
         val authorities =
             authentication.authorities
                 .stream()
@@ -38,12 +38,25 @@ class JwtTokenProvider(
                 .collect(Collectors.joining(","))
 
         val now = Instant.now()
-        val expiration = now.plus(1, ChronoUnit.HOURS)
+        val expiration = now.plus(jwtProperties.expirationHours, ChronoUnit.HOURS)
 
         return Jwts
             .builder()
             .subject(authentication.name)
             .claim("auth", authorities)
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(expiration))
+            .signWith(secretKey)
+            .compact()
+    }
+
+    fun generateRefreshToken(loginId: String): String {
+        val now = Instant.now()
+        val expiration = now.plus(jwtProperties.refreshExpirationHours, ChronoUnit.HOURS)
+
+        return Jwts
+            .builder()
+            .subject(loginId)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(secretKey)
@@ -82,7 +95,7 @@ class JwtTokenProvider(
         return false
     }
 
-    private fun parseClaims(token: String): Claims =
+    fun parseClaims(token: String): Claims =
         Jwts
             .parser()
             .verifyWith(secretKey)

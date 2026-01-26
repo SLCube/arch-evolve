@@ -25,7 +25,7 @@ class LoginSuccessHandlerTest {
     fun `로그인 성공 시 accessToken JSON 을 반환한다`() {
         val authentication: Authentication = mock()
 
-        given(jwtTokenProvider.generateToken(any()))
+        given(jwtTokenProvider.generateAccessToken(any()))
             .willReturn("mock-access-token")
 
         val request = MockHttpServletRequest()

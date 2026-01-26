@@ -1,8 +1,7 @@
 package com.playground.auth.handler
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.playground.auth.jwt.JwtTokenProvider
-import com.playground.auth.presentation.response.AuthTokenResponseDto
+import com.playground.auth.application.port.inbound.TokenIssueUseCase
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.MediaType
@@ -13,7 +12,7 @@ import java.nio.charset.StandardCharsets
 
 @Component
 class LoginSuccessHandler(
-    private val jwtTokenProvider: JwtTokenProvider,
+    private val tokenIssueUseCase: TokenIssueUseCase,
     private val objectMapper: ObjectMapper,
 ) : AuthenticationSuccessHandler {
     override fun onAuthenticationSuccess(
@@ -21,14 +20,12 @@ class LoginSuccessHandler(
         response: HttpServletResponse,
         authentication: Authentication,
     ) {
-        val accessToken = jwtTokenProvider.generateToken(authentication)
+        val tokens = tokenIssueUseCase.issueTokens(authentication)
 
         response.status = HttpServletResponse.SC_OK
         response.contentType = MediaType.APPLICATION_JSON_VALUE
         response.characterEncoding = StandardCharsets.UTF_8.name()
 
-        val loginResponse = AuthTokenResponseDto(accessToken)
-
-        response.writer.write(objectMapper.writeValueAsString(loginResponse))
+        response.writer.write(objectMapper.writeValueAsString(tokens))
     }
 }

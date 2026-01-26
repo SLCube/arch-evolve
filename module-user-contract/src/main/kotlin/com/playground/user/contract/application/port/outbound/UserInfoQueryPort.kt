@@ -16,5 +16,5 @@ fun interface UserInfoQueryPort {
      * @param loginId 사용자의 로그인 ID (유일값)
      * @return UserInfo (Non-nullable)
      */
-    fun getUserInfoByLoginId(loginId: String) : UserInfo
+    fun getUserInfoByLoginId(loginId: String): UserInfo
 }

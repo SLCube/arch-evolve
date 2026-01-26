@@ -44,7 +44,7 @@ class JwtTokenProviderTest {
         given(authentication.name).willReturn("tester")
         given(authentication.authorities).willReturn(authorities)
 
-        val token = jwtTokenProvider.generateToken(authentication)
+        val token = jwtTokenProvider.generateAccessToken(authentication)
 
         token.shouldNotBe("")
 

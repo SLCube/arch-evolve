@@ -50,7 +50,7 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { requests ->
                 requests
-                    .requestMatchers("/users/sign-up", "/users/login")
+                    .requestMatchers("/users/sign-up", "/users/login", "/auth/refresh")
                     .permitAll()
                     .requestMatchers("/actuator/**")
                     .permitAll()
