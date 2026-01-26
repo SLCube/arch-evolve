@@ -1,6 +1,5 @@
 package com.playground.product.persistence.adapter
 
-import com.playground.common.jpa.config.QuerydslConfig
 import com.playground.product.domain.exception.ProductNotFoundException
 import com.playground.product.fixture.application.domain.ProductDomainTestFixture
 import com.playground.product.persistence.repository.ProductRepository
@@ -14,7 +13,7 @@ import org.springframework.context.annotation.Import
 
 @Suppress("NonAsciiCharacters")
 @DataJpaTest
-@Import(ProductCommandAdapter::class, QuerydslConfig::class)
+@Import(ProductCommandAdapter::class)
 class ProductCommandAdapterTest(
     @param:Autowired private val productCommandAdapter: ProductCommandAdapter,
     @param:Autowired private val productRepository: ProductRepository,

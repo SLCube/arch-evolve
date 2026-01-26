@@ -1,6 +1,5 @@
 package com.playground.product.persistence.adapter
 
-import com.playground.common.jpa.config.QuerydslConfig
 import com.playground.product.domain.exception.ProductNotFoundException
 import com.playground.product.fixture.application.domain.ProductDomainTestFixture
 import com.playground.product.persistence.entity.ProductJpaEntity
@@ -15,7 +14,7 @@ import org.springframework.context.annotation.Import
 
 @Suppress("NonAsciiCharacters")
 @DataJpaTest
-@Import(ProductQueryAdapter::class, QuerydslConfig::class)
+@Import(ProductQueryAdapter::class)
 class ProductQueryAdapterTest(
     @param:Autowired private val productQueryAdapter: ProductQueryAdapter,
     @param:Autowired private val productRepository: ProductRepository,
@@ -83,7 +82,6 @@ class ProductQueryAdapterTest(
     fun `findAllByIds 호출 시 요청 ID에 해당하는 상품 목록만 반환해야 한다`() {
         // Given
         val p1 = saveTestProduct("상품 1")
-        val p2 = saveTestProduct("상품 2")
         val p3 = saveTestProduct("상품 3")
 
         val requestedIds = listOf(p1.id!!, p3.id!!)
