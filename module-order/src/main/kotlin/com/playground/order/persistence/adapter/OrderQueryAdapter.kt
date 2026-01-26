@@ -2,6 +2,7 @@ package com.playground.order.persistence.adapter
 
 import com.playground.common.application.query.PageQuery
 import com.playground.common.application.query.PagedResult
+import com.playground.common.application.query.toSort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
@@ -11,7 +12,6 @@ import com.playground.order.persistence.repository.OrderProductRepository
 import com.playground.order.persistence.repository.OrderRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 
 @Component
@@ -34,29 +34,12 @@ class OrderQueryAdapter(
         userId: Long,
         pageQuery: PageQuery,
     ): PagedResult<Order> {
-        val sort = createSort(pageQuery)
+        val sort = pageQuery.toSort()
         val pageable = PageRequest.of(pageQuery.pageNumber, pageQuery.pageSize, sort)
 
         val orderJpaEntitiesPage = orderRepository.findByUserId(userId, pageable)
 
         return mapToPagedResultOrder(orderJpaEntitiesPage)
-    }
-
-    private fun createSort(pageQuery: PageQuery): Sort {
-        val sortBy = pageQuery.sortBy
-        val direction = pageQuery.direction
-
-        if (sortBy.isNullOrBlank() || direction.isNullOrBlank()) {
-            return Sort.by(Sort.Direction.DESC, "createdAt")
-        }
-
-        val directionEnum = runCatching {
-            Sort.Direction.valueOf(direction.uppercase())
-        }.getOrElse {
-            Sort.Direction.DESC
-        }
-
-        return Sort.by(directionEnum, sortBy)
     }
 
     private fun mapToPagedResultOrder(orderJpaEntitiesPage: Page<OrderJpaEntity>): PagedResult<Order> {
