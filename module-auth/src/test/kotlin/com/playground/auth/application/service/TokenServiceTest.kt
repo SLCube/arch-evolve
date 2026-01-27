@@ -2,6 +2,9 @@ package com.playground.auth.application.service
 
 import com.playground.auth.application.port.outbound.RefreshTokenPort
 import com.playground.auth.contract.security.AuthUserDetails
+import com.playground.auth.domain.exception.InvalidRefreshTokenException
+import com.playground.auth.domain.exception.RefreshTokenMismatchException
+import com.playground.auth.domain.exception.RefreshTokenNotFoundException
 import com.playground.auth.jwt.JwtProperties
 import com.playground.auth.jwt.JwtTokenProvider
 import com.playground.user.contract.application.port.outbound.UserInfoQueryPort
@@ -133,11 +136,9 @@ class TokenServiceTest {
 
         given(jwtTokenProvider.validateToken(expiredToken)).willReturn(false)
 
-        val exception = shouldThrow<IllegalArgumentException> {
+        shouldThrow<InvalidRefreshTokenException> {
             tokenService.refresh(expiredToken)
         }
-
-        exception.message shouldBe "Invalid or expired refresh token"
     }
 
     @Test
@@ -165,11 +166,9 @@ class TokenServiceTest {
         given(refreshTokenPort.findByUserId(userId))
             .willReturn(storedToken)
 
-        val exception = shouldThrow<IllegalArgumentException> {
+        shouldThrow<RefreshTokenMismatchException> {
             tokenService.refresh(providedToken)
         }
-
-        exception.message shouldBe "Token mismatch"
     }
 
     @Test
@@ -193,11 +192,9 @@ class TokenServiceTest {
         given(refreshTokenPort.findByUserId(userId))
             .willReturn(null)
 
-        val exception = shouldThrow<IllegalArgumentException> {
+        shouldThrow<RefreshTokenNotFoundException> {
             tokenService.refresh(refreshToken)
         }
-
-        exception.message shouldBe "Refresh token not found"
     }
 
     @Test
@@ -208,11 +205,9 @@ class TokenServiceTest {
         given(jwtTokenProvider.parseClaims(invalidToken))
             .willReturn(parseClaims(invalidToken))
 
-        val exception = shouldThrow<IllegalArgumentException> {
+        shouldThrow<InvalidRefreshTokenException> {
             tokenService.refresh(invalidToken)
         }
-
-        exception.message shouldBe "Invalid token format"
     }
 
     private fun createRealRefreshToken(loginId: String, expired: Boolean = false): String {

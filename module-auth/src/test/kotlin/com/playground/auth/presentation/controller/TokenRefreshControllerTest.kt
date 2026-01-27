@@ -1,6 +1,7 @@
 package com.playground.auth.presentation.controller
 
 import com.playground.auth.application.port.inbound.TokenRefreshUseCase
+import com.playground.auth.domain.exception.InvalidRefreshTokenException
 import com.playground.auth.presentation.annotation.AuthControllerSliceTest
 import com.playground.auth.presentation.request.TokenRefreshRequestDto
 import com.playground.auth.presentation.response.AuthTokenResponseDto
@@ -61,13 +62,13 @@ class TokenRefreshControllerTest(
         val request = TokenRefreshRequestDto(refreshToken = "expired-refresh-token")
 
         given(tokenRefreshUseCase.refresh(any()))
-            .willThrow(IllegalArgumentException("Invalid or expired refresh token"))
+            .willThrow(InvalidRefreshTokenException())
 
         performAndDocument("토큰_갱신_실패_만료된_토큰") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/auth/refresh"
             requestBody = request
-            expectedStatus = status().isInternalServerError
+            expectedStatus = status().isUnauthorized
             additionalMatchers = arrayOf(
                 jsonPath("$.code").exists(),
                 jsonPath("$.message").exists(),

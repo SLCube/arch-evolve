@@ -21,6 +21,11 @@ enum class ErrorCode(
     PASSWORD_MISMATCH("PASSWORD_MISMATCH", HttpStatus.BAD_REQUEST, "기존 비밀번호가 일치하지 않습니다."),
     BAD_CREDENTIALS("BAD_CREDENTIALS", HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 일치하지 않습니다."),
 
+    // Auth
+    INVALID_REFRESH_TOKEN("INVALID_REFRESH_TOKEN", HttpStatus.UNAUTHORIZED, "유효하지 않거나 만료된 Refresh Token입니다."),
+    REFRESH_TOKEN_NOT_FOUND("REFRESH_TOKEN_NOT_FOUND", HttpStatus.UNAUTHORIZED, "Refresh Token을 찾을 수 없습니다."),
+    REFRESH_TOKEN_MISMATCH("REFRESH_TOKEN_MISMATCH", HttpStatus.UNAUTHORIZED, "Refresh Token이 일치하지 않습니다."),
+
     // Address
     ADDRESS_NOT_FOUND("ADDRESS_NOT_FOUND", HttpStatus.NOT_FOUND, "주소를 찾을 수 없습니다. (사용자 ID: %d, 주소 ID: %d)"),
     ADDRESS_LIMIT_EXCEEDED("ADDRESS_LIMIT_EXCEEDED", HttpStatus.BAD_REQUEST, "주소 등록은 최대 %d개까지 가능합니다."),

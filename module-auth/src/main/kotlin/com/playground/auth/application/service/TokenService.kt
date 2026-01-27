@@ -4,6 +4,9 @@ import com.playground.auth.application.port.inbound.TokenIssueUseCase
 import com.playground.auth.application.port.inbound.TokenRefreshUseCase
 import com.playground.auth.application.port.outbound.RefreshTokenPort
 import com.playground.auth.contract.security.AuthUserDetails
+import com.playground.auth.domain.exception.InvalidRefreshTokenException
+import com.playground.auth.domain.exception.RefreshTokenMismatchException
+import com.playground.auth.domain.exception.RefreshTokenNotFoundException
 import com.playground.auth.jwt.JwtProperties
 import com.playground.auth.jwt.JwtTokenProvider
 import com.playground.auth.presentation.response.AuthTokenResponseDto
@@ -69,21 +72,22 @@ class TokenService(
     }
 
     private fun validateAndParseClaims(refreshToken: String): Claims {
-        require(jwtTokenProvider.validateToken(refreshToken)) {
-            "Invalid or expired refresh token"
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw InvalidRefreshTokenException()
         }
         return jwtTokenProvider.parseClaims(refreshToken)
     }
 
     private fun extractLoginId(claims: Claims): String =
-        requireNotNull(claims.subject) { "Invalid token format" }
+        claims.subject ?: throw InvalidRefreshTokenException()
 
     private fun verifyStoredToken(userId: Long, providedToken: String) {
-        val storedToken = requireNotNull(refreshTokenPort.findByUserId(userId)) {
-            "Refresh token not found"
-        }
+        val storedToken = refreshTokenPort.findByUserId(userId)
+            ?: throw RefreshTokenNotFoundException()
 
-        require(storedToken == providedToken) { "Token mismatch" }
+        if (storedToken != providedToken) {
+            throw RefreshTokenMismatchException()
+        }
     }
 
     private fun createAuthentication(userInfo: UserInfo): Authentication {
