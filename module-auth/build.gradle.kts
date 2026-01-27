@@ -23,6 +23,8 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotest.runner)
     testImplementation(libs.kotest.assertions)
+    testImplementation(libs.testcontainers.core)
+    testImplementation(libs.testcontainers.junit)
     testImplementation(project(":module-test-support"))
     testRuntimeOnly(libs.h2.database)
 }

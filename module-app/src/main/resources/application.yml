@@ -1,6 +1,7 @@
 jwt:
   secret: ${jwt.secret}
   expiration-hours: ${jwt.expiration-hours}
+  refresh-expiration-hours: ${jwt.refresh-expiration-hours}
 
 spring:
   profiles:

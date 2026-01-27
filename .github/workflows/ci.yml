@@ -56,6 +56,7 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRATION_HOURS: ${{ secrets.JWT_EXPIRATION_HOURS }}
+          JWT_REFRESH_EXPIRATION_HOURS: ${{ secrets.JWT_REFRESH_EXPIRATION_HOURS }}
         run: ./gradlew build
 
       # Codecov 업로드 단계 추가
