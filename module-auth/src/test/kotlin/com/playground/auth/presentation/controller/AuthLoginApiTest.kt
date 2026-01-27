@@ -1,8 +1,9 @@
 package com.playground.auth.presentation.controller
 
-import com.playground.auth.jwt.JwtTokenProvider
+import com.playground.auth.application.port.inbound.TokenIssueUseCase
 import com.playground.auth.presentation.annotation.AuthControllerSliceTest
 import com.playground.auth.presentation.request.AuthLoginRequestDto
+import com.playground.auth.presentation.response.AuthTokenResponseDto
 import com.playground.common.error.ErrorCode
 import com.playground.support.RestDocsTest
 import com.playground.support.docs.ApiDocumentUtils.commonErrorResponseSnippet
@@ -26,7 +27,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @AuthControllerSliceTest
 class AuthLoginApiTest(
     @param:Autowired private val authenticationManager: AuthenticationManager,
-    @param:Autowired private val jwtTokenProvider: JwtTokenProvider,
+    @param:Autowired private val tokenIssueUseCase: TokenIssueUseCase,
 ) : RestDocsTest() {
 
     @Test
@@ -47,8 +48,13 @@ class AuthLoginApiTest(
         given(authenticationManager.authenticate(any()))
             .willReturn(authenticatedToken)
 
-        given(jwtTokenProvider.generateAccessToken(any()))
-            .willReturn("mock-access-token")
+        given(tokenIssueUseCase.issueTokens(any()))
+            .willReturn(
+                AuthTokenResponseDto(
+                    accessToken = "mock-access-token",
+                    refreshToken = "mock-refresh-token",
+                )
+            )
 
         performAndDocument("로그인_성공") {
             httpMethod = HttpMethod.POST
@@ -58,6 +64,7 @@ class AuthLoginApiTest(
             additionalMatchers =
                 arrayOf(
                     jsonPath("$.accessToken").value("mock-access-token"),
+                    jsonPath("$.refreshToken").value("mock-refresh-token"),
                 )
             snippets =
                 arrayOf(
@@ -66,7 +73,8 @@ class AuthLoginApiTest(
                         fieldWithPath("password").description("비밀번호"),
                     ),
                     responseFields(
-                        fieldWithPath("accessToken").description("인증 토큰"),
+                        fieldWithPath("accessToken").description("액세스 토큰"),
+                        fieldWithPath("refreshToken").description("리프레시 토큰"),
                     ),
                 )
         }
