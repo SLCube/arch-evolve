@@ -29,6 +29,7 @@ class JwtTokenProviderTest {
         JwtProperties(
             secret = "YWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFh", // 32 chars base64-like string
             expirationHours = 1,
+            refreshExpirationHours = 24,
         )
 
     @BeforeEach

@@ -1,6 +1,7 @@
 package com.playground.auth.presentation.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.playground.auth.application.port.inbound.TokenIssueUseCase
 import com.playground.auth.filter.JsonAuthenticationFilter
 import com.playground.auth.handler.LoginFailureHandler
 import com.playground.auth.handler.LoginSuccessHandler
@@ -17,9 +18,9 @@ class AuthTestSecurityConfig {
 
     @Bean
     fun loginSuccessHandler(
-        jwtTokenProvider: com.playground.auth.jwt.JwtTokenProvider,
+        tokenIssueUseCase: TokenIssueUseCase,
         objectMapper: ObjectMapper,
-    ): LoginSuccessHandler = LoginSuccessHandler(jwtTokenProvider, objectMapper)
+    ): LoginSuccessHandler = LoginSuccessHandler(tokenIssueUseCase, objectMapper)
 
     @Bean
     fun loginFailureHandler(objectMapper: ObjectMapper): LoginFailureHandler = LoginFailureHandler(objectMapper)
