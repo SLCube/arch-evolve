@@ -10,6 +10,7 @@ import com.playground.auth.domain.exception.RefreshTokenNotFoundException
 import com.playground.auth.jwt.JwtProperties
 import com.playground.auth.jwt.JwtTokenProvider
 import com.playground.auth.presentation.response.AuthTokenResponseDto
+import com.playground.auth.utils.TokenHasher
 import com.playground.user.contract.application.port.outbound.UserInfoQueryPort
 import com.playground.user.contract.domain.vo.UserInfo
 import io.jsonwebtoken.Claims
@@ -61,7 +62,7 @@ class TokenService(
 
         refreshTokenPort.save(
             userId = userId,
-            refreshToken = refreshToken,
+            refreshToken = TokenHasher.hash(refreshToken),
             ttl = Duration.ofHours(jwtProperties.refreshExpirationHours),
         )
 
@@ -82,10 +83,10 @@ class TokenService(
         claims.subject ?: throw InvalidRefreshTokenException()
 
     private fun verifyStoredToken(userId: Long, providedToken: String) {
-        val storedToken = refreshTokenPort.findByUserId(userId)
+        val storedTokenHash = refreshTokenPort.findByUserId(userId)
             ?: throw RefreshTokenNotFoundException()
 
-        if (storedToken != providedToken) {
+        if (storedTokenHash != TokenHasher.hash(providedToken)) {
             throw RefreshTokenMismatchException()
         }
     }
