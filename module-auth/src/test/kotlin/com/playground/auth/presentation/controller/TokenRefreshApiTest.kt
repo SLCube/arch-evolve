@@ -21,7 +21,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @Suppress("NonAsciiCharacters")
 @AuthControllerSliceTest
-class TokenRefreshControllerTest(
+class TokenRefreshApiTest(
     @param:Autowired private val tokenRefreshUseCase: TokenRefreshUseCase,
 ) : RestDocsTest() {
 

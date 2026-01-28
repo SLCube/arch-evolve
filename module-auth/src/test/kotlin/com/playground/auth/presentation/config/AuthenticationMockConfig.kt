@@ -1,5 +1,6 @@
 package com.playground.auth.presentation.config
 
+import com.playground.auth.application.port.inbound.LogoutUseCase
 import com.playground.auth.application.port.inbound.TokenIssueUseCase
 import com.playground.auth.application.port.inbound.TokenRefreshUseCase
 import com.playground.auth.jwt.JwtTokenProvider
@@ -27,4 +28,8 @@ class AuthenticationMockConfig {
     @Bean
     @Primary
     fun tokenRefreshUseCase(): TokenRefreshUseCase = mock()
+
+    @Bean
+    @Primary
+    fun logoutUseCase(): LogoutUseCase = mock()
 }

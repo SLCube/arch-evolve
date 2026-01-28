@@ -194,4 +194,13 @@ class TokenServiceTest {
             .signWith(Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray()))
             .compact()
     }
+
+    @Test
+    fun `logout - RefreshToken을 삭제한다`() {
+        val userId = 1L
+
+        tokenService.logout(userId)
+
+        verify(refreshTokenPort).deleteByUserId(userId)
+    }
 }

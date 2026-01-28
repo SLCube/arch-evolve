@@ -1,5 +1,6 @@
 package com.playground.auth.application.service
 
+import com.playground.auth.application.port.inbound.LogoutUseCase
 import com.playground.auth.application.port.inbound.TokenIssueUseCase
 import com.playground.auth.application.port.inbound.TokenRefreshUseCase
 import com.playground.auth.application.port.outbound.RefreshTokenPort
@@ -26,7 +27,7 @@ class TokenService(
     private val jwtProperties: JwtProperties,
     private val refreshTokenPort: RefreshTokenPort,
     private val userInfoQueryPort: UserInfoQueryPort,
-) : TokenIssueUseCase, TokenRefreshUseCase {
+) : TokenIssueUseCase, TokenRefreshUseCase, LogoutUseCase {
 
     override fun issueTokens(authentication: Authentication): AuthTokenResponseDto {
         val userDetails = authentication.principal as AuthUserDetails
@@ -50,6 +51,10 @@ class TokenService(
             loginId = loginId,
             authentication = authentication,
         )
+    }
+
+    override fun logout(userId: Long) {
+        refreshTokenPort.deleteByUserId(userId)
     }
 
     private fun generateAndSaveTokens(
