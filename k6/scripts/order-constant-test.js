@@ -2,6 +2,7 @@ import http from "k6/http";
 import { check, sleep } from "k6";
 
 export const options = {
+    setupTimeout: "5m", // setup 타임아웃 5분으로 증가
     scenarios: {
         constant_load: {
             executor: "constant-arrival-rate",
@@ -29,46 +30,63 @@ const PRODUCT_ID = parseInt(__ENV.PRODUCT_ID || "2", 10);
 const QTY = parseInt(__ENV.QTY || "1", 10);
 const ITEMS_FIELD = __ENV.ITEMS_FIELD || "orderProducts";
 
-const tokenByVu = new Map();
-
 function getUserIndexForVu() {
     return ((__VU - 1) % USER_COUNT) + 1;
 }
 
-function loginAndGetToken(userIndex) {
-    const username = `test${userIndex}`;
+export function setup() {
+    console.log(`Setup: Logging in ${USER_COUNT} users...`);
+    const tokens = {};
+    const BATCH_SIZE = 50; // 50개씩 병렬 처리
 
-    const res = http.post(
-        `${BASE_URL}${LOGIN_PATH}`,
-        JSON.stringify({ loginId: username, password: PASSWORD }),
-        { headers: { "Content-Type": "application/json" }, tags: { name: "login" } }
-    );
+    for (let start = 1; start <= USER_COUNT; start += BATCH_SIZE) {
+        const end = Math.min(start + BATCH_SIZE - 1, USER_COUNT);
+        const requests = {};
 
-    const ok = check(res, {
-        "login status is 200": (r) => r.status === 200,
-        "login has accessToken": (r) => !!r.json("accessToken"),
-    });
+        // 배치 요청 준비
+        for (let i = start; i <= end; i++) {
+            const username = `test${i}`;
+            requests[`user_${i}`] = {
+                method: "POST",
+                url: `${BASE_URL}${LOGIN_PATH}`,
+                body: JSON.stringify({ loginId: username, password: PASSWORD }),
+                params: { headers: { "Content-Type": "application/json" } },
+            };
+        }
 
-    if (!ok) return null;
-    return res.json("accessToken");
+        // 병렬 요청 실행
+        const responses = http.batch(requests);
+
+        // 응답 처리
+        for (let i = start; i <= end; i++) {
+            const res = responses[`user_${i}`];
+            const ok = check(res, {
+                "login status is 200": (r) => r.status === 200,
+                "login has accessToken": (r) => !!r.json("accessToken"),
+            });
+
+            if (ok) {
+                tokens[i] = res.json("accessToken");
+            } else {
+                console.error(`Failed to login user: test${i}`);
+            }
+        }
+
+        console.log(`Logged in ${end}/${USER_COUNT} users`);
+        sleep(0.1); // 배치 간 짧은 딜레이
+    }
+
+    console.log(`Setup complete: ${Object.keys(tokens).length}/${USER_COUNT} users logged in`);
+    return { tokens };
 }
 
-function getTokenForThisVu() {
-    const vu = __VU;
-    if (tokenByVu.has(vu)) return tokenByVu.get(vu);
-
-    const userIndex = getUserIndexForVu();
-    const token = loginAndGetToken(userIndex);
-    if (token) tokenByVu.set(vu, token);
-    return token;
-}
-
-export default function () {
+export default function (data) {
     const userIndex = getUserIndexForVu();
     const addressId = userIndex;
 
-    const token = getTokenForThisVu();
+    const token = data.tokens[userIndex];
     if (!token) {
+        console.error(`No token for user ${userIndex}`);
         sleep(0.1);
         return;
     }
