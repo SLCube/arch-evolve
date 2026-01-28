@@ -20,7 +20,7 @@ logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
 
 redisson = "4.1.0"
-testcontainers = "1.21.4"
+testcontainers = "2.0.3"
 
 [libraries]
 # --- kotlin plugin ---
