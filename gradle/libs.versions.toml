@@ -6,7 +6,7 @@ springDependencyManagement = "1.1.7"
 
 jackson = "2.15.0"
 jjwt = "0.13.0"
-kotest = "6.1.1"
+kotest = "6.1.2"
 mockitoKotlin = "6.2.3"
 kotestSpringExtension = "1.3.0"
 archunit = "1.4.1"
