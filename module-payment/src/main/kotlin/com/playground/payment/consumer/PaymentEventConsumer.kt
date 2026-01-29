@@ -13,7 +13,7 @@ class PaymentEventConsumer(
 ) {
 
     @Order(2)
-//    @EventListener
+    @EventListener
     fun handleOrderCreatedEvent(event: OrderCreatedEvent) {
         paymentUseCase.authorizePayment(
             PaymentAuthorizeCommand(
