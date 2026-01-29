@@ -14,7 +14,7 @@ asciidoctor = "4.0.5"
 ktlint = "14.0.1"
 
 openfeignQuerydsl = "7.1"
-ksp = "2.3.4"
+ksp = "2.3.5"
 
 logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
