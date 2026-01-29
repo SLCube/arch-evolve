@@ -1,6 +1,6 @@
 package com.playground.product.application.service
 
-import com.playground.product.application.port.inbound.ProductUseCase
+import com.playground.product.application.port.inbound.StockUseCase
 import com.playground.product.application.port.inbound.command.DecreaseStockCommand
 import com.playground.product.infra.redis.client.RedisStockClient
 import com.playground.product.persistence.entity.ProductJpaEntity
@@ -25,7 +25,7 @@ import java.util.concurrent.Executors
 @Testcontainers
 @SpringBootTest
 class ProductConcurrencyTest(
-    @param:Autowired private val productUseCase: ProductUseCase,
+    @param:Autowired private val stockUseCase: StockUseCase,
     @param:Autowired private val productRepository: ProductRepository,
     @param:Autowired private val redisStockClient: RedisStockClient,
     @param:Autowired private val redisTemplate: RedisTemplate<String, String>,
@@ -96,7 +96,7 @@ class ProductConcurrencyTest(
         for (i in 1..threadCount) {
             executorService.submit {
                 try {
-                    productUseCase.decreaseStock(DecreaseStockCommand(productId, 1))
+                    stockUseCase.decreaseStock(DecreaseStockCommand(productId, 1))
                 } finally {
                     latch.countDown()
                 }

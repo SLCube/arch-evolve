@@ -1,18 +1,14 @@
 package com.playground.product.application.service.customer
 
 import com.playground.product.application.port.inbound.ProductUseCase
-import com.playground.product.application.port.inbound.command.DecreaseStockCommand
 import com.playground.product.application.port.inbound.command.ProductSaveCommand
 import com.playground.product.application.port.inbound.command.ProductUpdateCommand
 import com.playground.product.application.port.inbound.query.ProductGetQuery
 import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.application.port.outbound.ProductEventPort
 import com.playground.product.application.port.outbound.ProductQueryPort
-import com.playground.product.application.port.outbound.StockCachePort
 import com.playground.product.domain.event.ProductCreatedEvent
-import com.playground.product.domain.event.ProductStockDecreasedEvent
 import com.playground.product.domain.event.ProductUpdatedEvent
-import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.domain.model.Product
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,7 +19,6 @@ class ProductService(
     private val productCommandPort: ProductCommandPort,
     private val productQueryPort: ProductQueryPort,
     private val productEventPort: ProductEventPort,
-    private val stockCachePort: StockCachePort,
 ) : ProductUseCase {
     override fun saveProduct(command: ProductSaveCommand): Product {
         val product =
@@ -82,27 +77,4 @@ class ProductService(
 
     @Transactional(readOnly = true)
     override fun getAllProducts(): List<Product> = productQueryPort.findAll()
-
-    override fun decreaseStock(command: DecreaseStockCommand): Long {
-        val product = productQueryPort.findById(command.id)
-
-        val productId = product.id!!
-        val decreasedQuantity = command.quantity
-
-        val result = stockCachePort.decreaseStock(productId, decreasedQuantity)
-
-        if (result < 0) {
-            throw InsufficientStockException(productId, decreasedQuantity)
-        }
-
-        val event =
-            ProductStockDecreasedEvent(
-                productId = productId,
-                productName = product.name,
-                decreasedQuantity = decreasedQuantity,
-            )
-        productEventPort.publish(event)
-
-        return productId
-    }
 }
