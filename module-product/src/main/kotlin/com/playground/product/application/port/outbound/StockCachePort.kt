@@ -1,6 +1,31 @@
 package com.playground.product.application.port.outbound
 
 interface StockCachePort {
+    // 3단계 재고 관리
+    fun reserveStock(
+        productId: Long,
+        quantity: Int,
+    ): Long
+
+    fun confirmStock(
+        productId: Long,
+        quantity: Int,
+    ): Long
+
+    fun releaseReservedStock(
+        productId: Long,
+        quantity: Int,
+    ): Long
+
+    // 조회
+    fun getAvailableStock(productId: Long): Int
+
+    fun getReservedStock(productId: Long): Int
+
+    fun getConfirmedStock(productId: Long): Int
+
+    // 기존 메서드
+    @Deprecated("Use reserveStock instead")
     fun decreaseStock(
         productId: Long,
         quantity: Int,

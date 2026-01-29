@@ -1,61 +1,93 @@
 package com.playground.product.infra.redis.client
 
 import com.playground.product.application.port.outbound.StockCachePort
+import com.playground.product.infra.redis.client.StockLuaScripts.AVAILABLE_KEY_SUFFIX
+import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRMED_KEY_SUFFIX
+import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRM_STOCK_SCRIPT
+import com.playground.product.infra.redis.client.StockLuaScripts.DECREASE_STOCK_SCRIPT
+import com.playground.product.infra.redis.client.StockLuaScripts.DIRTY_SET_KEY
+import com.playground.product.infra.redis.client.StockLuaScripts.RELEASE_RESERVED_STOCK_SCRIPT
+import com.playground.product.infra.redis.client.StockLuaScripts.RESERVED_KEY_SUFFIX
+import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCK_SCRIPT
+import com.playground.product.infra.redis.client.StockLuaScripts.STOCK_KEY_PREFIX
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.redis.core.script.DefaultRedisScript
 import org.springframework.stereotype.Component
 
 @Component
 class RedisStockClient(
     private val redisTemplate: RedisTemplate<String, String>,
 ) : StockCachePort {
-    companion object {
-        private const val STOCK_KEY_PREFIX = "product:stock:"
-        private const val DIRTY_SET_KEY = "product:stock:dirty"
+    private fun getAvailableKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$AVAILABLE_KEY_SUFFIX"
 
-        /**
-         * Lua Script: 재고 차감 + 더티 플래그 추가 (Atomic)
-         *
-         * KEYS[1]: product:stock:{productId}
-         * KEYS[2]: product:stock:dirty
-         * ARGV[1]: quantity
-         * ARGV[2]: productId
-         *
-         * 반환: 성공 시 남은 재고, 실패 시 -1
-         */
-        private const val DECREASE_AND_MARK_DIRTY_SCRIPT =
-            """
-local stockKey = KEYS[1]
-local dirtySetKey = KEYS[2]
-local quantity = tonumber(ARGV[1])
-local productId = ARGV[2]
+    private fun getReservedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$RESERVED_KEY_SUFFIX"
 
-local stock = tonumber(redis.call('GET', stockKey) or '0')
+    private fun getConfirmedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$CONFIRMED_KEY_SUFFIX"
 
-if stock >= quantity then
-    local remaining = redis.call('DECRBY', stockKey, quantity)
-    redis.call('SADD', dirtySetKey, productId)
-    return remaining
-else
-    return -1
-end
-            """
-
-        // Script 객체 재사용 (GC 부담 감소)
-        private val DECREASE_STOCK_SCRIPT: DefaultRedisScript<Long> =
-            DefaultRedisScript<Long>().apply {
-                setScriptText(DECREASE_AND_MARK_DIRTY_SCRIPT)
-                resultType = Long::class.java
-            }
+    // 3단계 재고 관리 구현
+    override fun reserveStock(
+        productId: Long,
+        quantity: Int,
+    ): Long {
+        return redisTemplate.execute(
+            RESERVE_STOCK_SCRIPT,
+            listOf(
+                getAvailableKey(productId),
+                getReservedKey(productId),
+                getConfirmedKey(productId),
+            ),
+            quantity.toString(),
+        )
     }
 
-    private fun getStockKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId"
+    override fun confirmStock(
+        productId: Long,
+        quantity: Int,
+    ): Long {
+        return redisTemplate.execute(
+            CONFIRM_STOCK_SCRIPT,
+            listOf(
+                getReservedKey(productId),
+                getConfirmedKey(productId),
+                DIRTY_SET_KEY,
+            ),
+            quantity.toString(),
+            productId.toString(),
+        )
+    }
 
+    override fun releaseReservedStock(
+        productId: Long,
+        quantity: Int,
+    ): Long {
+        return redisTemplate.execute(
+            RELEASE_RESERVED_STOCK_SCRIPT,
+            listOf(getReservedKey(productId)),
+            quantity.toString(),
+        )
+    }
+
+    override fun getAvailableStock(productId: Long): Int {
+        val key = getAvailableKey(productId)
+        return redisTemplate.opsForValue()[key]?.toInt() ?: 0
+    }
+
+    override fun getReservedStock(productId: Long): Int {
+        val key = getReservedKey(productId)
+        return redisTemplate.opsForValue()[key]?.toInt() ?: 0
+    }
+
+    override fun getConfirmedStock(productId: Long): Int {
+        val key = getConfirmedKey(productId)
+        return redisTemplate.opsForValue()[key]?.toInt() ?: 0
+    }
+
+    @Deprecated("Use reserveStock instead")
     override fun decreaseStock(
         productId: Long,
         quantity: Int,
     ): Long {
-        val stockKey = getStockKey(productId)
+        // available 키를 직접 차감하도록 수정 (하위 호환성 유지)
+        val stockKey = getAvailableKey(productId)
 
         return redisTemplate.execute(
             DECREASE_STOCK_SCRIPT,
@@ -69,7 +101,7 @@ end
         productId: Long,
         stock: Int,
     ) {
-        val key = getStockKey(productId)
+        val key = getAvailableKey(productId)
         redisTemplate.opsForValue()[key] = stock.toString()
     }
 
@@ -80,15 +112,17 @@ end
 
         val redisMap =
             stockMap
-                .mapKeys { getStockKey(it.key) }
+                .mapKeys { getAvailableKey(it.key) }
                 .mapValues { it.value.toString() }
 
         redisTemplate.opsForValue().multiSet(redisMap)
     }
 
     override fun getStock(productId: Long): Int {
-        val key = getStockKey(productId)
-        return redisTemplate.opsForValue()[key]?.toInt() ?: 0
+        val available = getAvailableStock(productId)
+        val reserved = getReservedStock(productId)
+        val confirmed = getConfirmedStock(productId)
+        return available - reserved - confirmed
     }
 
     override fun getDirtyProductIds(): Set<Long> =
