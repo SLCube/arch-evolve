@@ -3,6 +3,7 @@ package com.playground.product.application.service
 import com.playground.product.application.port.outbound.ProductQueryPort
 import com.playground.product.application.port.outbound.StockCachePort
 import com.playground.product.application.service.customer.StockService
+import com.playground.product.domain.exception.InsufficientReservedStockException
 import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.fixture.application.command.ProductCommandTestFixture
 import com.playground.product.fixture.application.command.StockCommandTestFixture
@@ -110,5 +111,37 @@ class StockServiceTest {
         // then
         result shouldBe 0L
         verify(stockCachePort).releaseReservedStock(productId, quantity)
+    }
+
+    @Test
+    fun `재고 확정 실패 시 InsufficientReservedStockException을 던져야 한다`() {
+        // given
+        val productId = 1L
+        val quantity = 10
+        val command = StockCommandTestFixture.mockStockConfirmCommand(productId = productId, quantity = quantity)
+
+        given(stockCachePort.confirmStock(productId, quantity))
+            .willReturn(-1L)
+
+        // when & then
+        shouldThrow<InsufficientReservedStockException> {
+            stockService.confirmStock(command)
+        }
+    }
+
+    @Test
+    fun `예약 해제 실패 시 InsufficientReservedStockException을 던져야 한다`() {
+        // given
+        val productId = 1L
+        val quantity = 10
+        val command = StockCommandTestFixture.mockStockReleaseCommand(productId = productId, quantity = quantity)
+
+        given(stockCachePort.releaseReservedStock(productId, quantity))
+            .willReturn(-1L)
+
+        // when & then
+        shouldThrow<InsufficientReservedStockException> {
+            stockService.releaseReservedStock(command)
+        }
     }
 }

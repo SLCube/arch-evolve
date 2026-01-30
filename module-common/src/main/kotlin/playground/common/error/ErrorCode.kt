@@ -33,6 +33,7 @@ enum class ErrorCode(
     // Product
     PRODUCT_NOT_FOUND("PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다. (ID: %d)"),
     INSUFFICIENT_STOCK("INSUFFICIENT_STOCK", HttpStatus.BAD_REQUEST, "재고가 부족합니다. (상품 ID: %d, 요청 수량: %d)"),
+    INSUFFICIENT_RESERVED_STOCK("INSUFFICIENT_RESERVED_STOCK", HttpStatus.BAD_REQUEST, "예약된 재고가 부족합니다. (상품 ID: %d, 요청 수량: %d)"),
 
     // Order
     ORDERABLE_PRODUCT_NOT_FOUND("ORDERABLE_PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "주문하려는 상품을 찾을 수 없습니다. (상품 ID: %d)"),

@@ -6,6 +6,7 @@ import com.playground.product.application.port.inbound.command.StockConfirmComma
 import com.playground.product.application.port.inbound.command.StockReleaseCommand
 import com.playground.product.application.port.outbound.ProductQueryPort
 import com.playground.product.application.port.outbound.StockCachePort
+import com.playground.product.domain.exception.InsufficientReservedStockException
 import com.playground.product.domain.exception.InsufficientStockException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,10 +33,22 @@ class StockService(
     }
 
     override fun confirmStock(command: StockConfirmCommand): Long {
-        return stockCachePort.confirmStock(command.productId, command.quantity)
+        val result = stockCachePort.confirmStock(command.productId, command.quantity)
+
+        if (result < 0) {
+            throw InsufficientReservedStockException(command.productId, command.quantity)
+        }
+
+        return result
     }
 
     override fun releaseReservedStock(command: StockReleaseCommand): Long {
-        return stockCachePort.releaseReservedStock(command.productId, command.quantity)
+        val result = stockCachePort.releaseReservedStock(command.productId, command.quantity)
+
+        if (result < 0) {
+            throw InsufficientReservedStockException(command.productId, command.quantity)
+        }
+
+        return result
     }
 }

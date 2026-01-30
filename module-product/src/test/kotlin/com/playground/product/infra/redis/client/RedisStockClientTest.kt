@@ -320,6 +320,37 @@ class RedisStockClientTest(
     }
 
     @Test
+    fun `재고 확정 시 reserved 부족하면 -1을 반환한다`() {
+        // given
+        val productId = 1L
+        redisStockClient.setStock(productId, 100)
+        redisStockClient.reserveStock(productId, 10)
+
+        // when - reserved보다 많이 확정 시도
+        val result = redisStockClient.confirmStock(productId, 20)
+
+        // then
+        result shouldBe -1
+        redisStockClient.getReservedStock(productId) shouldBe 10 // 변경되지 않음
+        redisStockClient.getConfirmedStock(productId) shouldBe 0 // 변경되지 않음
+    }
+
+    @Test
+    fun `예약 해제 시 reserved 부족하면 -1을 반환한다`() {
+        // given
+        val productId = 1L
+        redisStockClient.setStock(productId, 100)
+        redisStockClient.reserveStock(productId, 10)
+
+        // when - reserved보다 많이 해제 시도
+        val result = redisStockClient.releaseReservedStock(productId, 20)
+
+        // then
+        result shouldBe -1
+        redisStockClient.getReservedStock(productId) shouldBe 10 // 변경되지 않음
+    }
+
+    @Test
     fun `3단계 재고 관리 - 전체 플로우가 정상 동작한다`() {
         // given
         val productId = 1L

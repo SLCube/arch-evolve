@@ -71,12 +71,18 @@ end
      * ARGV[1]: quantity
      * ARGV[2]: productId
      *
-     * 반환: confirmed 값
+     * 반환: 성공 시 confirmed 값, 실패 시 -1 (reserved 부족)
      */
     private const val CONFIRM_STOCK_SCRIPT_TEXT =
         """
 local quantity = tonumber(ARGV[1])
 local productId = ARGV[2]
+
+local reserved = tonumber(redis.call('GET', KEYS[1]) or '0')
+
+if reserved < quantity then
+    return -1
+end
 
 redis.call('DECRBY', KEYS[1], quantity)
 redis.call('INCRBY', KEYS[2], quantity)
@@ -91,11 +97,17 @@ return tonumber(redis.call('GET', KEYS[2]))
      * KEYS[1]: product:stock:{productId}:reserved
      * ARGV[1]: quantity
      *
-     * 반환: reserved 값
+     * 반환: 성공 시 reserved 값, 실패 시 -1 (reserved 부족)
      */
     private const val RELEASE_RESERVED_STOCK_SCRIPT_TEXT =
         """
 local quantity = tonumber(ARGV[1])
+
+local reserved = tonumber(redis.call('GET', KEYS[1]) or '0')
+
+if reserved < quantity then
+    return -1
+end
 
 redis.call('DECRBY', KEYS[1], quantity)
 
