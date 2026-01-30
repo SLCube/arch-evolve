@@ -24,13 +24,6 @@ interface StockCachePort {
 
     fun getConfirmedStock(productId: Long): Int
 
-    // 기존 메서드
-    @Deprecated("Use reserveStock instead")
-    fun decreaseStock(
-        productId: Long,
-        quantity: Int,
-    ): Long
-
     fun setStock(
         productId: Long,
         stock: Int,

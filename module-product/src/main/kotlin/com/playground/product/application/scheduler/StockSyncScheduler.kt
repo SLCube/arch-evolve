@@ -31,9 +31,13 @@ class StockSyncScheduler(
 
             logger.info("===== Redis → DB 재고 동기화 시작: ${snapshot.size}개 상품 =====")
 
+            // Phase 4: available - confirmed로 DB 동기화
+            // reserved는 일시적이므로 제외
             val stockMap =
                 snapshot.associateWith { productId ->
-                    stockCachePort.getStock(productId)
+                    val available = stockCachePort.getAvailableStock(productId)
+                    val confirmed = stockCachePort.getConfirmedStock(productId)
+                    available - confirmed
                 }
 
             productCommandPort.batchUpdateStock(stockMap)

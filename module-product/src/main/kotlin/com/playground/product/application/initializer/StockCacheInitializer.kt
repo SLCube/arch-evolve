@@ -47,6 +47,7 @@ class StockCacheInitializer(
                     break
                 }
 
+                // Phase 4: available 키로 초기화 (고정값, 기준점 역할)
                 val stockMap =
                     page.content.associate { product ->
                         product.id!! to product.stock

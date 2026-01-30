@@ -105,9 +105,10 @@ class StockSyncSchedulerTest(
             )
         val productId = product.id!!
 
-        // Redis 재고 설정 및 차감 (더티 플래그 생성)
+        // Redis 재고 설정, 예약 및 확정 (더티 플래그 생성)
         redisStockClient.setStock(productId, 100)
-        redisStockClient.decreaseStock(productId, 30)
+        redisStockClient.reserveStock(productId, 30)
+        redisStockClient.confirmStock(productId, 30)
 
         // when
         stockSyncScheduler.syncToDatabase()
@@ -133,10 +134,11 @@ class StockSyncSchedulerTest(
         val savedProducts = productRepository.saveAll(products)
         val productIds = savedProducts.map { it.id!! }
 
-        // Redis 재고 설정 및 차감
+        // Redis 재고 설정, 예약 및 확정
         productIds.forEachIndexed { index, productId ->
             redisStockClient.setStock(productId, (index + 1) * 100)
-            redisStockClient.decreaseStock(productId, 10)
+            redisStockClient.reserveStock(productId, 10)
+            redisStockClient.confirmStock(productId, 10)
         }
 
         // when
@@ -169,9 +171,10 @@ class StockSyncSchedulerTest(
         // Redis 재고 초기화
         redisStockClient.setStock(productId, 1000)
 
-        // 여러 번 재고 차감
+        // 여러 번 재고 예약 및 확정
         repeat(10) {
-            redisStockClient.decreaseStock(productId, 50)
+            redisStockClient.reserveStock(productId, 50)
+            redisStockClient.confirmStock(productId, 50)
         }
 
         // when - 동기화

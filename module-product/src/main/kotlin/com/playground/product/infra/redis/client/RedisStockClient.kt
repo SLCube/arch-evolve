@@ -4,7 +4,6 @@ import com.playground.product.application.port.outbound.StockCachePort
 import com.playground.product.infra.redis.client.StockLuaScripts.AVAILABLE_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRMED_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRM_STOCK_SCRIPT
-import com.playground.product.infra.redis.client.StockLuaScripts.DECREASE_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.DIRTY_SET_KEY
 import com.playground.product.infra.redis.client.StockLuaScripts.RELEASE_RESERVED_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVED_KEY_SUFFIX
@@ -79,22 +78,6 @@ class RedisStockClient(
     override fun getConfirmedStock(productId: Long): Int {
         val key = getConfirmedKey(productId)
         return redisTemplate.opsForValue()[key]?.toInt() ?: 0
-    }
-
-    @Deprecated("Use reserveStock instead")
-    override fun decreaseStock(
-        productId: Long,
-        quantity: Int,
-    ): Long {
-        // available 키를 직접 차감하도록 수정 (하위 호환성 유지)
-        val stockKey = getAvailableKey(productId)
-
-        return redisTemplate.execute(
-            DECREASE_STOCK_SCRIPT,
-            listOf(stockKey, DIRTY_SET_KEY),
-            quantity.toString(),
-            productId.toString(),
-        )
     }
 
     override fun setStock(

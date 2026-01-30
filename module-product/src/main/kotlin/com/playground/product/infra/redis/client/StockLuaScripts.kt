@@ -14,28 +14,6 @@ internal object StockLuaScripts {
     const val DIRTY_SET_KEY = "product:stock:dirty"
 
     /**
-     * Lua Script: 재고 차감 + 더티 플래그 추가 (Atomic)
-     * @deprecated Use RESERVE_STOCK_SCRIPT instead
-     */
-    private const val DECREASE_AND_MARK_DIRTY_SCRIPT =
-        """
-local stockKey = KEYS[1]
-local dirtySetKey = KEYS[2]
-local quantity = tonumber(ARGV[1])
-local productId = ARGV[2]
-
-local stock = tonumber(redis.call('GET', stockKey) or '0')
-
-if stock >= quantity then
-    local remaining = redis.call('DECRBY', stockKey, quantity)
-    redis.call('SADD', dirtySetKey, productId)
-    return remaining
-else
-    return -1
-end
-        """
-
-    /**
      * Lua Script: 재고 예약 (3단계 재고 관리 - Step 1)
      *
      * KEYS[1]: product:stock:{productId}:available
@@ -115,12 +93,6 @@ return tonumber(redis.call('GET', KEYS[1]))
         """
 
     // Script 객체 재사용 (GC 부담 감소)
-    val DECREASE_STOCK_SCRIPT: DefaultRedisScript<Long> =
-        DefaultRedisScript<Long>().apply {
-            setScriptText(DECREASE_AND_MARK_DIRTY_SCRIPT)
-            resultType = Long::class.java
-        }
-
     val RESERVE_STOCK_SCRIPT: DefaultRedisScript<Long> =
         DefaultRedisScript<Long>().apply {
             setScriptText(RESERVE_STOCK_SCRIPT_TEXT)

@@ -79,148 +79,6 @@ class RedisStockClientTest(
         result shouldBe stock
     }
 
-    @Test
-    fun `재고 차감이 정상 동작한다`() {
-        // given
-        val productId = 1L
-        redisStockClient.setStock(productId, 100)
-
-        // when
-        val remaining = redisStockClient.decreaseStock(productId, 30)
-
-        // then
-        remaining shouldBe 70
-        redisStockClient.getStock(productId) shouldBe 70
-    }
-
-    @Test
-    fun `재고 부족 시 -1을 반환한다`() {
-        // given
-        val productId = 1L
-        redisStockClient.setStock(productId, 10)
-
-        // when
-        val result = redisStockClient.decreaseStock(productId, 20)
-
-        // then
-        result shouldBe -1
-        redisStockClient.getStock(productId) shouldBe 10 // 재고는 변경되지 않음
-    }
-
-    @Test
-    fun `재고 차감 시 더티 플래그가 추가된다`() {
-        // given
-        val productId = 1L
-        redisStockClient.setStock(productId, 100)
-
-        // when
-        redisStockClient.decreaseStock(productId, 10)
-
-        // then
-        val dirtyIds = redisStockClient.getDirtyProductIds()
-        dirtyIds shouldContain productId
-    }
-
-    @Test
-    fun `더티 플래그 개별 제거가 정상 동작한다`() {
-        // given
-        val productId = 1L
-        redisStockClient.setStock(productId, 100)
-        redisStockClient.decreaseStock(productId, 10)
-
-        // when
-        redisStockClient.removeDirtyFlags(setOf(productId))
-
-        // then
-        val dirtyIds = redisStockClient.getDirtyProductIds()
-        dirtyIds.size shouldBe 0
-    }
-
-    @Test
-    fun `100개 스레드로 동시에 재고를 차감하면 최종 재고는 0이 된다`() {
-        // given
-        val productId = 1L
-        val initialStock = 100
-        redisStockClient.setStock(productId, initialStock)
-
-        val threadCount = 100
-        val executorService = Executors.newFixedThreadPool(32)
-        val latch = CountDownLatch(threadCount)
-
-        // when
-        for (i in 1..threadCount) {
-            executorService.submit {
-                try {
-                    redisStockClient.decreaseStock(productId, 1)
-                } finally {
-                    latch.countDown()
-                }
-            }
-        }
-
-        latch.await()
-        executorService.shutdown()
-
-        // then
-        val finalStock = redisStockClient.getStock(productId)
-        finalStock shouldBe 0
-    }
-
-    @Test
-    fun `동시 요청 시 재고 부족으로 일부 요청은 실패한다`() {
-        // given
-        val productId = 1L
-        val initialStock = 50
-        redisStockClient.setStock(productId, initialStock)
-
-        val threadCount = 100
-        val executorService = Executors.newFixedThreadPool(32)
-        val latch = CountDownLatch(threadCount)
-        val successCount = java.util.concurrent.atomic.AtomicInteger(0)
-
-        // when
-        for (i in 1..threadCount) {
-            executorService.submit {
-                try {
-                    val result = redisStockClient.decreaseStock(productId, 1)
-                    if (result >= 0) {
-                        successCount.incrementAndGet()
-                    }
-                } finally {
-                    latch.countDown()
-                }
-            }
-        }
-
-        latch.await()
-        executorService.shutdown()
-
-        // then
-        successCount.get() shouldBe initialStock
-        redisStockClient.getStock(productId) shouldBe 0
-    }
-
-    @Test
-    fun `여러 상품의 재고를 차감하면 모든 상품이 더티 플래그에 추가된다`() {
-        // given
-        val productIds = listOf(1L, 2L, 3L)
-        productIds.forEach { productId ->
-            redisStockClient.setStock(productId, 100)
-        }
-
-        // when
-        productIds.forEach { productId ->
-            redisStockClient.decreaseStock(productId, 10)
-        }
-
-        // then
-        val dirtyIds = redisStockClient.getDirtyProductIds()
-        dirtyIds.size shouldBe productIds.size
-        productIds.forEach { productId ->
-            dirtyIds shouldContain productId
-        }
-    }
-
     // 3단계 재고 관리 테스트
     @Test
     fun `재고 예약이 정상 동작한다`() {
@@ -450,5 +308,27 @@ class RedisStockClientTest(
         redisStockClient.getStock(productId) shouldBe 0
         redisStockClient.getReservedStock(productId) shouldBe 0
         redisStockClient.getConfirmedStock(productId) shouldBe 100
+    }
+
+    @Test
+    fun `여러 상품의 재고를 확정하면 모든 상품이 더티 플래그에 추가된다`() {
+        // given
+        val productIds = listOf(1L, 2L, 3L)
+        productIds.forEach { productId ->
+            redisStockClient.setStock(productId, 100)
+            redisStockClient.reserveStock(productId, 10)
+        }
+
+        // when
+        productIds.forEach { productId ->
+            redisStockClient.confirmStock(productId, 10)
+        }
+
+        // then
+        val dirtyIds = redisStockClient.getDirtyProductIds()
+        dirtyIds.size shouldBe productIds.size
+        productIds.forEach { productId ->
+            dirtyIds shouldContain productId
+        }
     }
 }
