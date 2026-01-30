@@ -9,7 +9,6 @@ import com.playground.product.fixture.application.command.ProductCommandTestFixt
 import com.playground.product.fixture.application.command.StockCommandTestFixture
 import com.playground.product.fixture.application.domain.ProductDomainTestFixture
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
@@ -27,30 +26,43 @@ class StockServiceTest {
         )
 
     @Test
-    fun `재고 예약 성공 시 reserveStock이 호출되고 productId를 반환해야 한다`() {
+    fun `재고 예약 성공 시 모든 상품에 대해 reserveStock이 호출되어야 한다`() {
         // given
-        val productId = 1L
+        val productId1 = 1L
+        val productId2 = 2L
         val initialStock = 100
         val quantityToDecrease = 10
-        val command =
-            ProductCommandTestFixture.mockDecreaseStockCommand(
-                id = productId,
-                quantity = quantityToDecrease,
+
+        val commands =
+            listOf(
+                ProductCommandTestFixture.mockDecreaseStockCommand(
+                    id = productId1,
+                    quantity = quantityToDecrease,
+                ),
+                ProductCommandTestFixture.mockDecreaseStockCommand(
+                    id = productId2,
+                    quantity = quantityToDecrease,
+                ),
             )
 
-        val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
+        val mockProduct1 = ProductDomainTestFixture.mockProduct(id = productId1, stock = initialStock)
+        val mockProduct2 = ProductDomainTestFixture.mockProduct(id = productId2, stock = initialStock)
 
-        given(productQueryPort.findById(productId)).willReturn(mockProduct)
-        given(stockCachePort.reserveStock(productId, quantityToDecrease))
+        given(productQueryPort.findById(productId1)).willReturn(mockProduct1)
+        given(productQueryPort.findById(productId2)).willReturn(mockProduct2)
+        given(stockCachePort.reserveStock(productId1, quantityToDecrease))
+            .willReturn(90L)
+        given(stockCachePort.reserveStock(productId2, quantityToDecrease))
             .willReturn(90L)
 
         // when
-        val result = stockService.decreaseStock(command)
+        stockService.decreaseStocks(commands)
 
         // then
-        result shouldBe productId
-        verify(productQueryPort).findById(productId)
-        verify(stockCachePort).reserveStock(productId, quantityToDecrease)
+        verify(productQueryPort).findById(productId1)
+        verify(productQueryPort).findById(productId2)
+        verify(stockCachePort).reserveStock(productId1, quantityToDecrease)
+        verify(stockCachePort).reserveStock(productId2, quantityToDecrease)
     }
 
     @Test
@@ -59,10 +71,12 @@ class StockServiceTest {
         val productId = 1L
         val initialStock = 10
         val quantityToDecrease = 20
-        val command =
-            ProductCommandTestFixture.mockDecreaseStockCommand(
-                id = productId,
-                quantity = quantityToDecrease,
+        val commands =
+            listOf(
+                ProductCommandTestFixture.mockDecreaseStockCommand(
+                    id = productId,
+                    quantity = quantityToDecrease,
+                ),
             )
 
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
@@ -73,44 +87,60 @@ class StockServiceTest {
 
         // when & then
         shouldThrow<InsufficientStockException> {
-            stockService.decreaseStock(command)
+            stockService.decreaseStocks(commands)
         }
     }
 
     @Test
-    fun `재고 확정 시 confirmStock이 호출되고 confirmed 값을 반환해야 한다`() {
+    fun `재고 확정 시 모든 상품에 대해 confirmStock이 호출되어야 한다`() {
         // given
-        val productId = 1L
+        val productId1 = 1L
+        val productId2 = 2L
         val quantity = 10
-        val command = StockCommandTestFixture.mockStockConfirmCommand(productId = productId, quantity = quantity)
 
-        given(stockCachePort.confirmStock(productId, quantity))
+        val commands =
+            listOf(
+                StockCommandTestFixture.mockStockConfirmCommand(productId = productId1, quantity = quantity),
+                StockCommandTestFixture.mockStockConfirmCommand(productId = productId2, quantity = quantity),
+            )
+
+        given(stockCachePort.confirmStock(productId1, quantity))
+            .willReturn(10L)
+        given(stockCachePort.confirmStock(productId2, quantity))
             .willReturn(10L)
 
         // when
-        val result = stockService.confirmStock(command)
+        stockService.confirmStocks(commands)
 
         // then
-        result shouldBe 10L
-        verify(stockCachePort).confirmStock(productId, quantity)
+        verify(stockCachePort).confirmStock(productId1, quantity)
+        verify(stockCachePort).confirmStock(productId2, quantity)
     }
 
     @Test
-    fun `예약 해제 시 releaseReservedStock이 호출되고 reserved 값을 반환해야 한다`() {
+    fun `예약 해제 시 모든 상품에 대해 releaseReservedStock이 호출되어야 한다`() {
         // given
-        val productId = 1L
+        val productId1 = 1L
+        val productId2 = 2L
         val quantity = 10
-        val command = StockCommandTestFixture.mockStockReleaseCommand(productId = productId, quantity = quantity)
 
-        given(stockCachePort.releaseReservedStock(productId, quantity))
+        val commands =
+            listOf(
+                StockCommandTestFixture.mockStockReleaseCommand(productId = productId1, quantity = quantity),
+                StockCommandTestFixture.mockStockReleaseCommand(productId = productId2, quantity = quantity),
+            )
+
+        given(stockCachePort.releaseReservedStock(productId1, quantity))
+            .willReturn(0L)
+        given(stockCachePort.releaseReservedStock(productId2, quantity))
             .willReturn(0L)
 
         // when
-        val result = stockService.releaseReservedStock(command)
+        stockService.releaseReservedStocks(commands)
 
         // then
-        result shouldBe 0L
-        verify(stockCachePort).releaseReservedStock(productId, quantity)
+        verify(stockCachePort).releaseReservedStock(productId1, quantity)
+        verify(stockCachePort).releaseReservedStock(productId2, quantity)
     }
 
     @Test
@@ -118,14 +148,17 @@ class StockServiceTest {
         // given
         val productId = 1L
         val quantity = 10
-        val command = StockCommandTestFixture.mockStockConfirmCommand(productId = productId, quantity = quantity)
+        val commands =
+            listOf(
+                StockCommandTestFixture.mockStockConfirmCommand(productId = productId, quantity = quantity),
+            )
 
         given(stockCachePort.confirmStock(productId, quantity))
             .willReturn(-1L)
 
         // when & then
         shouldThrow<InsufficientReservedStockException> {
-            stockService.confirmStock(command)
+            stockService.confirmStocks(commands)
         }
     }
 
@@ -134,14 +167,17 @@ class StockServiceTest {
         // given
         val productId = 1L
         val quantity = 10
-        val command = StockCommandTestFixture.mockStockReleaseCommand(productId = productId, quantity = quantity)
+        val commands =
+            listOf(
+                StockCommandTestFixture.mockStockReleaseCommand(productId = productId, quantity = quantity),
+            )
 
         given(stockCachePort.releaseReservedStock(productId, quantity))
             .willReturn(-1L)
 
         // when & then
         shouldThrow<InsufficientReservedStockException> {
-            stockService.releaseReservedStock(command)
+            stockService.releaseReservedStocks(commands)
         }
     }
 }

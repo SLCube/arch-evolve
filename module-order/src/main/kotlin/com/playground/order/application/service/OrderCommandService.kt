@@ -5,12 +5,14 @@ import com.playground.order.application.port.inbound.OrderCommandUseCase
 import com.playground.order.application.port.inbound.command.OrderCancelCommand
 import com.playground.order.application.port.inbound.command.OrderCompleteCommand
 import com.playground.order.application.port.inbound.command.OrderCreateCommand
+import com.playground.order.application.port.inbound.command.OrderFailCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
+import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
 import com.playground.product.contract.domain.vo.ProductInfo
@@ -50,6 +52,7 @@ class OrderCommandService(
         val updatedOrder = orderCommandPort.update(order)
 
         orderEventPort.publish(OrderCompletedEvent.from(updatedOrder))
+
         return updatedOrder
     }
 
@@ -58,6 +61,16 @@ class OrderCommandService(
         foundOrder.validateOwner(command.userId)
         foundOrder.cancelOrder()
         return orderCommandPort.update(foundOrder)
+    }
+
+    override fun failOrder(command: OrderFailCommand): Order {
+        val order = orderQueryPort.findById(command.orderId)
+        order.fail()
+        val updatedOrder = orderCommandPort.update(order)
+
+        orderEventPort.publish(OrderFailedEvent.from(updatedOrder))
+
+        return updatedOrder
     }
 
     private fun mapToOrderProducts(

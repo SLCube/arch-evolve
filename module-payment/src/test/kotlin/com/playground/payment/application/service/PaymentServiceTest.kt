@@ -6,6 +6,7 @@ import com.playground.payment.application.port.outbound.PaymentGatewayPort
 import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
 import com.playground.payment.application.port.outbound.PaymentQueryPort
 import com.playground.payment.contract.domain.event.PaymentCompletedEvent
+import com.playground.payment.contract.domain.event.PaymentFailedEvent
 import com.playground.payment.domain.enum.PaymentStatus
 import com.playground.payment.domain.exception.PaymentFailedException
 import com.playground.payment.domain.model.Payment
@@ -179,6 +180,12 @@ class PaymentServiceTest {
             }
         )
 
-        verify(paymentEventPort, never()).publish(any())
+        verify(paymentEventPort).publish(
+            check<PaymentFailedEvent> { event ->
+                event.orderId shouldBe command.orderId
+                event.userId shouldBe command.userId
+                event.failReason shouldBe failReason
+            }
+        )
     }
 }

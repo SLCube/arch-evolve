@@ -8,6 +8,7 @@ import com.playground.payment.application.port.outbound.PaymentGatewayPort
 import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
 import com.playground.payment.application.port.outbound.PaymentQueryPort
 import com.playground.payment.contract.domain.event.PaymentCompletedEvent
+import com.playground.payment.contract.domain.event.PaymentFailedEvent
 import com.playground.payment.domain.enum.PaymentStatus
 import com.playground.payment.domain.exception.PaymentFailedException
 import com.playground.payment.domain.model.Payment
@@ -55,6 +56,15 @@ class PaymentService(
         } else {
             payment.fail(pgResult.failReason)
             paymentCommandPort.save(payment)
+
+            paymentEventPort.publish(
+                PaymentFailedEvent(
+                    orderId = command.orderId,
+                    userId = command.userId,
+                    failReason = pgResult.failReason,
+                )
+            )
+
             throw PaymentFailedException(pgResult.failReason)
         }
     }

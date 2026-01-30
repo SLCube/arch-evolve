@@ -47,6 +47,14 @@ class Order(
         this.updatedAt = LocalDateTime.now()
     }
 
+    fun fail() {
+        if (this.status != OrderStatus.PENDING) {
+            throw OrderStatusInvalidException(this.status)
+        }
+        this.status = OrderStatus.FAILED
+        this.updatedAt = LocalDateTime.now()
+    }
+
     fun validateOwner(currentUserId: Long) {
         if (this.userId != currentUserId) {
             throw OrderAccessDeniedException(this.id!!, currentUserId)

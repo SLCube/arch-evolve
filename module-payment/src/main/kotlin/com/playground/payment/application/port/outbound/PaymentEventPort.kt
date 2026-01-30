@@ -1,7 +1,7 @@
 package com.playground.payment.application.port.outbound
 
-import com.playground.payment.contract.domain.event.PaymentCompletedEvent
+import com.playground.common.event.DomainEvent
 
 fun interface PaymentEventPort {
-    fun publish(event: PaymentCompletedEvent)
+    fun publish(event: DomainEvent)
 }

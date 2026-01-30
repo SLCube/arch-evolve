@@ -96,7 +96,7 @@ class ProductConcurrencyTest(
         for (i in 1..threadCount) {
             executorService.submit {
                 try {
-                    stockUseCase.decreaseStock(DecreaseStockCommand(productId, 1))
+                    stockUseCase.decreaseStocks(listOf(DecreaseStockCommand(productId, 1)))
                 } finally {
                     latch.countDown()
                 }
@@ -110,8 +110,9 @@ class ProductConcurrencyTest(
         val redisStock = redisStockClient.getStock(productId)
         redisStock shouldBe 0
 
-        // Redis의 더티 플래그 확인
+        // Phase 3: 재고 예약(reserve) 시에는 dirty 플래그를 추가하지 않음
+        // 확정(confirm) 시에만 dirty 플래그 추가
         val dirtyIds = redisStockClient.getDirtyProductIds()
-        dirtyIds shouldBe setOf(productId)
+        dirtyIds shouldBe emptySet()
     }
 }

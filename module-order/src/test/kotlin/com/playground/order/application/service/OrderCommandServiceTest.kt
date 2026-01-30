@@ -2,12 +2,14 @@ package com.playground.order.application.service
 
 import com.playground.order.application.port.inbound.command.OrderCancelCommand
 import com.playground.order.application.port.inbound.command.OrderCompleteCommand
+import com.playground.order.application.port.inbound.command.OrderFailCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
+import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderStatusInvalidException
@@ -244,5 +246,71 @@ class OrderCommandServiceTest {
         }
 
         verify(orderCommandPort, never()).update(any())
+    }
+
+    @Test
+    fun `주문 실패 Command 수신 시 주문 상태가 FAILED로 변경되고 OrderFailedEvent가 발행되어야 한다`() {
+        // given
+        val orderId = 1L
+        val userId = 2L
+        val mockOrder = OrderDomainTestFixture.mockOrder(
+            id = orderId,
+            userId = userId,
+            status = OrderStatus.PENDING,
+        )
+
+        val command = OrderFailCommand(orderId = orderId)
+
+        // when
+        given(orderQueryPort.findById(orderId)).willReturn(mockOrder)
+
+        given(orderCommandPort.update(any<Order>()))
+            .willAnswer { invocation ->
+                invocation.arguments[0] as Order
+            }
+
+        val failedOrder = orderCommandService.failOrder(command)
+
+        // then
+        verify(orderQueryPort).findById(orderId)
+
+        verify(orderCommandPort).update(
+            check { savedOrder ->
+                savedOrder.id shouldBe orderId
+                savedOrder.status shouldBe OrderStatus.FAILED
+            }
+        )
+
+        verify(orderEventPort).publish(check<OrderFailedEvent> { event ->
+            event.orderId shouldBe orderId
+            event.userId shouldBe userId
+            event.totalAmount shouldBe failedOrder.totalPrice
+            event.products.size shouldBe mockOrder.orderProducts.size
+        })
+
+        failedOrder.status shouldBe OrderStatus.FAILED
+    }
+
+    @Test
+    fun `주문 실패 Command 수신 시 주문상태가 PENDING이 아니라면 OrderStatusInvalidException을 던진다`() {
+        // given
+        val orderId = 1L
+        val mockOrder = OrderDomainTestFixture.mockOrder(
+            id = orderId,
+            status = OrderStatus.COMPLETED
+        )
+
+        val command = OrderFailCommand(orderId = orderId)
+
+        // when
+        given(orderQueryPort.findById(orderId)).willReturn(mockOrder)
+
+        // then
+        shouldThrow<OrderStatusInvalidException> {
+            orderCommandService.failOrder(command)
+        }
+
+        verify(orderCommandPort, never()).update(any())
+        verify(orderEventPort, never()).publish(any())
     }
 }
