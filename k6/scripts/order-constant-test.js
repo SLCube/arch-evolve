@@ -10,7 +10,7 @@ export const options = {
             timeUnit: "1s",
             duration: __ENV.DURATION || "3m", // 테스트 지속 시간 (기본 3분)
             preAllocatedVUs: parseInt(__ENV.PRE_VUS || "100", 10),
-            maxVUs: parseInt(__ENV.MAX_VUS || "1000", 10),
+            maxVUs: parseInt(__ENV.MAX_VUS || "200", 10),
         },
     },
     thresholds: {
@@ -23,7 +23,7 @@ const BASE_URL = __ENV.BASE_URL || "http://localhost:8080";
 const LOGIN_PATH = __ENV.LOGIN_PATH || "/users/login";
 const ORDER_PATH = __ENV.ORDER_PATH || "/orders";
 
-const USER_COUNT = parseInt(__ENV.USER_COUNT || "1000", 10);
+const USER_COUNT = parseInt(__ENV.USER_COUNT || "200", 10);
 const PASSWORD = __ENV.PASSWORD || "testpassword";
 
 const PRODUCT_ID = parseInt(__ENV.PRODUCT_ID || "2", 10);

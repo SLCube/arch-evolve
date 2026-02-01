@@ -93,12 +93,25 @@ class RedisStockClient(
             return
         }
 
-        val redisMap =
+        val availableMap =
             stockMap
                 .mapKeys { getAvailableKey(it.key) }
                 .mapValues { it.value.toString() }
+        redisTemplate.opsForValue().multiSet(availableMap)
 
-        redisTemplate.opsForValue().multiSet(redisMap)
+        val confirmedMap =
+            stockMap.keys.associateBy(
+                { getConfirmedKey(it) },
+                { "0" },
+            )
+        redisTemplate.opsForValue().multiSet(confirmedMap)
+
+        val reservedMap =
+            stockMap.keys.associateBy(
+                { getReservedKey(it) },
+                { "0" },
+            )
+        redisTemplate.opsForValue().multiSet(reservedMap)
     }
 
     override fun getStock(productId: Long): Int {
