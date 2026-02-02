@@ -5,6 +5,7 @@ import com.playground.payment.application.port.outbound.PaymentEventPort
 import com.playground.payment.application.port.outbound.PaymentGatewayPort
 import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
 import com.playground.payment.application.port.outbound.PaymentQueryPort
+import com.playground.payment.application.support.PaymentTransactionManager
 import com.playground.payment.contract.domain.event.PaymentCompletedEvent
 import com.playground.payment.contract.domain.event.PaymentFailedEvent
 import com.playground.payment.domain.enum.PaymentStatus
@@ -36,12 +37,16 @@ class PaymentServiceTest {
     private val paymentEventPort: PaymentEventPort = mock()
     private val paymentMethodQueryPort: PaymentMethodQueryPort = mock()
 
-    private val paymentService: PaymentService = PaymentService(
+    private val paymentTransactionManager = PaymentTransactionManager(
         paymentQueryPort = paymentQueryPort,
         paymentCommandPort = paymentCommandPort,
-        paymentGatewayPort = paymentGatewayPort,
         paymentEventPort = paymentEventPort,
         paymentMethodQueryPort = paymentMethodQueryPort,
+    )
+
+    private val paymentService: PaymentService = PaymentService(
+        paymentTransactionManager = paymentTransactionManager,
+        paymentGatewayPort = paymentGatewayPort,
     )
 
     @Test

@@ -8,12 +8,13 @@ import com.playground.payment.contract.domain.event.PaymentFailedEvent
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionalEventListener
+import org.springframework.transaction.event.TransactionPhase
 
 @Component
 class OrderEventConsumer(
     private val orderCommandUseCase: OrderCommandUseCase,
 ) {
-    @TransactionalEventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handlePaymentCompletedEvent(event: PaymentCompletedEvent) {
         orderCommandUseCase.completeOrder(
             OrderCompleteCommand(
