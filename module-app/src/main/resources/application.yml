@@ -14,8 +14,8 @@ spring:
     password: playground
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 50
-      minimum-idle: 20
+      maximum-pool-size: 100
+      minimum-idle: 30
       connection-timeout: 3000
       idle-timeout: 600000
       max-lifetime: 1800000
