@@ -9,7 +9,10 @@ import com.playground.product.application.port.inbound.command.StockConfirmComma
 import com.playground.product.application.port.inbound.command.StockReleaseCommand
 import org.springframework.context.event.EventListener
 import org.springframework.core.annotation.Order
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
+import org.springframework.transaction.event.TransactionPhase
+import org.springframework.transaction.event.TransactionalEventListener
 
 @Component
 class ProductEventConsumer(
@@ -28,7 +31,8 @@ class ProductEventConsumer(
         stockUseCase.decreaseStocks(commands)
     }
 
-    @EventListener
+    @Async("eventExecutor")
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleOrderCompletedEvent(event: OrderCompletedEvent) {
         val commands =
             event.products.map { product ->
@@ -40,6 +44,7 @@ class ProductEventConsumer(
         stockUseCase.confirmStocks(commands)
     }
 
+    @Async("eventExecutor")
     @EventListener
     fun handleOrderFailedEvent(event: OrderFailedEvent) {
         val commands =
