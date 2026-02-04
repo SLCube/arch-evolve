@@ -23,9 +23,6 @@ dependencies {
     testImplementation(libs.kotest.runner)
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.kotest.spring)
-    testImplementation(libs.testcontainers.core)
-    testImplementation(libs.testcontainers.junit)
-    testImplementation(libs.testcontainers.postgresql)
 
     testImplementation(project(":module-test-support"))
     testRuntimeOnly(libs.h2.database)

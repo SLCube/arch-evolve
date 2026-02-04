@@ -1,5 +1,6 @@
 package com.playground.product.infra.redis.client
 
+import com.playground.support.IntegrationTestSupport
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.AfterEach
@@ -8,51 +9,15 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
 @Suppress("NonAsciiCharacters")
-@Testcontainers
 @SpringBootTest
 class RedisStockClientTest(
     @param:Autowired private val redisStockClient: RedisStockClient,
     @param:Autowired private val redisTemplate: RedisTemplate<String, String>,
-) {
-    companion object {
-        @Container
-        @JvmStatic
-        private val redis =
-            GenericContainer<Nothing>("redis:7-alpine").apply {
-                withExposedPorts(6379)
-            }
-
-        @Container
-        @JvmStatic
-        private val postgres =
-            PostgreSQLContainer<Nothing>("postgres:16-alpine").apply {
-                withDatabaseName("testdb")
-                withUsername("test")
-                withPassword("test")
-            }
-
-        @DynamicPropertySource
-        @JvmStatic
-        fun properties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.data.redis.host") { redis.host }
-            registry.add("spring.data.redis.port") { redis.firstMappedPort }
-            registry.add("spring.datasource.url") { postgres.jdbcUrl }
-            registry.add("spring.datasource.username") { postgres.username }
-            registry.add("spring.datasource.password") { postgres.password }
-            registry.add("spring.jpa.hibernate.ddl-auto") { "create-drop" }
-            registry.add("app.redis.stock.initializer.enabled") { "false" }
-        }
-    }
+) : IntegrationTestSupport() {
 
     @BeforeEach
     fun setUp() {

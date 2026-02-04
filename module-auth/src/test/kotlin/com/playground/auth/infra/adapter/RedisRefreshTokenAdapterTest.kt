@@ -1,5 +1,6 @@
 package com.playground.auth.infra.adapter
 
+import com.playground.support.IntegrationTestSupport
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.AfterEach
@@ -8,30 +9,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.redis.DataRedisTest
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
-import org.testcontainers.containers.GenericContainer
-import org.testcontainers.junit.jupiter.Container
-import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.Duration
 
 @Suppress("NonAsciiCharacters")
 @DataRedisTest
-@Testcontainers
-class RedisRefreshTokenAdapterTest {
-
-    companion object {
-        @Container
-        private val redisContainer = GenericContainer("redis:7-alpine")
-            .withExposedPorts(6379)
-
-        @JvmStatic
-        @DynamicPropertySource
-        fun registerRedisProperties(registry: DynamicPropertyRegistry) {
-            registry.add("spring.data.redis.host") { redisContainer.host }
-            registry.add("spring.data.redis.port") { redisContainer.getMappedPort(6379) }
-        }
-    }
+class RedisRefreshTokenAdapterTest : IntegrationTestSupport() {
 
     @Autowired
     private lateinit var redisTemplate: RedisTemplate<String, String>
@@ -45,7 +27,7 @@ class RedisRefreshTokenAdapterTest {
 
     @AfterEach
     fun tearDown() {
-        redisTemplate.keys("refresh_token:*")?.forEach {
+        redisTemplate.keys("refresh_token:*").forEach {
             redisTemplate.delete(it)
         }
     }

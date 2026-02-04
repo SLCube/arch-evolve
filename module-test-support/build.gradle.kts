@@ -13,6 +13,9 @@ dependencies {
     implementation(libs.spring.boot.starter.test)
     implementation(libs.spring.security.test)
 
+    // Redis Mock (실제 Redis 서버 불필요)
+    implementation(libs.jedis.mock)
+
     implementation(project(":module-common"))
     implementation(project(":module-auth-contract"))
 }
