@@ -38,7 +38,6 @@ dependencies {
     testRuntimeOnly(libs.h2.database)
 }
 
-// Copy REST Docs snippets from all modules to module-app
 val copySnippets = tasks.register<Copy>("copySnippets") {
     group = "documentation"
     description = "Copy REST Docs snippets from all modules to module-app"
@@ -59,7 +58,6 @@ val copySnippets = tasks.register<Copy>("copySnippets") {
 
     into(layout.buildDirectory.dir("generated-snippets"))
 
-    // Depend on all module tests
     dependsOn(
         ":module-user:test",
         ":module-product:test",
