@@ -57,6 +57,16 @@ server:
     mbeanregistry:
       enabled: true
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+    url: /docs/openapi3.yaml
+    disable-swagger-default-url: true
+  show-actuator: false
+  packages-to-scan: "com.playground.nonexistent"  # 존재하지 않는 패키지로 Controller 스캔 방지
+
 ---
 spring:
   config:

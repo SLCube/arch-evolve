@@ -39,6 +39,10 @@ class OrderSaveApiTest(
             .willReturn(mockOrder)
 
         performAndDocument("주문 생성 - 성공") {
+            tag = "주문 API"
+            summary = "주문 생성"
+            description = "사용자가 여러 상품을 선택하여 주문을 생성합니다. 주문 생성 시 상품 ID와 수량, 배송지 ID를 전달하면 주문 정보가 생성됩니다."
+
             httpMethod = HttpMethod.POST
             urlTemplate = "/orders"
             requestBody = orderCreateRequestDto
@@ -93,6 +97,10 @@ class OrderSaveApiTest(
             .willThrow(OrderableProductNotFoundException(nonExistingProductId))
 
         performAndDocument("주문 생성 - 실패, 상품이 존재하지 않음") {
+            tag = "주문 API"
+            summary = "주문 생성 실패 - 존재하지 않는 상품"
+            description = "존재하지 않는 상품 ID로 주문 생성을 시도할 경우 404 Not Found 에러가 발생합니다."
+
             httpMethod = HttpMethod.POST
             urlTemplate = "/orders"
             requestBody = request
@@ -117,6 +125,10 @@ class OrderSaveApiTest(
         )
 
         performAndDocument("주문 생성 - 실패, 주문 상품이 비어있음") {
+            tag = "주문 API"
+            summary = "주문 생성 실패 - 빈 상품 목록"
+            description = "주문 상품 목록이 비어있는 경우 400 Bad Request 에러가 발생합니다. 주문 생성 시 최소 1개 이상의 상품이 필요합니다."
+
             httpMethod = HttpMethod.POST
             urlTemplate = "/orders"
             requestBody = request

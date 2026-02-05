@@ -1,5 +1,8 @@
 package com.playground.support.docs
 
+import com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper
+import com.epages.restdocs.apispec.ResourceDocumentation.resource
+import com.epages.restdocs.apispec.ResourceSnippetParameters
 import com.playground.support.RestDocsTest
 import com.playground.support.builder.ApiTestBuilder
 import org.springframework.http.HttpHeaders
@@ -7,7 +10,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
 import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders
 import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest
 import org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse
@@ -90,22 +92,43 @@ fun RestDocsTest.performAndDocument(
             builder.snippets
         }
 
-    resultActions.andDocument(identifier, *allSnippets)
+    resultActions.andDocument(
+        identifier = identifier,
+        tag = builder.tag,
+        summary = builder.summary,
+        description = builder.description,
+        snippets = allSnippets,
+    )
 }
 
 /**
  * ResultActions에 대한 확장 함수.
- * andDo(document(...))와 prettyPrint()를 한번에 처리하여 보일러플레이트를 줄임.
+ * restdocs-api-spec을 사용하여 REST Docs 스니펫과 OpenAPI 스펙을 동시에 생성.
+ * tag, summary, description이 없으면 기본값 사용 (기존 코드 호환).
  */
 fun ResultActions.andDocument(
     identifier: String,
-    vararg snippets: Snippet,
-): ResultActions =
-    this.andDo(
-        document(
+    tag: String? = null,
+    summary: String? = null,
+    description: String? = null,
+    snippets: Array<Snippet>,
+): ResultActions {
+    val resourceSnippet =
+        resource(
+            ResourceSnippetParameters.builder()
+                .tag(tag ?: "API")
+                .summary(summary ?: identifier)
+                .description(description ?: "")
+                .build(),
+        )
+
+    return this.andDo(
+        MockMvcRestDocumentationWrapper.document(
             identifier,
             preprocessRequest(prettyPrint()),
             preprocessResponse(prettyPrint()),
+            resourceSnippet,
             *snippets,
         ),
     )
+}

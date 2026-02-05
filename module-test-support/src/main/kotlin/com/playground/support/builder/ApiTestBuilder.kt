@@ -17,6 +17,10 @@ class ApiTestBuilder {
     var additionalMatchers: Array<ResultMatcher> = emptyArray()
     var snippets: Array<Snippet> = emptyArray()
 
+    var tag: String? = null
+    var summary: String? = null
+    var description: String? = null
+
     fun queryParams(block: MultiValueMap<String, String>.() -> Unit) {
         queryParamsInternal.apply(block)
     }

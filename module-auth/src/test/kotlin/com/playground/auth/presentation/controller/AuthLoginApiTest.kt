@@ -57,6 +57,10 @@ class AuthLoginApiTest(
             )
 
         performAndDocument("로그인 - 성공") {
+            tag = "인증 API"
+            summary = "로그인"
+            description = "사용자 인증 후 Access Token과 Refresh Token 발급"
+
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/login"
             requestBody = loginRequest
@@ -92,6 +96,10 @@ class AuthLoginApiTest(
             .willAnswer { throw BadCredentialsException("invalid credentials") }
 
         performAndDocument("로그인 - 실패 (존재하지 않는 사용자)") {
+            tag = "인증 API"
+            summary = "로그인 실패"
+            description = "잘못된 자격증명으로 인한 인증 실패"
+
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/login"
             requestBody = loginRequest

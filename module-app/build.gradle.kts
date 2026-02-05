@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.spring")
 
     id("org.asciidoctor.jvm.convert")
+    alias(libs.plugins.restdocs.api.spec)
 }
 
 dependencies {
@@ -24,11 +25,15 @@ dependencies {
     implementation(libs.logstash.logback.encoder)
     implementation(libs.loki.logback.appender)
 
+    // Swagger UI (개발 환경 전용)
+    developmentOnly(libs.springdoc.openapi.starter.webmvc.ui)
     developmentOnly(libs.spring.boot.docker.compose)
 
     runtimeOnly(libs.postgres)
 
+    testImplementation(project(":module-test-support"))
     testImplementation(libs.restdocs.mockmvc)
+    testImplementation(libs.restdocs.api.spec.mockmvc)
     testImplementation(libs.spring.security.test)
 
     testImplementation(libs.kotest.runner)
@@ -79,6 +84,40 @@ tasks.asciidoctor {
     )
 }
 
+openapi3 {
+    setServer("http://localhost:8080")
+    title = "PlayGround API Documentation"
+    description = "PlayGround 프로젝트의 REST API 문서"
+    version = "v2.5"
+    format = "yaml"
+}
+
+tasks.withType<com.epages.restdocs.apispec.gradle.OpenApi3Task> {
+    dependsOn(copySnippets)
+}
+
+tasks.register("resolveAndCopyApi") {
+    group = "documentation"
+    description = "Resolve and copy OpenAPI spec to static resources"
+
+    dependsOn("openapi3")
+
+    doLast {
+        val sourceFile = file("build/api-spec/openapi3.yaml")
+        val targetDir = file("src/main/resources/static/docs")
+
+        targetDir.mkdirs()
+
+        if (sourceFile.exists()) {
+            copy {
+                from(sourceFile)
+                into(targetDir)
+                rename { "openapi3.yaml" }
+            }
+        }
+    }
+}
+
 tasks.register("buildDocs") {
     group = "documentation"
     description = "Builds the API documentation."
@@ -87,8 +126,15 @@ tasks.register("buildDocs") {
 
 tasks.bootJar {
     enabled = true
+    dependsOn("resolveAndCopyApi")
+
     from(tasks.named("asciidoctor")) {
         into("static/docs")
+    }
+
+    from("build/api-spec") {
+        into("static/docs")
+        include("openapi3.yaml")
     }
 }
 

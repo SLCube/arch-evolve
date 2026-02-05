@@ -39,6 +39,9 @@ class UserAddressApiTest(
         val expectedCommand = request.toCommand(userId)
 
         performAndDocument("주소 등록 - 성공") {
+            tag = "사용자 API"
+            summary = "배송지 주소 등록"
+            description = "인증된 사용자의 배송지 주소를 등록합니다. 수령인 정보와 주소 정보를 입력받아 새로운 배송지를 생성합니다."
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/addresses"
             requestBody = request
@@ -67,6 +70,9 @@ class UserAddressApiTest(
         )
 
         performAndDocument("기본 주소 설정 - 성공") {
+            tag = "사용자 API"
+            summary = "기본 배송지 설정"
+            description = "인증된 사용자의 기본 배송지를 설정합니다. addressId를 통해 특정 배송지를 기본 배송지로 지정합니다."
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/addresses/{addressId}/default"
             urlVars = arrayOf(addressId)

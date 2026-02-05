@@ -44,6 +44,10 @@ class OrderLookUpApiTest(
             .willReturn(mockOrderDetailResult)
 
         performAndDocument("주문 상세 조회 - 성공") {
+            tag = "주문 API"
+            summary = "주문 상세 조회"
+            description = "주문 ID로 특정 주문의 상세 정보를 조회합니다. 주문 정보, 주문 상품 목록, 배송 정보를 포함하여 반환합니다. 인증된 사용자는 본인의 주문만 조회할 수 있습니다."
+
             httpMethod = HttpMethod.GET
             urlTemplate = "/orders/{orderId}"
             urlVars = arrayOf(mockOrder.id)
@@ -112,6 +116,10 @@ class OrderLookUpApiTest(
             .willThrow(OrderAccessDeniedException(requestOrderId, requestUserId))
 
         performAndDocument("주문 상세 조회 - 실패 (다른 사용자의 주문)") {
+            tag = "주문 API"
+            summary = "주문 상세 조회 실패 - 권한 없음"
+            description = "다른 사용자의 주문을 조회 시도할 경우 403 Forbidden 에러가 발생합니다. 인증된 사용자는 본인의 주문만 조회할 수 있습니다."
+
             httpMethod = HttpMethod.GET
             urlTemplate = "/orders/{orderId}"
             urlVars = arrayOf(requestOrderId)
@@ -141,6 +149,10 @@ class OrderLookUpApiTest(
             .willReturn(mockOrders)
 
         performAndDocument("주문 목록 조회 - 성공") {
+            tag = "주문 API"
+            summary = "주문 목록 조회"
+            description = "인증된 사용자의 주문 목록을 페이징하여 조회합니다. 각 주문의 요약 정보(대표 상품명, 총 가격, 상태, 생성일)를 포함합니다. 페이지 번호, 크기, 정렬 기준을 쿼리 파라미터로 지정할 수 있습니다."
+
             httpMethod = HttpMethod.GET
             urlTemplate = "/orders"
             expectedStatus = status().isOk
@@ -195,6 +207,10 @@ class OrderLookUpApiTest(
             .willReturn(emptyOrder)
 
         performAndDocument("주문 목록 조회 - 실패 (다른 사용자의 주문은 조회되지 않음)") {
+            tag = "주문 API"
+            summary = "주문 목록 조회 - 빈 목록"
+            description = "인증된 사용자의 주문이 없거나 다른 사용자의 주문만 존재하는 경우 빈 목록이 반환됩니다. 각 사용자는 본인의 주문만 조회할 수 있습니다."
+
             httpMethod = HttpMethod.GET
             urlTemplate = "/orders"
             expectedStatus = status().isOk

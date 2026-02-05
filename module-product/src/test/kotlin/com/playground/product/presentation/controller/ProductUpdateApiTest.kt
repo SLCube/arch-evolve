@@ -46,6 +46,10 @@ class ProductUpdateApiTest(
 
         // when & then
         performAndDocument("상품 수정 - 성공") {
+            tag = "상품 API"
+            summary = "상품 수정"
+            description = "기존 상품의 정보를 수정합니다. ADMIN 권한이 필요합니다."
+
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(mockUpdatedProduct.id)
@@ -93,6 +97,10 @@ class ProductUpdateApiTest(
 
         // when & then
         performAndDocument("상품 수정 - 실패, 이름이 비어있음") {
+            tag = "상품 API"
+            summary = "상품 수정 실패 - 유효성 검증"
+            description = "상품 이름이 비어있을 경우 400 Bad Request를 반환합니다."
+
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(mockUpdatedProduct.id)
@@ -127,6 +135,10 @@ class ProductUpdateApiTest(
         val productId = mockUpdatedProduct.id!!
 
         performAndDocument("상품 수정 - 실패, USER 권한으로 ADMIN API 접근 시도") {
+            tag = "상품 API"
+            summary = "상품 수정 실패 - 권한 부족"
+            description = "USER 권한으로 ADMIN 전용 API에 접근할 경우 403 Forbidden을 반환합니다."
+
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(productId)

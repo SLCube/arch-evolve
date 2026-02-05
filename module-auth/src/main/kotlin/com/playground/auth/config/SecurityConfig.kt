@@ -54,6 +54,8 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers("/actuator/**")
                     .permitAll()
+                    .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**", "/docs/**")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, ApiConstants.PRODUCT_API_BASE_PATH)
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, ApiConstants.PRODUCT_API_BASE_PATH)

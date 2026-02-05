@@ -44,6 +44,9 @@ class PaymentMethodRegisterApiTest(
             .willReturn(mockPaymentMethod)
 
         performAndDocument("결제 수단 등록 - 성공") {
+            tag = "결제 수단 관리"
+            summary = "결제 수단 등록"
+            description = "PG사 인증을 통해 발급받은 인증 키와 카드 정보를 이용하여 새로운 결제 수단을 등록합니다. 기본 결제 수단으로 지정할 수 있습니다."
             httpMethod = HttpMethod.POST
             urlTemplate = "/payment-methods"
             requestBody = request
@@ -83,6 +86,9 @@ class PaymentMethodRegisterApiTest(
         )
 
         performAndDocument("결제 수단 등록 - 실패, 필수 항목이 비어있음") {
+            tag = "결제 수단 관리"
+            summary = "결제 수단 등록 실패 (유효성 검증)"
+            description = "인증키, 카드사, 카드번호 등 필수 항목이 비어있을 경우 400 Bad Request 응답을 반환합니다. 각 필드별 에러 메시지를 제공합니다."
             httpMethod = HttpMethod.POST
             urlTemplate = "/payment-methods"
             requestBody = invalidRequest

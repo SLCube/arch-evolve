@@ -39,6 +39,10 @@ class LogoutApiTest(
         SecurityContextHolder.getContext().authentication = authentication
 
         performAndDocument("로그아웃 - 성공") {
+            tag = "인증 API"
+            summary = "로그아웃"
+            description = "사용자 로그아웃 및 Refresh Token 무효화"
+
             httpMethod = HttpMethod.DELETE
             urlTemplate = "/auth/logout"
             expectedStatus = status().isNoContent

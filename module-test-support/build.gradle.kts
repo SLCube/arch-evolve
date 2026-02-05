@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.restdocs.mockmvc)
+    implementation(libs.restdocs.api.spec.mockmvc)
     implementation(libs.kotest.runner)
     implementation(libs.kotest.spring)
     implementation(libs.spring.boot.starter.web)

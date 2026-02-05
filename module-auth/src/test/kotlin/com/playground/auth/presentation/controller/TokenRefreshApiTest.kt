@@ -37,6 +37,10 @@ class TokenRefreshApiTest(
             .willReturn(response)
 
         performAndDocument("토큰 갱신 - 성공") {
+            tag = "인증 API"
+            summary = "토큰 갱신"
+            description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token 발급"
+
             httpMethod = HttpMethod.POST
             urlTemplate = "/auth/refresh"
             requestBody = request
@@ -65,6 +69,10 @@ class TokenRefreshApiTest(
             .willThrow(InvalidRefreshTokenException())
 
         performAndDocument("토큰 갱신 - 실패, 만료된 토큰") {
+            tag = "인증 API"
+            summary = "토큰 갱신 실패"
+            description = "만료되거나 유효하지 않은 Refresh Token"
+
             httpMethod = HttpMethod.POST
             urlTemplate = "/auth/refresh"
             requestBody = request

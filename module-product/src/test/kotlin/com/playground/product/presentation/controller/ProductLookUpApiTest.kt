@@ -38,6 +38,10 @@ class ProductLookUpApiTest(
 
         // when & then
         performAndDocument("상품 단일 조회 - 성공") {
+            tag = "상품 API"
+            summary = "상품 단일 조회"
+            description = "상품 ID를 통해 특정 상품의 상세 정보를 조회합니다."
+
             httpMethod = HttpMethod.GET
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(mockProduct.id)
@@ -75,6 +79,10 @@ class ProductLookUpApiTest(
 
         // when & then
         performAndDocument("상품 단일 조회 - 실패, 존재하지 않는 상품") {
+            tag = "상품 API"
+            summary = "상품 단일 조회 실패 - 상품 없음"
+            description = "존재하지 않는 상품 ID로 조회할 경우 404 Not Found를 반환합니다."
+
             httpMethod = HttpMethod.GET
             urlTemplate = "/products/{id}"
             urlVars = arrayOf(nonExistingProductId)
@@ -101,6 +109,10 @@ class ProductLookUpApiTest(
 
         // when & then
         performAndDocument("상품 목록 조회 - 성공") {
+            tag = "상품 API"
+            summary = "상품 목록 조회"
+            description = "등록된 모든 상품의 목록을 조회합니다."
+
             httpMethod = HttpMethod.GET
             urlTemplate = "/products"
             expectedStatus = status().isOk

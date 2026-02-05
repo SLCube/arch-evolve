@@ -34,6 +34,9 @@ class PaymentMethodLookupApiTest(
             .willReturn(paymentMethods)
 
         performAndDocument("결제 수단 목록 조회 - 성공") {
+            tag = "결제 수단 관리"
+            summary = "결제 수단 목록 조회"
+            description = "인증된 사용자의 등록된 결제 수단 목록을 조회합니다. 카드사, 마스킹된 카드번호, 기본 결제 수단 여부 등을 포함합니다."
             httpMethod = HttpMethod.GET
             urlTemplate = "/payment-methods"
             expectedStatus = status().isOk
