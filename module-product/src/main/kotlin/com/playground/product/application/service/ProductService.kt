@@ -1,4 +1,4 @@
-package com.playground.product.application.service.customer
+package com.playground.product.application.service
 
 import com.playground.product.application.port.inbound.ProductUseCase
 import com.playground.product.application.port.inbound.command.ProductSaveCommand

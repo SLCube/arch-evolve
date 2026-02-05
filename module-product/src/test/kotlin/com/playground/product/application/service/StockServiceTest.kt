@@ -2,7 +2,6 @@ package com.playground.product.application.service
 
 import com.playground.product.application.port.outbound.ProductQueryPort
 import com.playground.product.application.port.outbound.StockCachePort
-import com.playground.product.application.service.customer.StockService
 import com.playground.product.domain.exception.InsufficientReservedStockException
 import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.fixture.application.command.ProductCommandTestFixture
