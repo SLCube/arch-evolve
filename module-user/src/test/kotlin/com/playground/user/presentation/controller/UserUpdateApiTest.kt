@@ -106,7 +106,7 @@ class UserUpdateApiTest(
         )
 
         // when & then
-        performAndDocument("닉네임 변경 - 실패, 유효하지 않는 닉네임 (길이)") {
+        performAndDocument("닉네임 변경 - 실패, 유효하지 않은 닉네임 (길이)") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/nickname"
             requestBody = request
@@ -198,7 +198,7 @@ class UserUpdateApiTest(
         )
 
         // when & then
-        performAndDocument("비밀번호 변경 - 실패, 유효하지 않는 비밀번호(길이)") {
+        performAndDocument("비밀번호 변경 - 실패, 새 비밀번호 유효성 검증 실패 (길이)") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/password"
             requestBody = request

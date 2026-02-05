@@ -36,7 +36,7 @@ class TokenRefreshApiTest(
         given(tokenRefreshUseCase.refresh(any()))
             .willReturn(response)
 
-        performAndDocument("토큰_갱신_성공") {
+        performAndDocument("토큰 갱신 - 성공") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/auth/refresh"
             requestBody = request
@@ -64,7 +64,7 @@ class TokenRefreshApiTest(
         given(tokenRefreshUseCase.refresh(any()))
             .willThrow(InvalidRefreshTokenException())
 
-        performAndDocument("토큰_갱신_실패_만료된_토큰") {
+        performAndDocument("토큰 갱신 - 실패, 만료된 토큰") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/auth/refresh"
             requestBody = request

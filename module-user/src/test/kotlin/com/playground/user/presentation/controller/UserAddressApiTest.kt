@@ -38,7 +38,7 @@ class UserAddressApiTest(
         val request = AddressRequestTestFixture.mockAddressRegisterRequest()
         val expectedCommand = request.toCommand(userId)
 
-        performAndDocument("주소-등록-성공") {
+        performAndDocument("주소 등록 - 성공") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/addresses"
             requestBody = request
@@ -66,7 +66,7 @@ class UserAddressApiTest(
             addressId = addressId,
         )
 
-        performAndDocument("기본-주소-설정-성공") {
+        performAndDocument("기본 주소 설정 - 성공") {
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/addresses/{addressId}/default"
             urlVars = arrayOf(addressId)

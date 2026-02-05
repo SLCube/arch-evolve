@@ -38,7 +38,7 @@ class LogoutApiTest(
 
         SecurityContextHolder.getContext().authentication = authentication
 
-        performAndDocument("로그아웃_성공") {
+        performAndDocument("로그아웃 - 성공") {
             httpMethod = HttpMethod.DELETE
             urlTemplate = "/auth/logout"
             expectedStatus = status().isNoContent

@@ -38,17 +38,48 @@ dependencies {
     testRuntimeOnly(libs.h2.database)
 }
 
-//tasks.asciidoctor {
-//    val snippetsDir = layout.buildDirectory.dir("generated-snippets")
-//
-//    sourceDir(file("src/docs/asciidoc"))
-//    inputs.dir(snippetsDir)
-//    dependsOn(tasks.named("test"))
-//
-//    attributes(
-//        mapOf("snippets" to snippetsDir.get().asFile)
-//    )
-//}
+// Copy REST Docs snippets from all modules to module-app
+val copySnippets = tasks.register<Copy>("copySnippets") {
+    group = "documentation"
+    description = "Copy REST Docs snippets from all modules to module-app"
+
+    val modulesWithTests = listOf(
+        "module-user",
+        "module-product",
+        "module-order",
+        "module-payment",
+        "module-auth"
+    )
+
+    modulesWithTests.forEach { moduleName ->
+        from("${rootProject.projectDir}/${moduleName}/build/generated-snippets") {
+            include("**/*")
+        }
+    }
+
+    into(layout.buildDirectory.dir("generated-snippets"))
+
+    // Depend on all module tests
+    dependsOn(
+        ":module-user:test",
+        ":module-product:test",
+        ":module-order:test",
+        ":module-payment:test",
+        ":module-auth:test"
+    )
+}
+
+tasks.asciidoctor {
+    val snippetsDir = layout.buildDirectory.dir("generated-snippets")
+
+    sourceDir(file("src/docs/asciidoc"))
+    inputs.dir(snippetsDir)
+    dependsOn(copySnippets)
+
+    attributes(
+        mapOf("snippets" to snippetsDir.get().asFile)
+    )
+}
 
 tasks.register("buildDocs") {
     group = "documentation"

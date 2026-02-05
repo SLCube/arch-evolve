@@ -56,7 +56,7 @@ class AuthLoginApiTest(
                 )
             )
 
-        performAndDocument("로그인_성공") {
+        performAndDocument("로그인 - 성공") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/login"
             requestBody = loginRequest
@@ -91,7 +91,7 @@ class AuthLoginApiTest(
         given(authenticationManager.authenticate(any()))
             .willAnswer { throw BadCredentialsException("invalid credentials") }
 
-        performAndDocument("로그인_실패_잘못된_자격증명") {
+        performAndDocument("로그인 - 실패 (존재하지 않는 사용자)") {
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/login"
             requestBody = loginRequest

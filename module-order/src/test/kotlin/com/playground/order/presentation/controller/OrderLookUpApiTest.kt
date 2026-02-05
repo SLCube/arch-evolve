@@ -111,7 +111,7 @@ class OrderLookUpApiTest(
         given(orderQueryUseCase.getOrder(eq(requestUserId), eq(requestOrderId)))
             .willThrow(OrderAccessDeniedException(requestOrderId, requestUserId))
 
-        performAndDocument("주문 상세 조회 - 실패(다른 사용자의 주문") {
+        performAndDocument("주문 상세 조회 - 실패 (다른 사용자의 주문)") {
             httpMethod = HttpMethod.GET
             urlTemplate = "/orders/{orderId}"
             urlVars = arrayOf(requestOrderId)
