@@ -40,57 +40,7 @@ V1 아키텍처는 의도적으로 다음과 같은 문제점을 포함하고 �
 
 ### 실제 의존성 구조
 
-```mermaid
-graph TB
-    subgraph Controller["Controller Layer"]
-        UC[UserController]
-        PC[ProductController]
-        OC[OrderController]
-    end
-
-    subgraph Service["Service Layer - 강한 결합 문제"]
-        US[UserService]
-        PS[ProductService]
-        OS[OrderService]
-    end
-
-    subgraph Repository["Repository Layer"]
-        UR[UserRepository]
-        PR[ProductRepository]
-        OR[OrderRepository]
-    end
-
-    subgraph Domain["Domain Layer - Fat JPA Domain"]
-        UE["User Entity<br/>+ updateNickname()<br/>+ updatePassword()"]
-        PE["Product Entity<br/>+ decreaseStock()<br/>+ update()"]
-        OE["Order Entity<br/>+ addOrderItem()<br/>+ calculateTotalPrice()"]
-    end
-
-    UC --> US
-    PC --> PS
-    OC --> OS
-
-    US --> UR
-    PS --> PR
-    OS --> OR
-    OS -->|"❌ Service 간<br/>직접 호출"| PS
-    OS -->|"❌ 도메인 경계<br/>위반"| UR
-
-    UR -.->|"JPA 매핑"| UE
-    PR -.->|"JPA 매핑"| PE
-    OR -.->|"JPA 매핑"| OE
-
-    style OS fill:#ff6b6b,color:#000
-    style PS fill:#ff6b6b,color:#000
-    style UR fill:#ff9999,color:#000
-    style OS stroke:#ff0000,stroke-width:3px
-    style UE fill:#ffb300,color:#000
-    style PE fill:#ffb300,color:#000
-    style OE fill:#ffb300,color:#000
-
-    classDef problem fill:#ff6b6b,stroke:#ff0000,stroke-width:2px
-    classDef fatDomain fill:#ffd93d,stroke:#ff8800,stroke-width:2px
-```
+![V1 아키텍처 문제점](./v1-architecture-problems.png)
 
 ### 1️⃣ Service Layer 강한 결합
 
