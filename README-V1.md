@@ -1,14 +1,8 @@
 # PlayGround Project (V1: Layered Monolith)
 
-## 프로젝트 소개
-
-`PlayGround`는 아키텍처의 점진적인 진화 과정을 담아내는 것을 목표로 하는 토이 프로젝트입니다. 현재 버전(V1)은 기본적인 계층형 모놀리식 아키텍처를 기반으로 사용자, 상품, 주문 관리 기능을 구현하고 있습니다.
-
-이 프로젝트는 단순히 기능을 구현하는 것을 넘어, **의도적인 기술 부채를 만들고 이를 식별, 관리, 해결해나가는 과정**을 통해 아키텍처가 어떻게 개선되고 발전하는지를 보여주는 데 중점을 둡니다.
-
 ## V1 아키텍처: 계층형 모놀리식 (Layered Monolith)
 
-현재 프로젝트는 전통적인 계층형 아키텍처를 따르고 있습니다.
+V1은 빠른 기능 개발과 초기 생산성을 우선시하는 단계에서 널리 채택되는 전통적인 계층형 아키텍처를 따릅니다.
 
 ```
 +---------------------+
@@ -40,54 +34,127 @@
 - JPA Entity가 도메인 엔티티의 역할을 겸하고 있습니다. (Fat JPA Domain의 가능성)
 - Service Layer가 다른 Service Layer의 메소드를 직접 호출하여 비즈니스 로직을 오케스트레이션합니다. (강한 결합의 가능성)
 
-## 주요 설계 결정
+## 🚨 현재 아키텍처의 문제점
 
-### 테스트 프레임워크 (`performAndDocument` DSL)
+V1 아키텍처는 의도적으로 다음과 같은 문제점을 포함하고 있습니다. 이러한 문제들은 V1.5에서 Hexagonal Architecture로 전환하면서 해결될 예정입니다.
 
-이 프로젝트는 테스트 코드의 가독성, 일관성, 유지보수성을 높이기 위해 `performAndDocument`라는 커스텀 DSL(Domain-Specific Language) 기반의 테스트 프레임워크를 구축했습니다.
+### 실제 의존성 구조
 
-- **선언적 API 테스트:** `httpMethod`, `urlTemplate`, `requestBody`, `expectedStatus` 등 테스트의 의도를 명확하게 드러내는 선언적인 방식으로 API 테스트를 작성할 수 있습니다.
-- **문서화 통합:** 하나의 테스트 코드로 API 테스트와 Spring REST Docs를 이용한 문서 생성을 동시에 해결합니다. 이를 통해 테스트와 문서 간의 불일치를 원천적으로 방지하고, 항상 최신 상태의 API 문서를 유지할 수 있습니다.
+```mermaid
+graph TB
+    subgraph Controller["Controller Layer"]
+        UC[UserController]
+        PC[ProductController]
+        OC[OrderController]
+    end
+
+    subgraph Service["Service Layer - 강한 결합 문제"]
+        US[UserService]
+        PS[ProductService]
+        OS[OrderService]
+    end
+
+    subgraph Repository["Repository Layer"]
+        UR[UserRepository]
+        PR[ProductRepository]
+        OR[OrderRepository]
+    end
+
+    subgraph Domain["Domain Layer - Fat JPA Domain"]
+        UE["User Entity<br/>+ updateNickname()<br/>+ updatePassword()"]
+        PE["Product Entity<br/>+ decreaseStock()<br/>+ update()"]
+        OE["Order Entity<br/>+ addOrderItem()<br/>+ calculateTotalPrice()"]
+    end
+
+    UC --> US
+    PC --> PS
+    OC --> OS
+
+    US --> UR
+    PS --> PR
+    OS --> OR
+    OS -->|"❌ Service 간<br/>직접 호출"| PS
+    OS -->|"❌ 도메인 경계<br/>위반"| UR
+
+    UR -.->|"JPA 매핑"| UE
+    PR -.->|"JPA 매핑"| PE
+    OR -.->|"JPA 매핑"| OE
+
+    style OS fill:#ff6b6b,color:#000
+    style PS fill:#ff6b6b,color:#000
+    style UR fill:#ff9999,color:#000
+    style OS stroke:#ff0000,stroke-width:3px
+    style UE fill:#ffb300,color:#000
+    style PE fill:#ffb300,color:#000
+    style OE fill:#ffb300,color:#000
+
+    classDef problem fill:#ff6b6b,stroke:#ff0000,stroke-width:2px
+    classDef fatDomain fill:#ffd93d,stroke:#ff8800,stroke-width:2px
+```
+
+### 1️⃣ Service Layer 강한 결합
 
 ```kotlin
-// 예시: performAndDocument DSL 사용법
-performAndDocument("주문 생성 - 성공") {
-    httpMethod = HttpMethod.POST
-    urlTemplate = "/orders"
-    requestBody = orderRequest
-    accessToken = jwtToken
-    expectedStatus = status().isCreated
-    // ...
+// OrderService.kt
+class OrderService(
+    private val productService: ProductService,  // ❌ 다른 Service 직접 의존
+    private val userRepository: UserRepository,   // ❌ 다른 도메인 Repository 직접 접근
+    private val orderRepository: OrderRepository
+) {
+    fun createOrder(...) {
+        val user = userRepository.findByLoginId(...)  // 도메인 경계 위반
+
+        orderItems.forEach {
+            productService.decreaseStock(...)  // Service → Service 강한 결합
+        }
+    }
 }
 ```
 
-## 주요 기능
+**문제:**
+- OrderService가 ProductService에 강하게 결합
+- OrderService(주문)가 UserRepository(사용자)에 직접 의존 (도메인 경계 위반)
+- 테스트 시 다른 도메인의 인프라까지 Mock해야 함
+- 모듈 분리 시 순환 참조 가능성
 
-### 사용자 관리
-- **회원가입:** 새로운 사용자를 등록합니다. (POST /users/sign-up)
-- **로그인:** 사용자 인증 후 JWT 토큰을 발급합니다. (POST /users/login)
-- **닉네임 변경:** 사용자의 닉네임을 변경합니다. (PATCH /users/{userId}/nickname)
-- **비밀번호 변경:** 사용자의 비밀번호를 변경합니다. (PATCH /users/{userId}/password)
+### 2️⃣ Fat JPA Domain
 
-### 상품 관리
-- **상품 등록:** 관리자 권한으로 새로운 상품을 등록합니다. (POST /products)
-- **상품 조회:** 특정 상품 또는 전체 상품 목록을 조회합니다. (GET /products/{id}, GET /products)
-- **상품 수정:** 관리자 권한으로 상품 정보를 수정합니다. (PATCH /products/{id})
-- **재고 차감:** 관리자 권한으로 상품 재고를 차감합니다. (POST /products/{id}/decrease-stock)
+```kotlin
+// Product.kt
+@Entity  // ❌ JPA 기술과 도메인 로직이 혼재
+class Product(...) : BaseEntity() {
+    var stock: Int  // JPA 필드
 
-### 주문 관리
-- **주문 생성:** 로그인한 사용자가 상품을 주문합니다. (POST /orders)
+    // 비즈니스 로직이 Entity에 포함
+    fun decreaseStock(quantity: Int) {
+        if (stock - quantity < 0) throw InsufficientStockException(...)
+        stock -= quantity
+    }
+}
+```
 
-##  기술 스택
+**문제:**
+- JPA Entity가 도메인 로직을 포함 (기술과 도메인 혼재)
+- 영속성 기술(JPA) 변경 시 도메인 로직도 영향
+- 테스트 시 JPA 의존성 필요
+- 도메인 순수성 상실
 
-- **언어:** Kotlin
-- **프레임워크:** Spring Boot 3.3.1
-- **데이터베이스:** H2 Database (인메모리)
-- **ORM:** Spring Data JPA
-- **보안:** Spring Security, JWT
-- **테스트:** Kotest, JUnit5, Spring Rest Docs
-- **빌드:** Gradle (Kotlin DSL)
+## 향후 계획 (V1.5: Hexagonal Architecture 전환)
 
-## 향후 계획 (V1.5: Hexagonal/Clean Architecture 전환)
+위에서 식별한 문제들을 해결하기 위해, V1.5에서는 **Hexagonal Architecture (Ports & Adapters) 및 Clean Architecture** 원칙을 적용하여 애플리케이션의 내부 구조를 재설계할 예정입니다.
 
-현재 V1 아키텍처에서 인지된 'Fat JPA Domain'과 계층 간의 강한 결합 문제를 해결하기 위해, 다음 버전(V1.5)에서는 **Hexagonal Architecture (Ports & Adapters) 및 Clean Architecture** 원칙을 적용하여 애플리케이션의 내부 구조를 재설계할 예정입니다. 이 과정에서 도메인 계층과 인프라 계층의 분리, 의존성 역전 원칙 적용 등을 통해 더욱 유연하고 유지보수하기 쉬운 아키텍처로 진화할 것입니다.
+**주요 개선 사항:**
+
+1. **Port/Adapter 패턴 도입**
+   - Service 간 직접 호출 대신 Port를 통한 느슨한 결합
+   - 도메인 경계를 넘는 의존성을 인터페이스로 추상화
+
+2. **순수 도메인 모델 구성**
+   - JPA Entity와 Domain Model 완전 분리
+   - 프레임워크 독립적인 비즈니스 로직
+
+3. **명확한 의존성 방향**
+   - Application Layer → Domain Layer ← Infrastructure Layer
+   - 의존성 역전 원칙(DIP) 적용
+
+이를 통해 더욱 유연하고 유지보수하기 쉬운 아키텍처로 진화할 것입니다.
