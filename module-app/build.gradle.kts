@@ -105,6 +105,7 @@ tasks.register("resolveAndCopyApi") {
     doLast {
         val sourceFile = file("build/api-spec/openapi3.yaml")
         val targetDir = file("src/main/resources/static/docs")
+        val targetFile = file("$targetDir/openapi3.yaml")
 
         targetDir.mkdirs()
 
@@ -114,6 +115,43 @@ tasks.register("resolveAndCopyApi") {
                 into(targetDir)
                 rename { "openapi3.yaml" }
             }
+
+            val content = targetFile.readText()
+            val updatedContent = content.replace(
+                "tags: []\npaths:",
+                """tags: []
+security:
+- bearerAuth: []
+paths:"""
+            )
+
+            val finalContent = updatedContent.replace(
+                "components:\n  schemas:",
+                """components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Access Token
+  schemas:"""
+            )
+
+            val withPublicApis = finalContent
+                .replace(
+                    "  /users/login:\n    post:",
+                    "  /users/login:\n    post:\n      security: []"
+                )
+                .replace(
+                    "  /users/sign-up:\n    post:",
+                    "  /users/sign-up:\n    post:\n      security: []"
+                )
+                .replace(
+                    "  /auth/refresh:\n    post:",
+                    "  /auth/refresh:\n    post:\n      security: []"
+                )
+
+            targetFile.writeText(withPublicApis)
         }
     }
 }

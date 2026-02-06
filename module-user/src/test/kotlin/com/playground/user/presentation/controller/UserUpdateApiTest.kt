@@ -37,7 +37,7 @@ class UserUpdateApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `닉네임 변경 - 성공`() {
+    fun `닉네임 변경 성공`() {
         // given
         val userId = 2L
         val request = UserRequestTestFixture.mockUserNicknamdUpdateRequest()
@@ -49,7 +49,7 @@ class UserUpdateApiTest(
             .willReturn(mockUser)
 
         // when & then
-        performAndDocument("닉네임 변경 - 성공") {
+        performAndDocument("닉네임 변경 성공") {
             tag = "사용자 API"
             summary = "닉네임 변경"
             description = "인증된 사용자의 닉네임을 변경합니다. 새로운 닉네임을 입력받아 사용자 정보를 업데이트합니다."
@@ -75,7 +75,7 @@ class UserUpdateApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `닉네임 변경 - 실패, 다른 사용자가 사용 중인 닉네임으로 변경 시도`() {
+    fun `닉네임 변경 실패 - 다른 사용자가 사용 중인 닉네임으로 변경 시도`() {
         // given
         val userId = 2L
         val request = UserRequestTestFixture.mockUserNicknamdUpdateRequest()
@@ -84,10 +84,10 @@ class UserUpdateApiTest(
             .willThrow(DuplicateNicknameException())
 
         // when & then
-        performAndDocument("닉네임 변경 - 실패, 다른 사용자가 사용 중인 닉네임으로 변경 시도") {
+        performAndDocument("닉네임 변경 실패 - 다른 사용자가 사용 중인 닉네임으로 변경 시도") {
             tag = "사용자 API"
-            summary = "닉네임 변경 실패 - 닉네임 중복"
-            description = "다른 사용자가 이미 사용 중인 닉네임으로 변경을 시도할 경우 409 Conflict를 반환합니다."
+            summary = "닉네임 변경"
+            description = "인증된 사용자의 닉네임을 변경합니다. 새로운 닉네임을 입력받아 사용자 정보를 업데이트합니다."
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/nickname"
             requestBody = request
@@ -105,17 +105,17 @@ class UserUpdateApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `닉네임 변경 - 실패, 유효하지 않는 닉네임 (길이)`() {
+    fun `닉네임 변경 실패 - 유효하지 않는 닉네임 (길이)`() {
         // given
         val request = UserRequestTestFixture.mockUserNicknamdUpdateRequest(
             nickname = "testLongerNickname"
         )
 
         // when & then
-        performAndDocument("닉네임 변경 - 실패, 유효하지 않은 닉네임 (길이)") {
+        performAndDocument("닉네임 변경 실패 - 유효하지 않은 닉네임 (길이)") {
             tag = "사용자 API"
-            summary = "닉네임 변경 실패 - 유효성 검증 실패"
-            description = "닉네임이 2자 미만 또는 10자 초과인 경우 400 Bad Request를 반환합니다."
+            summary = "닉네임 변경"
+            description = "인증된 사용자의 닉네임을 변경합니다. 새로운 닉네임을 입력받아 사용자 정보를 업데이트합니다."
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/nickname"
             requestBody = request
@@ -136,7 +136,7 @@ class UserUpdateApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `비밀번호 변경 - 성공`() {
+    fun `비밀번호 변경 성공`() {
         // given
         val userId = 2L
         val request = UserRequestTestFixture.mockUserPasswordUpdateRequest()
@@ -149,7 +149,7 @@ class UserUpdateApiTest(
             .willReturn(mockUser)
 
         // when & then
-        performAndDocument("비밀번호 변경 - 성공") {
+        performAndDocument("비밀번호 변경 성공") {
             tag = "사용자 API"
             summary = "비밀번호 변경"
             description = "인증된 사용자의 비밀번호를 변경합니다. 기존 비밀번호와 새 비밀번호를 입력받아 검증 후 업데이트합니다."
@@ -176,7 +176,7 @@ class UserUpdateApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `비밀번호 변경 - 실패, 기존 비밀번호 불일치`() {
+    fun `비밀번호 변경 실패 - 기존 비밀번호 불일치`() {
         // given
         val userId = 2L
         val request = UserRequestTestFixture.mockUserPasswordUpdateRequest()
@@ -185,10 +185,10 @@ class UserUpdateApiTest(
             .willThrow(PasswordMismatchException())
 
         // when & then
-        performAndDocument("비밀번호 변경 - 실패, 기존 비밀번호 불일치") {
+        performAndDocument("비밀번호 변경 실패 - 기존 비밀번호 불일치") {
             tag = "사용자 API"
-            summary = "비밀번호 변경 실패 - 기존 비밀번호 불일치"
-            description = "입력한 기존 비밀번호가 일치하지 않을 경우 400 Bad Request를 반환합니다."
+            summary = "비밀번호 변경"
+            description = "인증된 사용자의 비밀번호를 변경합니다. 기존 비밀번호와 새 비밀번호를 입력받아 검증 후 업데이트합니다."
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/password"
             requestBody = request
@@ -206,17 +206,17 @@ class UserUpdateApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `비밀번호 변경 - 실패, 유효하지 않는 비밀번호(길이)`() {
+    fun `비밀번호 변경 실패 - 유효하지 않는 비밀번호(길이)`() {
         // given
         val request = UserRequestTestFixture.mockUserPasswordUpdateRequest(
             newPassword = "short"
         )
 
         // when & then
-        performAndDocument("비밀번호 변경 - 실패, 새 비밀번호 유효성 검증 실패 (길이)") {
+        performAndDocument("비밀번호 변경 실패 - 새 비밀번호 유효성 검증 실패 (길이)") {
             tag = "사용자 API"
-            summary = "비밀번호 변경 실패 - 유효성 검증 실패"
-            description = "새 비밀번호가 8자 미만 또는 16자 초과인 경우 400 Bad Request를 반환합니다."
+            summary = "비밀번호 변경"
+            description = "인증된 사용자의 비밀번호를 변경합니다. 기존 비밀번호와 새 비밀번호를 입력받아 검증 후 업데이트합니다."
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/users/password"
             requestBody = request

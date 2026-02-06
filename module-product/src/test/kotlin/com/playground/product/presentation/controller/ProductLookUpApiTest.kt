@@ -28,7 +28,7 @@ class ProductLookUpApiTest(
 ): RestDocsTest() {
 
     @Test
-    fun `상품 단일 조회 - 성공`() {
+    fun `상품 단일 조회 성공`() {
         // given
         val mockProduct = ProductDomainTestFixture.mockProduct()
         val mockProductQuery = ProductQueryTestFixture.mockProductQuery(id = mockProduct.id!!)
@@ -37,7 +37,7 @@ class ProductLookUpApiTest(
             .willReturn(mockProduct)
 
         // when & then
-        performAndDocument("상품 단일 조회 - 성공") {
+        performAndDocument("상품 단일 조회 성공") {
             tag = "상품 API"
             summary = "상품 단일 조회"
             description = "상품 ID를 통해 특정 상품의 상세 정보를 조회합니다."
@@ -68,7 +68,7 @@ class ProductLookUpApiTest(
     }
 
     @Test
-    fun `상품 단일 조회 - 실패, 존재하지 않는 상품`() {
+    fun `상품 단일 조회 실패 - 존재하지 않는 상품`() {
         // given
         val nonExistingProductId = 999L
 
@@ -78,10 +78,10 @@ class ProductLookUpApiTest(
 
 
         // when & then
-        performAndDocument("상품 단일 조회 - 실패, 존재하지 않는 상품") {
+        performAndDocument("상품 단일 조회 실패 - 존재하지 않는 상품") {
             tag = "상품 API"
-            summary = "상품 단일 조회 실패 - 상품 없음"
-            description = "존재하지 않는 상품 ID로 조회할 경우 404 Not Found를 반환합니다."
+            summary = "상품 단일 조회"
+            description = "상품 ID를 통해 특정 상품의 상세 정보를 조회합니다."
 
             httpMethod = HttpMethod.GET
             urlTemplate = "/products/{id}"

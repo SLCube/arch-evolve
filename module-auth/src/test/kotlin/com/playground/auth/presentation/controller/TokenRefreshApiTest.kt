@@ -26,7 +26,7 @@ class TokenRefreshApiTest(
 ) : RestDocsTest() {
 
     @Test
-    fun `토큰 갱신 - 성공`() {
+    fun `토큰 갱신 성공`() {
         val request = TokenRefreshRequestDto(refreshToken = "valid-refresh-token")
         val response = AuthTokenResponseDto(
             accessToken = "new-access-token",
@@ -36,7 +36,7 @@ class TokenRefreshApiTest(
         given(tokenRefreshUseCase.refresh(any()))
             .willReturn(response)
 
-        performAndDocument("토큰 갱신 - 성공") {
+        performAndDocument("토큰 갱신 성공") {
             tag = "인증 API"
             summary = "토큰 갱신"
             description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token 발급"
@@ -62,16 +62,16 @@ class TokenRefreshApiTest(
     }
 
     @Test
-    fun `토큰 갱신 - 실패(만료된 토큰)`() {
+    fun `토큰 갱신 실패 - 만료된 토큰`() {
         val request = TokenRefreshRequestDto(refreshToken = "expired-refresh-token")
 
         given(tokenRefreshUseCase.refresh(any()))
             .willThrow(InvalidRefreshTokenException())
 
-        performAndDocument("토큰 갱신 - 실패, 만료된 토큰") {
+        performAndDocument("토큰 갱신 실패 - 만료된 토큰") {
             tag = "인증 API"
-            summary = "토큰 갱신 실패"
-            description = "만료되거나 유효하지 않은 Refresh Token"
+            summary = "토큰 갱신"
+            description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token 발급"
 
             httpMethod = HttpMethod.POST
             urlTemplate = "/auth/refresh"

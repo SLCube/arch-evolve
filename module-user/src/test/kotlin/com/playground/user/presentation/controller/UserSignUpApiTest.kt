@@ -28,7 +28,7 @@ class UserSignUpApiTest(
 ): RestDocsTest() {
 
     @Test
-    fun `회원가입 - 성공`() {
+    fun `회원가입 성공`() {
         // given
         val request = UserRequestTestFixture.mockSignUpRequest()
 
@@ -38,7 +38,7 @@ class UserSignUpApiTest(
             .willReturn(mockUser)
 
         // when & then
-        performAndDocument("회원가입 - 성공") {
+        performAndDocument("회원가입 성공") {
             tag = "사용자 API"
             summary = "회원가입"
             description = "새로운 사용자를 등록합니다. loginId, password, nickname을 입력받아 회원가입을 진행합니다."
@@ -66,15 +66,15 @@ class UserSignUpApiTest(
     }
 
     @Test
-    fun `회원가입 - 실패, loginId가 비어있음`() {
+    fun `회원가입 실패 - loginId가 비어있음`() {
         // given
         val request = UserRequestTestFixture.mockSignUpRequest(loginId = "")
 
         // when & then
-        performAndDocument("회원가입 - 실패, loginId가 비어있음") {
+        performAndDocument("회원가입 실패 - loginId가 비어있음") {
             tag = "사용자 API"
-            summary = "회원가입 실패 - 유효성 검증 실패"
-            description = "loginId가 비어있거나 유효하지 않은 형식일 경우 400 Bad Request를 반환합니다."
+            summary = "회원가입"
+            description = "새로운 사용자를 등록합니다. loginId, password, nickname을 입력받아 회원가입을 진행합니다."
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/sign-up"
             requestBody = request
@@ -94,7 +94,7 @@ class UserSignUpApiTest(
     }
 
     @Test
-    fun `회원가입 - 실패, loginId 중복`() {
+    fun `회원가입 실패 - loginId 중복`() {
         // given
         val existingLoginId = "existingUser"
         val request = UserRequestTestFixture.mockSignUpRequest(loginId = existingLoginId)
@@ -103,10 +103,10 @@ class UserSignUpApiTest(
             .willThrow(DuplicateLoginIdException(existingLoginId))
 
         // when & then
-        performAndDocument("회원가입 - 실패, loginId 중복") {
+        performAndDocument("회원가입 실패 - loginId 중복") {
             tag = "사용자 API"
-            summary = "회원가입 실패 - loginId 중복"
-            description = "이미 존재하는 loginId로 회원가입을 시도할 경우 409 Conflict를 반환합니다."
+            summary = "회원가입"
+            description = "새로운 사용자를 등록합니다. loginId, password, nickname을 입력받아 회원가입을 진행합니다."
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/sign-up"
             requestBody = request

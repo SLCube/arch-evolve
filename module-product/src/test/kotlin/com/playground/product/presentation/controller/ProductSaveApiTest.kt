@@ -38,7 +38,7 @@ class ProductSaveApiTest(
 
     @Test
     @WithMockAuthUser(role = "ADMIN")
-    fun `상품 등록 - 성공`() {
+    fun `상품 등록 성공`() {
         // given
         val request = ProductRequestTestFIxture.mockProductSaveRequest()
         val mockSavedProduct = ProductDomainTestFixture.mockProduct()
@@ -47,7 +47,7 @@ class ProductSaveApiTest(
             .willReturn(mockSavedProduct)
 
         // when & then
-        performAndDocument("상품 등록 - 성공") {
+        performAndDocument("상품 등록 성공") {
             tag = "상품 API"
             summary = "상품 등록"
             description = "새로운 상품을 등록합니다. ADMIN 권한이 필요합니다."
@@ -81,17 +81,17 @@ class ProductSaveApiTest(
 
     @Test
     @WithMockAuthUser(role = "ADMIN")
-    fun `상품 등록 - 실패, 이름이 비어있음`() {
+    fun `상품 등록 실패 - 이름이 비어있음`() {
         // given
         val request = ProductRequestTestFIxture.mockProductSaveRequest(
             name = "",
         )
 
         // when & then
-        performAndDocument("상품 등록 - 실패, 이름이 비어있음") {
+        performAndDocument("상품 등록 실패 - 이름이 비어있음") {
             tag = "상품 API"
-            summary = "상품 등록 실패 - 유효성 검증"
-            description = "상품 이름이 비어있을 경우 400 Bad Request를 반환합니다."
+            summary = "상품 등록"
+            description = "새로운 상품을 등록합니다. ADMIN 권한이 필요합니다."
 
             httpMethod = HttpMethod.POST
             urlTemplate = "/products"
@@ -115,15 +115,15 @@ class ProductSaveApiTest(
 
     @Test
     @WithMockAuthUser(role = "USER")
-    fun `상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도`() {
+    fun `상품 등록 실패 - USER 권한으로 ADMIN API 접근 시도`() {
         // given
         val request = ProductRequestTestFIxture.mockProductSaveRequest()
 
         // when & then
-        performAndDocument("상품 등록 - 실패, USER 권한으로 ADMIN API 접근 시도") {
+        performAndDocument("상품 등록 실패 - USER 권한으로 ADMIN API 접근 시도") {
             tag = "상품 API"
-            summary = "상품 등록 실패 - 권한 부족"
-            description = "USER 권한으로 ADMIN 전용 API에 접근할 경우 403 Forbidden을 반환합니다."
+            summary = "상품 등록"
+            description = "새로운 상품을 등록합니다. ADMIN 권한이 필요합니다."
 
             httpMethod = HttpMethod.POST
             urlTemplate = "/products"

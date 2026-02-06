@@ -31,7 +31,7 @@ class AuthLoginApiTest(
 ) : RestDocsTest() {
 
     @Test
-    fun `로그인 - 성공`() {
+    fun `로그인 성공`() {
         val loginRequest =
             AuthLoginRequestDto(
                 loginId = "testUser",
@@ -56,7 +56,7 @@ class AuthLoginApiTest(
                 )
             )
 
-        performAndDocument("로그인 - 성공") {
+        performAndDocument("로그인 성공") {
             tag = "인증 API"
             summary = "로그인"
             description = "사용자 인증 후 Access Token과 Refresh Token 발급"
@@ -85,7 +85,7 @@ class AuthLoginApiTest(
     }
 
     @Test
-    fun `로그인 - 실패(잘못된 자격 증명)`() {
+    fun `로그인 실패 - 잘못된 자격 증명`() {
         val loginRequest =
             AuthLoginRequestDto(
                 loginId = "unknownUser",
@@ -95,10 +95,10 @@ class AuthLoginApiTest(
         given(authenticationManager.authenticate(any()))
             .willAnswer { throw BadCredentialsException("invalid credentials") }
 
-        performAndDocument("로그인 - 실패 (존재하지 않는 사용자)") {
+        performAndDocument("로그인 실패 - 잘못된 자격증명") {
             tag = "인증 API"
-            summary = "로그인 실패"
-            description = "잘못된 자격증명으로 인한 인증 실패"
+            summary = "로그인"
+            description = "사용자 인증 후 Access Token과 Refresh Token 발급"
 
             httpMethod = HttpMethod.POST
             urlTemplate = "/users/login"

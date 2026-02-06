@@ -33,7 +33,7 @@ class OrderCancelApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `주문 취소 - 성공`() {
+    fun `주문 취소 성공`() {
         val mockOrder = OrderDomainTestFixture.mockOrder()
         mockOrder.cancelOrder()
 
@@ -46,7 +46,7 @@ class OrderCancelApiTest(
         given(orderCommandUseCase.cancelOrder(eq(command)))
             .willReturn(mockOrder)
 
-        performAndDocument("주문 취소 - 성공") {
+        performAndDocument("주문 취소 성공") {
             tag = "주문 API"
             summary = "주문 취소"
             description = "생성된 주문을 취소합니다. 주문 ID를 경로 변수로 전달하며, 인증된 사용자의 주문만 취소할 수 있습니다. 취소 성공 시 주문 상태가 CANCELLED로 변경됩니다."
@@ -80,7 +80,7 @@ class OrderCancelApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `주문 취소 - 실패 (존재하지 않는 주문)`() {
+    fun `주문 취소 실패 - 존재하지 않는 주문`() {
         val authenticatedUserId = 2L
         val nonExistingOrderId = 999L
 
@@ -92,10 +92,10 @@ class OrderCancelApiTest(
         given(orderCommandUseCase.cancelOrder(eq(command)))
             .willThrow(OrderNotFoundException(nonExistingOrderId))
 
-        performAndDocument("주문 취소 - 실패 (존재하지 않는 주문)") {
+        performAndDocument("주문 취소 실패 - 존재하지 않는 주문") {
             tag = "주문 API"
-            summary = "주문 취소 실패 - 존재하지 않는 주문"
-            description = "존재하지 않는 주문 ID로 취소 요청 시 404 Not Found 에러가 발생합니다."
+            summary = "주문 취소"
+            description = "생성된 주문을 취소합니다. 주문 ID를 경로 변수로 전달하며, 인증된 사용자의 주문만 취소할 수 있습니다. 취소 성공 시 주문 상태가 CANCELLED로 변경됩니다."
 
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/orders/{orderId}/cancel"
@@ -117,7 +117,7 @@ class OrderCancelApiTest(
 
     @Test
     @WithMockAuthUser(userId = 2L)
-    fun `주문 취소 - 실패 (이미 취소된 주문)`() {
+    fun `주문 취소 실패 - 이미 취소된 주문`() {
         val authenticatedUserId = 2L
         val alreadyCancelOrderId = 10L
 
@@ -129,10 +129,10 @@ class OrderCancelApiTest(
         given(orderCommandUseCase.cancelOrder(eq(command)))
             .willThrow(OrderStatusInvalidException(OrderStatus.CANCELLED))
 
-        performAndDocument("주문 취소 - 실패 (이미 취소된 주문)") {
+        performAndDocument("주문 취소 실패 - 이미 취소된 주문") {
             tag = "주문 API"
-            summary = "주문 취소 실패 - 이미 취소된 주문"
-            description = "이미 취소된 주문을 다시 취소 시도할 경우 400 Bad Request 에러가 발생합니다. 주문 상태가 CANCELLED인 경우 중복 취소가 불가능합니다."
+            summary = "주문 취소"
+            description = "생성된 주문을 취소합니다. 주문 ID를 경로 변수로 전달하며, 인증된 사용자의 주문만 취소할 수 있습니다. 취소 성공 시 주문 상태가 CANCELLED로 변경됩니다."
 
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/orders/{orderId}/cancel"
@@ -154,7 +154,7 @@ class OrderCancelApiTest(
 
     @Test
     @WithMockAuthUser(userId = 3L)
-    fun `주문 취소 - 실패 (다른 사용자의 주문)`() {
+    fun `주문 취소 실패 - 다른 사용자의 주문`() {
         val requestUserId = 3L
         val orderId = 10L
 
@@ -166,10 +166,10 @@ class OrderCancelApiTest(
         given(orderCommandUseCase.cancelOrder(eq(command)))
             .willThrow(OrderAccessDeniedException(orderId, requestUserId))
 
-        performAndDocument("주문 취소 - 실패 (다른 사용자의 주문)") {
+        performAndDocument("주문 취소 실패 - 다른 사용자의 주문") {
             tag = "주문 API"
-            summary = "주문 취소 실패 - 권한 없음"
-            description = "다른 사용자의 주문을 취소 시도할 경우 403 Forbidden 에러가 발생합니다. 인증된 사용자는 본인의 주문만 취소할 수 있습니다."
+            summary = "주문 취소"
+            description = "생성된 주문을 취소합니다. 주문 ID를 경로 변수로 전달하며, 인증된 사용자의 주문만 취소할 수 있습니다. 취소 성공 시 주문 상태가 CANCELLED로 변경됩니다."
 
             httpMethod = HttpMethod.PATCH
             urlTemplate = "/orders/{orderId}/cancel"
