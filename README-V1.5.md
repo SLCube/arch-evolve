@@ -1,87 +1,143 @@
 # PlayGround Project (V1.5: Hexagonal Architecture)
 
-## 프로젝트 소개
+## V1.5 아키텍처: 헥사고날 아키텍처
 
-`PlayGround`는 아키텍처의 점진적인 진화 과정을 담아내는 것을 목표로 하는 토이 프로젝트입니다. 현재 버전(V1.5)은 **헥사고날 아키텍처 (Ports & Adapters)**를 기반으로 사용자, 상품, 주문 관리 기능을 구현하고 있습니다.
+V1.5는 V1에서 발생했던 Service 간 강한 결합과 Fat JPA Domain 문제를 해결하기 위해 Ports & Adapters 패턴을 기반으로 한 헥사고날 아키텍처를 채택했습니다.
 
-V1.0에서 인지된 전통적인 계층형 아키텍처의 한계(도메인 순수성 침해, 강한 계층 간 결합)를 극복하고, **아키텍처의 견고함, 코드 품질, 개발 프로세스의 효율성**을 극대화하는 데 중점을 두었습니다.
+![헥사고날 아키텍처](./hexagonal-architecture.png)
 
-이 프로젝트는 단순히 기능을 구현하는 것을 넘어, **의도적인 기술 부채를 식별, 관리, 해결해나가는 과정**을 통해 아키텍처가 어떻게 개선되고 발전하는지를 보여주는 데 중점을 둡니다.
+**핵심 원칙:**
+- **의존성 방향**: 외부(Adapter) → 내부(Domain)로만 향함
+- **Domain 독립성**: Domain은 어떤 레이어에도 의존하지 않음
+- **Port/Adapter 분리**: Port(인터페이스)를 통해서만 Domain 접근
 
-## V1.0 대비 주요 아키텍처 진화 (V1.5)
+## 주요 변경 사항
 
-### 1. 헥사고날 아키텍처 (Hexagonal Architecture)로의 전환
+### 1. POJO 도메인과 JPA 엔티티 분리
 
-*   **배경:** V1.0의 전통적인 계층형 아키텍처에서 발생했던 'Fat JPA Domain' 문제, 프레임워크 종속성, 비즈니스 로직의 낮은 독립성, **Service Layer가 다른 Service Layer의 메소드를 직접 호출하여 비즈니스 로직을 오케스트레이션하는 강한 계층 간 결합 문제**를 해결하기 위함.
-*   **변화:**
-    *   **도메인(Core) 중심 설계:** 비즈니스 로직의 독립성을 확보하고, 외부 기술(프레임워크, 데이터베이스 등)로부터의 결합도를 최소화.
-    *   **포트(Port)와 어댑터(Adapter) 패턴:** 애플리케이션 코어와 외부 인프라(Persistence, Presentation) 간의 상호작용을 추상화하여 의존성 역전 원칙 적용.
-*   **결과:** 유연하고 확장 가능한 시스템 기반 마련, 비즈니스 로직의 테스트 용이성 극대화.
+도메인 모델(`Order`, `Product`, `User`)을 순수 POJO로 유지하고, JPA 영속성을 위한 엔티티(`OrderJpaEntity`, `ProductJpaEntity`, `UserJpaEntity`)를 별도로 관리합니다.
 
-### 2. 도메인 모델 순수성 확보
+**효과:**
+- 도메인 로직이 프레임워크(JPA, Spring)에 독립적
+- 비즈니스 로직 테스트 시 JPA 의존성 불필요
+- 영속성 기술 변경 시 도메인 로직 영향 없음
 
-*   **배경:** V1.0에서 도메인 모델이 JPA 엔티티 역할을 겸하거나, 특정 프레임워크(Spring Security) 인터페이스를 직접 구현하여 도메인 순수성이 침해되던 문제.
-*   **변화:**
-    *   **POJO 도메인 모델과 JPA 엔티티 분리:** 도메인 계층의 모델(`Product`, `Order`, `User`)을 순수한 POJO로 유지하고, JPA 영속성을 위한 `ProductJpaEntity`, `OrderJpaEntity`, `UserJpaEntity`와 같은 엔티티를 별도로 관리.
-*   **결과:** 도메인 계층의 독립성 및 재사용성 극대화, 비즈니스 로직의 프레임워크 독립성 강화.
+### 2. Port/Adapter 패턴 도입
 
-### 3. CQS (Command Query Separation) 패턴 적용
+**In Port (Use Case):**
+- 비즈니스 유스케이스를 정의하는 인터페이스
+- 예: `OrderCommandUseCase`, `ProductUseCase`
 
-*   **배경:** `Order` 모듈에서 Command(상태 변경)와 Query(상태 조회)의 책임이 하나의 서비스에 혼재되어 있던 문제.
-*   **변화:**
-    *   `OrderService`를 `OrderCommandService`와 `OrderQueryService`로 분리.
-    *   `OrderUseCase` 인터페이스를 `OrderCommandUseCase`와 `OrderQueryUseCase`로 분리하여 각 메소드의 책임(상태 변경 vs 상태 조회)을 명확히 함.
-*   **결과:** 코드의 가독성 및 유지보수성 향상, 비즈니스 로직의 명확성 증대.
+**Out Port:**
+- 외부 의존성(DB, 이벤트 등)을 추상화하는 인터페이스
+- 예: `OrderCommandPort`, `OrderQueryPort`, `OrderEventPort`
 
-## 코드 품질 및 개발 프로세스 혁신
+**Adapter:**
+- Port의 실제 구현체
+- Persistence Adapter: DB 접근 구현
+- Presentation Adapter: HTTP 요청 처리
 
-### 1. ArchUnit 도입을 통한 아키텍처 검증
+**효과:**
+- 애플리케이션 코어와 인프라의 완전한 분리
+- 의존성 역전 원칙(DIP) 적용
+- 테스트 시 Adapter만 Mock 처리
 
-*   **배경:** 아키텍처 원칙이 코드 변경 과정에서 의도치 않게 침해될 수 있는 위험.
-*   **변화:** **ArchUnit**을 도입하여 코드 레벨에서 헥사고날 아키텍처 규칙을 자동으로 검증하는 시스템 구축.
-*   **주요 검증 규칙:**
-    *   각 계층 (`Domain`, `Application Port`, `Application Service`, `Persistence`, `Presentation`) 간의 의존성 방향.
-    *   클래스 명명 규칙 및 패키지 위치.
-*   **결과:** 아키텍처 침식 방지, 설계 원칙의 지속적인 준수 강제, 코드베이스의 아키텍처적 견고함 유지.
+### 3. CQS 패턴 적용 (Order 모듈)
 
-### 2. JaCoCo 적용을 통한 테스트 품질 관리
+`OrderService`를 `OrderCommandService`(상태 변경)와 `OrderQueryService`(상태 조회)로 분리하여 각 메소드의 책임을 명확히 구분합니다.
 
-*   **배경:** 테스트 커버리지에 대한 가시성 부족 및 테스트 품질 관리의 필요성.
-*   **변화:** **JaCoCo**를 도입하여 코드 커버리지를 측정하고 관리.
-*   **결과:** 테스트의 품질을 정량적으로 평가, 테스트되지 않은 코드 영역 식별 용이.
+- `OrderCommandUseCase`: createOrder, cancelOrder
+- `OrderQueryUseCase`: getOrder, getOrders
 
-### 3. Ktlint 적용을 통한 코드 스타일 일관성
+**효과:**
+- 읽기/쓰기 책임 명확히 분리
+- 각 서비스의 트랜잭션 설정 최적화 가능 (readOnly=true)
+- 코드 가독성 및 유지보수성 향상
 
-*   **배경:** Kotlin 코드 스타일의 일관성 부족 및 가독성 저하 가능성.
-*   **변화:** **Ktlint**를 도입하여 Kotlin 코드의 스타일 가이드 준수 여부를 자동으로 검사.
-*   **결과:** 코드의 일관성 및 가독성 향상, 코드 리뷰 시간 단축.
+## 🚨 현재 아키텍처의 문제점
 
-### 4. Docker 도입을 통한 개발/배포 환경 일관성
+V1의 문제는 해결했지만, V1.5는 여전히 **단일 모듈** 구조이기 때문에 새로운 문제가 존재합니다.
 
-*   **배경:** 개발 환경 설정의 복잡성 및 환경 간 불일치 문제.
-*   **변화:** 애플리케이션을 **Docker 컨테이너**로 패키징.
-*   **결과:** 개발, 테스트, 배포 환경의 일관성 확보, 환경 설정 간소화.
+### 도메인 간 순환 의존성
 
-### 5. CI (Continuous Integration) 적용
+![도메인 간 순환 의존성](./v1.5-circular-dependency.png)
 
-*   **배경:** 코드 변경 후 수동 검증의 비효율성 및 통합 문제 발생 가능성.
-*   **변화:** 자동화된 빌드, 테스트, 검증 프로세스 구축.
-*   **결과:** 개발 초기 단계에서 문제점 발견, 코드 품질의 지속적인 유지.
+**⚠️ 순환 의존성:**
+- Order → Product: `OrderProductProvider`가 `ProductQueryPort`에 의존
+- Product → Order: `ProductStockEventListener`가 `OrderCreatedEvent` 구독
+- 단일 모듈이라 컴파일 타임 순환 참조 방지 불가
 
-## 기술 스택
+### 1️⃣ 도메인 간 순환 참조 가능성
 
-*   **언어:** Kotlin
-*   **프레임워크:** Spring Boot 3.3.1
-*   **데이터베이스:** PostgreSQL
-*   **ORM:** Spring Data JPA
-*   **보안:** Spring Security, JWT
-*   **테스트:** Kotest, JUnit5, Arch Unit, JaCoCo, Spring Rest Docs
-*   **빌드:** Gradle (Kotlin DSL)
-*   **컨테이너:** Docker
-*   **CI/CD:** GitHub Actions (CI)
-*   **코드 커버리지 리포팅:** Codecov
-*   **코드 스타일:** Ktlint
+```kotlin
+// Order 도메인 → Product 도메인
+class OrderProductProvider(
+    private val productQueryPort: ProductQueryPort  // Product 도메인 Port
+) {
+    fun getProductInfo(productId: Long): ProductInfo {
+        // Product 도메인에 의존
+    }
+}
+
+// Product 도메인 → Order 도메인 (이벤트)
+@Component
+class ProductStockEventListener {
+    @EventListener
+    fun handle(orderCreatedEvent: OrderCreatedEvent) {
+        // Order 도메인 이벤트 구독
+    }
+}
+```
+
+**문제:**
+- 단일 모듈 내에서 도메인 간 양방향 의존 발생 가능
+- 컴파일 타임에 순환 참조 방지 불가능
+- 패키지 구조만으로는 경계 강제 어려움
+
+### 2️⃣ 도메인 경계가 관례에 의존
+
+```
+com.playground
+├── user/
+│   ├── domain/
+│   ├── application/
+│   └── persistence/
+├── product/
+│   ├── domain/
+│   ├── application/
+│   └── persistence/
+└── order/
+    ├── domain/
+    ├── application/
+    └── persistence/
+```
+
+**문제:**
+- 패키지 네이밍 관례로만 경계 구분
+- Order가 Product의 내부 구현(ProductService)에 직접 접근 가능
+- 실수로 잘못된 의존성 추가해도 컴파일 성공
+
+### 3️⃣ 도메인 확장 시 복잡도 증가
+
+**현재 3개 도메인:**
+- User ← Order
+- Product ← Order
+- Product ↔ Order (이벤트)
+
+**도메인이 추가되면 (Delivery, Payment 등):**
+- n개 도메인 간 n(n-1)/2 개의 잠재적 의존성
+- 관리 복잡도 기하급수적 증가
 
 ## 향후 계획 (V2: Multi-Module Architecture)
 
-V1.5에서 다져진 헥사고날 아키텍처 기반 위에, 다음 버전(V2)에서는 **멀티 모듈 아키텍처**로의 전환을 통해 시스템의 확장성과 모듈 간의 독립성을 더욱 강화할 예정입니다. 이 과정에서 각 도메인을 독립적인 모듈로 분리하고, 모듈 간의 명확한 의존성 경계를 설정하여 대규모 시스템 개발 및 유지보수에 최적화된 구조를 만들 것입니다.
+V1.5에서 다져진 헥사고날 아키텍처 기반 위에, 다음 버전(V2)에서는 **멀티 모듈 아키텍처**로의 전환을 통해 위에서 식별한 문제들을 해결할 예정입니다.
+
+**V1.5의 근본적인 한계:**
+- 단일 모듈 구조로 인해 도메인 간 순환 참조를 컴파일 타임에 방지할 수 없음
+- 패키지 네이밍 관례만으로는 도메인 경계를 강제하기 어려움
+- 도메인이 추가될수록 잠재적 의존성이 기하급수적으로 증가
+
+**V2의 접근:**
+- 각 도메인을 독립적인 모듈로 분리하여 물리적 경계 확립
+- 빌드 시스템을 활용한 의존성 관리로 관례가 아닌 **컴파일 타임 강제**
+- 모듈 간 명확한 인터페이스 정의를 통한 느슨한 결합
