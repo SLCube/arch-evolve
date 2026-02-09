@@ -36,10 +36,10 @@ V2.5는 4개의 Phase를 거쳐 점진적으로 진화했습니다.
 
 **측정 결과:**
 
-![결제로직 동작 vu1](./images/v2.5-phases/00-initial-problem/결제로직 동작 vu1 rps1 60초.png)
+![결제로직 동작 vu1](./images/v2.5-phases/00-initial-problem/결제로직%20동작%20vu1%20rps1%2060초.png)
 *결제 로직 포함 (vu1): P95 627ms*
 
-![결제로직 동작 vu5](./images/v2.5-phases/00-initial-problem/결제로직 동작 vu5 rps5 60초.png)
+![결제로직 동작 vu5](./images/v2.5-phases/00-initial-problem/결제로직%20동작%20vu5%20rps5%2060초.png)
 *결제 로직 포함 (vu5): P95 3.63초*
 
 | VU | RPS | P95 | P99 | 배수 |
@@ -64,10 +64,10 @@ Event consumer를 비활성화하여 결제 로직(Payment → Order → Product
 
 **측정 결과:**
 
-![결제로직 미동작 vu1](./images/v2.5-phases/00-initial-problem/결제로직 미동작 vu1 rps1 30초.png)
+![결제로직 미동작 vu1](./images/v2.5-phases/00-initial-problem/결제로직%20미동작%20vu1%20rps1%2030초.png)
 *결제 로직 제외 (vu1): P95 59.3ms*
 
-![결제로직 미동작 vu5](./images/v2.5-phases/00-initial-problem/결제로직 미동작 vu5 rps5 180초.png)
+![결제로직 미동작 vu5](./images/v2.5-phases/00-initial-problem/결제로직%20미동작%20vu5%20rps5%20180초.png)
 *결제 로직 제외 (vu5): P95 40.3ms*
 
 | 상태 | RPS | P95 | P99 | 개선율 |
@@ -93,10 +93,10 @@ Event consumer를 비활성화하여 결제 로직(Payment → Order → Product
 
 **측정 결과:**
 
-![재고차감 RPS 20](./images/v2.5-phases/00-initial-problem/결제로직 미동작 vu20 rps20 180s.png)
+![재고차감 RPS 20](./images/v2.5-phases/00-initial-problem/결제로직%20미동작%20vu20%20rps20%20180s.png)
 *RPS 20: P95 27.6ms (정상)*
 
-![재고차감 RPS 700](./images/v2.5-phases/00-initial-problem/결제로직 미동작 vu700 rps700 180s.png)
+![재고차감 RPS 700](./images/v2.5-phases/00-initial-problem/결제로직%20미동작%20vu700%20rps700%20180s.png)
 *RPS 700: P95 1.41초 (병목 발생)*
 
 | RPS | P95 | P99 | 상태 |
@@ -106,7 +106,7 @@ Event consumer를 비활성화하여 결제 로직(Payment → Order → Product
 
 **Connection Pool 분석 (RPS 700):**
 
-![Connection Pool Statistics](./images/v2.5-phases/00-initial-problem/결제로직 미동작 vu700 rps700 180s connection.png)
+![Connection Pool Statistics](./images/v2.5-phases/00-initial-problem/결제로직%20미동작%20vu700%20rps700%20180s%20connection.png)
 
 **HikariCP 상태:**
 - Pool Size: 10
@@ -199,15 +199,15 @@ RPS 700에서 Connection Pool Pending이 평균 174개 발생 → Pool Size를 1
 
 **Before (Phase 1: PostgreSQL 재고 관리, RPS 100):**
 
-![Before Connection Pool](./images/v2.5-phases/00-initial-problem/결제로직 미동작 vu700 rps700 180s connection.png)
+![Before Connection Pool](./images/v2.5-phases/00-initial-problem/결제로직%20미동작%20vu700%20rps700%20180s%20connection.png)
 - Pool Size: 10
 - Pending: 평균 174, 최대 189
 
 **After (Redis 재고 관리, RPS 100):**
 
-![After Performance](./images/v2.5-phases/01-phase1-redis/redis재고관리 p95 p99.png)
+![After Performance](./images/v2.5-phases/01-phase1-redis/redis재고관리%20p95%20p99.png)
 
-![After Connection Pool](./images/v2.5-phases/01-phase1-redis/redis 재고관리 connection pool.png)
+![After Connection Pool](./images/v2.5-phases/01-phase1-redis/redis%20재고관리%20connection%20pool.png)
 - Pool Size: 50
 - Pending: **0** (완전 해소)
 
@@ -236,7 +236,7 @@ RPS 700에서 Connection Pool Pending이 평균 174개 발생 → Pool Size를 1
 
 **측정 결과 (RPS 100):**
 
-![결제로직 개선전](./images/v2.5-phases/02-phase2-payment/결제로직 개선전 rps100 p95 p99.png)
+![결제로직 개선전](./images/v2.5-phases/02-phase2-payment/결제로직%20개선전%20rps100%20p95%20p99.png)
 
 - **P95**: 16.4s
 - **P99**: 17.4s
@@ -265,7 +265,7 @@ fun handleOrderCreated(event: OrderCreatedEvent) {
 
 **측정 결과:**
 
-![동기식 AFTER_COMMIT](./images/v2.5-phases/02-phase2-payment/결제요청 after commit이후 p95 p99.png)
+![동기식 AFTER_COMMIT](./images/v2.5-phases/02-phase2-payment/결제요청%20after%20commit이후%20p95%20p99.png)
 
 - **P95**: 6.65s
 - **P99**: 6.98s
@@ -310,7 +310,7 @@ fun handleOrderCreated(event: OrderCreatedEvent) {
 
 **측정 결과:**
 
-![비동기식 AFTER_COMMIT](./images/v2.5-phases/02-phase2-payment/async 적용 후 rps100 p95 p99.png)
+![비동기식 AFTER_COMMIT](./images/v2.5-phases/02-phase2-payment/async%20적용%20후%20rps100%20p95%20p99.png)
 
 - **P95**: 13.8ms
 - **P99**: 34.1ms
@@ -357,9 +357,9 @@ RPS 700 부하 테스트 시작 → **즉시 장애 발생**
 
 **측정 결과:**
 
-![Pool 50 성능](./images/v2.5-phases/03-phase3-limits/connection pool 50개 rps700 p95 p99.png)
+![Pool 50 성능](./images/v2.5-phases/03-phase3-limits/connection%20pool%2050개%20rps700%20p95%20p99.png)
 
-![Pool 50 Connection](./images/v2.5-phases/03-phase3-limits/connection pool 50개 connection pool.png)
+![Pool 50 Connection](./images/v2.5-phases/03-phase3-limits/connection%20pool%2050개%20connection%20pool.png)
 
 | 항목 | 값 | 상태 |
 |------|-----|------|
@@ -382,9 +382,9 @@ Connection Pool을 더 늘려보자.
 
 **측정 결과:**
 
-![Pool 증가 후 성능](./images/v2.5-phases/03-phase3-limits/커넥션 풀 증가 이후 rps700 p95 p99.png)
+![Pool 증가 후 성능](./images/v2.5-phases/03-phase3-limits/커넥션%20풀%20증가%20이후%20rps700%20p95%20p99.png)
 
-![Pool 증가 후 Connection](./images/v2.5-phases/03-phase3-limits/커넥션 풀 증가 이후 rps700 connection pool.png)
+![Pool 증가 후 Connection](./images/v2.5-phases/03-phase3-limits/커넥션%20풀%20증가%20이후%20rps700%20connection%20pool.png)
 
 | 항목 | Before (Pool 50) | After (Pool 증가) | 개선 여부 |
 |------|-----------------|------------------|----------|
