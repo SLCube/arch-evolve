@@ -93,7 +93,7 @@ performAndDocument("주문 생성 - 성공") {
 - **[V2.0: Multi Module Hexagonal Architecture](./README-V2.0.md)**
   Contract Module, 도메인 경계 컴파일 타임 강제
 
-- **[V2.5: High Performed Monolith](./README-V2.5.md)** (작성 예정)
+- **[V2.5: High Performed Monolith](./README-V2.5.md)**
   Redis 재고 관리, 비동기 이벤트, 모놀리스 한계 확인
 
 ## 브랜치 구조
