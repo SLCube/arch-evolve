@@ -50,8 +50,7 @@ v2.0  → Multi Module Hexagonal Architecture
           └─ Contract Module, 도메인 경계 컴파일 타임 강제
 
 v2.5  → High Performed Monolith (현재)
-          └─ Redis 재고 관리 (P95 94.9%↓), 비동기 이벤트 (P95 99.8%↓)
-          └─ 모놀리스 한계 확인: Connection Pool, 리소스 격리 불가
+          └─ 성능 최적화 (P95 99.8%↓), 모놀리스 한계 데이터 증명
 
 v3.0  → Choreography Microservices Architecture (예정)
           └─ 독립 DB, 리소스 격리, Saga 패턴, 분산 트랜잭션 처리
@@ -94,7 +93,7 @@ performAndDocument("주문 생성 - 성공") {
   Contract Module, 도메인 경계 컴파일 타임 강제
 
 - **[V2.5: High Performed Monolith](./README-V2.5.md)**
-  Redis 재고 관리, 비동기 이벤트, 모놀리스 한계 확인
+  성능 최적화 (P95 99.8%↓), 모놀리스 한계 데이터 증명
 
 ## 브랜치 구조
 
