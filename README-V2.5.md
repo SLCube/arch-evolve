@@ -8,7 +8,7 @@ V2.5는 V2.0에서 다져진 안정된 멀티 모듈 구조 위에서, **실제 
 
 **핵심 원칙:**
 - **가설 → 실험 → 측정 → 결론**: 모든 개선을 데이터로 뒷받침
-- **실패 포함**: 분산 락 실험 → 성능 악화 → 대안 선택 등 시행착오 기록
+- **실패 포함**: 잘못된 가설(동기식 AFTER_COMMIT)도 기록하여 실제 학습 과정 공유
 - **성능 측정**: Before/After를 수치와 그래프로 증명
 - **한계 인정**: 모놀리스로 해결 불가능한 문제 명확히 식별
 
@@ -23,6 +23,9 @@ V2.5는 4개의 Phase를 거쳐 점진적으로 진화했습니다.
 - k6 부하 테스트 도구 도입
 - Grafana + Prometheus 메트릭 수집
 - Loki 로그 집계
+
+**로컬 테스트 환경:**
+- MacBook Air (M1, 8 Core, 16 GB)
 
 #### 1-2. 초기 성능 측정 및 가설 수립
 
@@ -454,9 +457,8 @@ Payment, Product, Delivery도 Connection 못 얻음
 **3️⃣ 장애 격리 불가능**
 
 **문제:**
-- Product DB에 장애 발생 → Order, Payment, Delivery 모두 영향
+- Product 도메인에 장애 발생 → Order, Payment, Delivery 모두 영향
 - 부분 장애가 **전체 장애로 확산**
-- Circuit Breaker로도 해결 불가 (동일 DB)
 
 **4️⃣ 독립 배포 불가능**
 
@@ -490,26 +492,6 @@ Payment, Product, Delivery도 Connection 못 얻음
 - 기능이 많아질수록 배포 복잡도 증가
 - 모듈별 독립 배포로 배포 리스크 감소
 
-**MSA 전환 후 기대 효과:**
-
-```
-Before (Monolith):
-- Single DB + Connection Pool 100 (공유)
-- Order, Payment, Product, Delivery 모듈
-
-After (MSA):
-- Order Service: DB + Pool 25
-- Payment Service: DB + Pool 25
-- Product Service: DB + Pool 25 (Redis 포함)
-- Delivery Service: DB + Pool 25
-
-총 Connection 100개 동일, 하지만:
-✅ 독립적 관리 (리소스 격리)
-✅ 독립적 확장 (Payment만 2배 → Pool 50)
-✅ 장애 격리 (Product 장애 → Order 정상)
-✅ 독립 배포 (Payment만 배포 가능)
-```
-
 **결론:**
 
 High Performed Monolith의 한계를 데이터로 증명.
@@ -519,55 +501,17 @@ High Performed Monolith의 한계를 데이터로 증명.
 
 ## 🚨 현재 프로젝트의 문제점
 
-V2.5는 모놀리스로서 최선의 성능을 달성했지만 (RPS 100, P95 13.8ms), **RPS 700 환경에서 구조적 한계**를 확인했습니다.
+V2.5는 모놀리스로서 최선의 성능을 달성했지만 (RPS 100, P95 13.8ms), **단일 DB 공유 구조의 근본적 한계**를 확인했습니다.
 
-### 1️⃣ 성능 한계 (데이터로 증명)
+**Phase 4에서 확인된 모놀리스의 한계:**
+- **성능 한계**: RPS 700 시 P95 2.63s (RPS 100 대비 190배 느림)
+- **리소스 격리 불가**: 한 모듈의 트래픽 폭증이 전체 시스템 영향
+- **수평 확장 불가**: 인스턴스 추가해도 동일 DB 공유 (PostgreSQL max_connections 한계)
+- **장애 격리 불가**: 부분 장애가 전체 장애로 확산
+- **독립 배포 불가**: 모듈별 배포 불가능, 전체 시스템 재배포 필요
 
-**측정 결과:**
-- RPS 100: P95 13.8ms ✅
-- RPS 700: P95 2.63s ❌ (190배 느림)
-- Connection Pending 평균 126개 발생
-
-**원인:**
-- PostgreSQL max_connections 100 한계
-- Connection Pool을 늘려도 DB 서버 절대적 한계 존재
-- Scale-up은 임시방편 (근본 해결 불가)
-
-### 2️⃣ 리소스/장애 격리 불가능
-
-**문제:**
-- 모든 모듈이 단일 DB 공유
-- Order 트래픽 폭증 → Payment, Product, Delivery도 Connection 못 얻음
-- Product 장애 → 전체 시스템 장애로 확산
-
-**시도한 해결책:**
-- Connection Pool 증가 → max_connections 한계
-
-### 3️⃣ 독립 확장/배포 불가능
-
-**문제:**
-- 인스턴스 추가해도 동일 DB 공유 (Scale-out 불가)
-- Payment만 배포하고 싶어도 전체 시스템 재배포
-- 기능 증가 시 배포 복잡도 기하급수적 증가
-
-**근본 원인:**
-- 단일 DB 아키텍처
-- 모놀리식 배포 구조
+**근본 원인:** 단일 DB 공유 + 모놀리식 배포 구조
 
 ## 향후 계획 (V3.0: Microservices Architecture)
 
 V2.5에서 확인한 모놀리스의 한계를 해결하기 위해, V3.0에서는 **Microservices Architecture**로 전환할 예정입니다.
-
-**V2.5의 근본적 한계:**
-- 단일 DB 공유 → 리소스/장애 격리 불가능
-- Connection Pool 한계 → 수평 확장 불가능
-- 모놀리식 배포 → 독립 배포 불가능
-
-**V3.0의 접근:**
-- 각 서비스별 독립 DB 구성 (리소스 격리)
-- 서비스별 독립 확장 (Payment만 2배 → Pool 50)
-- 독립 배포 가능 (배포 리스크 감소)
-- Saga 패턴 기반 분산 트랜잭션 처리
-- RPS 700+ 재테스트
-
-이를 통해 모놀리스로 해결할 수 없었던 **리소스 격리, 독립 확장, 장애 격리, 독립 배포** 문제를 해결하고, 진정한 고가용성 시스템으로 진화할 것입니다.
