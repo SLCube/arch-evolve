@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - "main"
-      - "phase/2.5-high-performed-monolith"
+      - "phase/3.0-micro-services-architecture"
   pull_request:
     branches:
       - "main"
-      - "phase/2.5-high-performed-monolith"
+      - "phase/3.0-micro-services-architecture"
 
 jobs:
   build:
