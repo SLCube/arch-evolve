@@ -49,10 +49,10 @@ v1.5  → Single Module Hexagonal Architecture
 v2.0  → Multi Module Hexagonal Architecture
           └─ Contract Module, 도메인 경계 컴파일 타임 강제
 
-v2.5  → High Performed Monolith (현재)
+v2.5  → High Performed Monolith
           └─ 성능 최적화 (P95 99.8%↓), 모놀리스 한계 데이터 증명
 
-v3.0  → Choreography Microservices Architecture (예정)
+v3.0  → Microservices Architecture (현재)
           └─ 독립 DB, 리소스 격리, Saga 패턴, 분산 트랜잭션 처리
 ```
 
