@@ -101,8 +101,8 @@ performAndDocument("주문 생성 - 성공") {
 phase/1.0-single-layered-architecture          (V1.0)
 phase/1.5-single-module-hexagonal-architecture (V1.5)
 phase/2.0-multi-module-hexagonal-architecture  (V2.0)
-phase/2.5-high-performed-monolith              (V2.5, 현재)
-phase/3.0-choreography-msa                     (V3.0, 예정)
+phase/2.5-high-performed-monolith              (V2.5)
+phase/3.0-choreography-msa                     (V3.0, 현재)
 ```
 
 각 브랜치는 해당 Phase의 완성된 코드를 포함하며, 독립적으로 실행 가능합니다.
