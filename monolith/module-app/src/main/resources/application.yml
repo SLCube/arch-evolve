@@ -8,6 +8,9 @@ spring:
     include:
       - secret
       - monitoring
+  docker:
+    compose:
+      file: monolith/docker-compose.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/playground
     username: playground

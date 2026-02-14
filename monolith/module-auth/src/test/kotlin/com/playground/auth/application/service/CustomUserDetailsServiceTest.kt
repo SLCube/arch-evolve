@@ -1,7 +1,5 @@
 package com.playground.auth.application.service
 
-import com.playground.common.error.BusinessException
-import com.playground.common.error.ErrorCode
 import com.playground.user.contract.application.port.outbound.UserInfoQueryPort
 import com.playground.user.contract.domain.vo.UserInfo
 import io.kotest.assertions.throwables.shouldThrow
