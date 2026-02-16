@@ -1,14 +1,20 @@
-name: Java CI with Gradle
+name: Monolith CI
 
 on:
   push:
     branches:
       - "main"
       - "phase/3.0-micro-services-architecture"
+    paths:
+      - 'monolith/**'
+      - '.github/workflows/monolith-ci.yml'
   pull_request:
     branches:
       - "main"
       - "phase/3.0-micro-services-architecture"
+    paths:
+      - 'monolith/**'
+      - '.github/workflows/monolith-ci.yml'
 
 jobs:
   build:
@@ -35,35 +41,32 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      # Gradle 캐시 설정 단계 추가
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
-          # 캐시할 파일 경로: Gradle이 사용하는 캐시 디렉토리들
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          # 캐시 키: build.gradle.kts 파일 내용이 바뀌면 새로운 캐시를 생성
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
-          # 복원 키: 정확한 캐시 키가 없을 경우, 이전 버전의 캐시라도 사용
+          key: ${{ runner.os }}-gradle-monolith-${{ hashFiles('monolith/**/*.gradle.kts') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle-monolith-
 
       - name: Grant execute permission for gradlew
+        working-directory: monolith
         run: chmod +x gradlew
 
       - name: Build with Gradle
+        working-directory: monolith
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRATION_HOURS: ${{ secrets.JWT_EXPIRATION_HOURS }}
           JWT_REFRESH_EXPIRATION_HOURS: ${{ secrets.JWT_REFRESH_EXPIRATION_HOURS }}
         run: ./gradlew build
 
-      # Codecov 업로드 단계 추가
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          # JaCoCo XML 리포트 경로
-          files: ./build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          files: monolith/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
+          flags: monolith
           verbose: true
