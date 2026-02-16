@@ -5,8 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "play-ground"
-
-includeBuild("monolith")
-includeBuild("payment-service")
-
+rootProject.name = "payment-service"
