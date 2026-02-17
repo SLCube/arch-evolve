@@ -9,5 +9,5 @@ enum class PaymentStatus(
     CANCELLED("결제 취소"),
     ;
 
-    fun isSuccess() : Boolean = this == COMPLETED
+    fun isSuccess(): Boolean = this == COMPLETED
 }

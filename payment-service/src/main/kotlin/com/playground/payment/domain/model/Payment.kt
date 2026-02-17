@@ -8,20 +8,19 @@ class Payment(
     val id: Long? = null,
     val userId: Long,
     val orderId: Long,
-
     val amount: BigDecimal,
     val usedPaymentKey: String,
-
     var status: PaymentStatus,
     var pgTransactionId: String? = null,
     var approvalNumber: String? = null,
     var failReason: String? = null,
-
     val createdAt: LocalDateTime = LocalDateTime.now(),
     var approveAt: LocalDateTime? = null,
 ) {
-
-    fun complete(pgTransactionId: String, approvalNumber: String) {
+    fun complete(
+        pgTransactionId: String,
+        approvalNumber: String,
+    ) {
         this.status = PaymentStatus.COMPLETED
         this.pgTransactionId = pgTransactionId
         this.approvalNumber = approvalNumber
