@@ -1,8 +1,8 @@
 package com.playground.payment.persistence.entity
 
-import com.playground.common.persistence.jpa.BaseEntity
 import com.playground.payment.domain.enum.PaymentStatus
 import com.playground.payment.domain.model.Payment
+import com.playground.payment.persistence.entity.base.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType

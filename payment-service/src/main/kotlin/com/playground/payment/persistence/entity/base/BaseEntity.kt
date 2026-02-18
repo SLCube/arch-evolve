@@ -1,4 +1,4 @@
-package com.playground.common.persistence.jpa
+package com.playground.payment.persistence.entity.base
 
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners

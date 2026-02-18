@@ -1,4 +1,4 @@
-package com.playground.common.jpa.config
+package com.playground.payment.persistence.config
 
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
@@ -7,12 +7,8 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 class QuerydslConfig(
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private val entityManager: EntityManager,
 ) {
-
     @Bean
-    fun jpaQueryFactory() : JPAQueryFactory {
-        return JPAQueryFactory(entityManager)
-    }
+    fun jpaQueryFactory(): JPAQueryFactory = JPAQueryFactory(entityManager)
 }

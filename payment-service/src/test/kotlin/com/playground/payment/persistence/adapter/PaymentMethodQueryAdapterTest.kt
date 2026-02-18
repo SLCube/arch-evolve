@@ -1,9 +1,9 @@
 package com.playground.payment.persistence.adapter
 
-import com.playground.common.jpa.config.QuerydslConfig
 import com.playground.payment.domain.exception.DefaultPaymentMethodNotFoundException
 import com.playground.payment.domain.exception.PaymentMethodNotFoundException
 import com.playground.payment.fixture.application.domain.PaymentMethodDomainTestFixture
+import com.playground.payment.persistence.config.QuerydslConfig
 import com.playground.payment.persistence.entity.PaymentMethodJpaEntity
 import com.playground.payment.persistence.repository.PaymentMethodRepository
 import io.kotest.assertions.throwables.shouldThrow
@@ -22,7 +22,6 @@ class PaymentMethodQueryAdapterTest(
     @param:Autowired private val paymentMethodQueryAdapter: PaymentMethodQueryAdapter,
     @param:Autowired private val paymentMethodRepository: PaymentMethodRepository,
 ) {
-
     @BeforeEach
     fun cleanRepository() {
         paymentMethodRepository.deleteAll()
@@ -123,7 +122,7 @@ class PaymentMethodQueryAdapterTest(
                 userId = userId,
                 billingKey = billingKey,
                 isDefault = isDefault,
-            )
-        )
+            ),
+        ),
     )
 }
