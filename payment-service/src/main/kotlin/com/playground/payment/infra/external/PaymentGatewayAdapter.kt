@@ -13,7 +13,10 @@ import kotlin.random.Random
 
 @Component
 class PaymentGatewayAdapter : PaymentGatewayPort {
-    override fun issueBillingKey(authKey: String, userId: Long): String {
+    override fun issueBillingKey(
+        authKey: String,
+        userId: Long,
+    ): String {
         simulateLatency(100, 300)
 
         if (authKey.startsWith("FAIL_ISSUE_TIMEOUT")) {
@@ -26,32 +29,35 @@ class PaymentGatewayAdapter : PaymentGatewayPort {
 
     override fun requestAuthorization(
         paymentKey: String,
-        amount: BigDecimal
-    ): PgAuthorizationResult {
-        return try {
+        amount: BigDecimal,
+    ): PgAuthorizationResult =
+        try {
             callExternalPgApi(paymentKey, amount)
 
             PgAuthorizationResult(
                 isSuccess = true,
                 pgTransactionId = "TID_${UUID.randomUUID().toString().substring(0, 8)}",
                 approvalNumber = Random.nextInt(10000000, 99999999).toString(),
-                failReason = null
+                failReason = null,
             )
         } catch (e: Exception) {
-            val errorMessage = when (e) {
-                is BusinessException -> e.message
-                else -> "PG 연동 오류 ${e.message}"
-            }
+            val errorMessage =
+                when (e) {
+                    is BusinessException -> e.message
+                    else -> "PG 연동 오류 ${e.message}"
+                }
             PgAuthorizationResult(
                 isSuccess = false,
                 pgTransactionId = null,
                 approvalNumber = null,
-                failReason = errorMessage
+                failReason = errorMessage,
             )
         }
-    }
 
-    private fun callExternalPgApi(paymentKey: String, amount: BigDecimal) {
+    private fun callExternalPgApi(
+        paymentKey: String,
+        amount: BigDecimal,
+    ) {
         simulateLatency(300, 500)
         if (paymentKey.startsWith("FAIL_")) {
             throw PaymentGatewayTimeoutException()
@@ -62,7 +68,10 @@ class PaymentGatewayAdapter : PaymentGatewayPort {
         }
     }
 
-    private fun simulateLatency(min: Long, max: Long) {
+    private fun simulateLatency(
+        min: Long,
+        max: Long,
+    ) {
         val latency = Random.nextLong(min, max)
         try {
             Thread.sleep(latency)
