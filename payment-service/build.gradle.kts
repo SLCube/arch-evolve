@@ -76,7 +76,6 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
     }
     filter {
-        exclude("**/generated/**")
-        include("**/kotlin/**")
+        exclude { it.file.path.contains("build${File.separator}generated") }
     }
 }
