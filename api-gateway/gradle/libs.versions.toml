@@ -3,7 +3,7 @@ kotlin = "2.3.10"
 java = "21"
 springBoot = "3.5.10"
 springDependencyManagement = "1.1.7"
-springCloud = "2025.0.0"
+springCloud = "2025.1.1"
 
 jjwt = "0.13.0"
 ktlint = "14.0.1"
