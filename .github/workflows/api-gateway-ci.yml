@@ -1,0 +1,49 @@
+name: API Gateway CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "phase/3.0-micro-services-architecture"
+    paths:
+      - 'api-gateway/**'
+      - '.github/workflows/api-gateway-ci.yml'
+  pull_request:
+    branches:
+      - "main"
+      - "phase/3.0-micro-services-architecture"
+    paths:
+      - 'api-gateway/**'
+      - '.github/workflows/api-gateway-ci.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-api-gateway-${{ hashFiles('api-gateway/**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-api-gateway-
+
+      - name: Grant execute permission for gradlew
+        working-directory: api-gateway
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        working-directory: api-gateway
+        run: ./gradlew build
