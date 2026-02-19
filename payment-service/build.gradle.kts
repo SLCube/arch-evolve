@@ -38,6 +38,9 @@ dependencies {
     runtimeOnly(libs.postgres)
     // Testing
     testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.restdocs.mockmvc)
+    testImplementation(libs.restdocs.api.spec.mockmvc)
+    testImplementation("com.playground:test-support")
     testImplementation(libs.spring.security.test)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotest.runner)
