@@ -51,6 +51,7 @@ logging:
     console: '%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%-7.7thread] [%-40.40logger{39}] - %msg method=%X{method}, path=%X{path}, requestId=%X{requestId}%n'
 
 server:
+  port: 8081
   tomcat:
     threads:
       max: 200

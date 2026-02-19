@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+jwt:
+  secret: ${jwt.secret}
+
+spring:
+  profiles:
+    include:
+      - secret
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: payment-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/payment/**
+              filters:
+                - JwtAuthentication
+
+            - id: monolith
+              uri: http://localhost:8081
+              predicates:
+                - Path=/**

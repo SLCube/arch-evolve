@@ -28,7 +28,7 @@ dependencyManagement {
 
 dependencies {
     // Spring Cloud Gateway
-    implementation(libs.spring.cloud.starter.gateway)
+    implementation(libs.spring.cloud.starter.gateway.server.webflux)
 
     // Kotlin
     implementation(libs.jackson.module.kotlin)
@@ -41,6 +41,7 @@ dependencies {
 
     // Testing
     testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.bundles.kotest)
 }
 
 java {

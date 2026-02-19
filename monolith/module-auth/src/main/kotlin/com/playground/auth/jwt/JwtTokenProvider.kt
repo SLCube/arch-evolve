@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.UnsupportedJwtException
 import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.security.SignatureException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
@@ -81,7 +82,7 @@ class JwtTokenProvider(
         try {
             parseClaims(token)
             return true
-        } catch (e: SecurityException) {
+        } catch (e: SignatureException) {
             log.error("Invalid JWT Signature : ", e)
         } catch (e: MalformedJwtException) {
             log.error("Invalid JWT token : ", e)
