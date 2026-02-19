@@ -1,4 +1,4 @@
-name: API Gateway CI
+name: Test Support CI
 
 on:
   push:
@@ -6,17 +6,17 @@ on:
       - "main"
       - "phase/3.0-micro-services-architecture"
     paths:
-      - 'api-gateway/**'
+      - 'test-support/**'
       - 'gradle/**'
-      - '.github/workflows/api-gateway-ci.yml'
+      - '.github/workflows/test-support-ci.yml'
   pull_request:
     branches:
       - "main"
       - "phase/3.0-micro-services-architecture"
     paths:
-      - 'api-gateway/**'
+      - 'test-support/**'
       - 'gradle/**'
-      - '.github/workflows/api-gateway-ci.yml'
+      - '.github/workflows/test-support-ci.yml'
 
 jobs:
   build:
@@ -38,16 +38,14 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-api-gateway-${{ hashFiles('api-gateway/**/*.gradle.kts', 'gradle/libs.versions.toml') }}
+          key: ${{ runner.os }}-gradle-test-support-${{ hashFiles('test-support/**/*.gradle.kts', 'gradle/libs.versions.toml') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-api-gateway-
+            ${{ runner.os }}-gradle-test-support-
 
       - name: Grant execute permission for gradlew
-        working-directory: api-gateway
+        working-directory: test-support
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        working-directory: api-gateway
-        env:
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        working-directory: test-support
         run: ./gradlew build

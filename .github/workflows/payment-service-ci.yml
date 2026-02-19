@@ -7,6 +7,7 @@ on:
       - "phase/3.0-micro-services-architecture"
     paths:
       - 'payment-service/**'
+      - 'gradle/**'
       - '.github/workflows/payment-service-ci.yml'
   pull_request:
     branches:
@@ -14,6 +15,7 @@ on:
       - "phase/3.0-micro-services-architecture"
     paths:
       - 'payment-service/**'
+      - 'gradle/**'
       - '.github/workflows/payment-service-ci.yml'
 
 jobs:
@@ -36,7 +38,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-payment-${{ hashFiles('payment-service/**/*.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-payment-${{ hashFiles('payment-service/**/*.gradle.kts', 'gradle/libs.versions.toml') }}
           restore-keys: |
             ${{ runner.os }}-gradle-payment-
 
