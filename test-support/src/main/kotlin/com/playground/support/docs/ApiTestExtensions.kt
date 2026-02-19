@@ -65,7 +65,8 @@ fun RestDocsTest.performAndDocument(
     }
 
     val resultActions =
-        restDocsMockMvc.perform(requestBuilder)
+        restDocsMockMvc
+            .perform(requestBuilder)
             .andExpect(builder.expectedStatus)
 
     builder.additionalMatchers.forEach { matcher ->
@@ -100,7 +101,8 @@ fun ResultActions.andDocument(
 ): ResultActions {
     val resourceSnippet =
         resource(
-            ResourceSnippetParameters.builder()
+            ResourceSnippetParameters
+                .builder()
                 .tag(tag ?: "API")
                 .summary(summary ?: identifier)
                 .description(description ?: "")

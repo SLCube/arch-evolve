@@ -14,7 +14,6 @@ import org.springframework.web.context.WebApplicationContext
 
 @ExtendWith(RestDocumentationExtension::class)
 abstract class RestDocsTest {
-
     @Autowired
     lateinit var objectMapper: ObjectMapper
 
@@ -26,8 +25,10 @@ abstract class RestDocsTest {
 
     @BeforeEach
     fun setUp(restDocumentation: RestDocumentationContextProvider) {
-        this.restDocsMockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-            .apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
-            .build()
+        this.restDocsMockMvc =
+            MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply<DefaultMockMvcBuilder>(MockMvcRestDocumentation.documentationConfiguration(restDocumentation))
+                .build()
     }
 }
