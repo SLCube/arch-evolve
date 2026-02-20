@@ -19,6 +19,7 @@ spring:
                 - Path=/payment/**
               filters:
                 - JwtAuthentication
+                - StripPrefix=1
 
             - id: monolith
               uri: http://localhost:8081

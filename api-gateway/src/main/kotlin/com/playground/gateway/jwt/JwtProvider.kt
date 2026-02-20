@@ -39,7 +39,7 @@ class JwtProvider(
         return false
     }
 
-    fun getUserId(token: String): String = parseClaims(token).subject
+    fun getUserId(token: String): String = (parseClaims(token)["userId"] as Number).toLong().toString()
 
     private fun parseClaims(token: String): Claims =
         Jwts

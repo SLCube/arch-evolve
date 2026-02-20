@@ -45,14 +45,22 @@ class JwtProviderTest {
     }
 
     @Test
-    fun `getUserId 는 토큰에서 subject 를 추출한다`() {
-        val token = createToken("1")
+    fun `getUserId 는 토큰에서 userId claim 을 추출한다`() {
+        val token = createToken("test1", userId = 1L)
 
         jwtProvider.getUserId(token) shouldBe "1"
     }
 
+    @Test
+    fun `getUserId 는 int 범위의 userId 를 Long 으로 반환한다`() {
+        val token = createToken("test1", userId = 42L)
+
+        jwtProvider.getUserId(token) shouldBe "42"
+    }
+
     private fun createToken(
         subject: String,
+        userId: Long = 1L,
         expired: Boolean = false,
         tampered: Boolean = false,
     ): String {
@@ -73,6 +81,7 @@ class JwtProviderTest {
         return Jwts
             .builder()
             .subject(subject)
+            .claim("userId", userId)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(Keys.hmacShaKeyFor(key.toByteArray()))
