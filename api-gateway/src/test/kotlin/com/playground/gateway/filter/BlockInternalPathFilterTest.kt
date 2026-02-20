@@ -17,9 +17,10 @@ class BlockInternalPathFilterTest {
 
     @Test
     fun `internal 경로 요청은 403을 반환한다`() {
-        val exchange = MockServerWebExchange.from(
-            MockServerHttpRequest.post("/internal/payments/authorize").build(),
-        )
+        val exchange =
+            MockServerWebExchange.from(
+                MockServerHttpRequest.post("/internal/payments/authorize").build(),
+            )
         val chain = mock<GatewayFilterChain>()
 
         filter.filter(exchange, chain).block()
@@ -29,9 +30,10 @@ class BlockInternalPathFilterTest {
 
     @Test
     fun `internal이 아닌 경로는 다음 필터로 넘긴다`() {
-        val exchange = MockServerWebExchange.from(
-            MockServerHttpRequest.post("/payment/payment-methods").build(),
-        )
+        val exchange =
+            MockServerWebExchange.from(
+                MockServerHttpRequest.post("/payment/payment-methods").build(),
+            )
         val chain = mock<GatewayFilterChain>()
         given(chain.filter(exchange)).willReturn(Mono.empty())
 
