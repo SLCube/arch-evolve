@@ -23,7 +23,6 @@ dependencies {
     implementation(libs.spring.boot.starter.web)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.validation)
-    implementation(libs.spring.security.core)
     developmentOnly(libs.spring.boot.docker.compose)
 
     // Kotlin
@@ -41,7 +40,6 @@ dependencies {
     testImplementation(libs.restdocs.mockmvc)
     testImplementation(libs.restdocs.api.spec.mockmvc)
     testImplementation("com.playground:test-support")
-    testImplementation(libs.spring.security.test)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.kotest.runner)
     testImplementation(libs.kotest.assertions)
