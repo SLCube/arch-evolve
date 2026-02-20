@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.3.10"
 java = "21"
-springBoot = "3.5.10"
+springBoot = "3.5.11"
 springDependencyManagement = "1.1.7"
 
 jackson = "2.15.0"
