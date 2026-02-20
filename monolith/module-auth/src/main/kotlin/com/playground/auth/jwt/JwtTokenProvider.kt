@@ -1,5 +1,6 @@
 package com.playground.auth.jwt
 
+import com.playground.auth.contract.security.AuthUserDetails
 import com.playground.common.log.utils.logger
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.ExpiredJwtException
@@ -41,10 +42,13 @@ class JwtTokenProvider(
         val now = Instant.now()
         val expiration = now.plus(jwtProperties.expirationHours, ChronoUnit.HOURS)
 
+        val userId = (authentication.principal as AuthUserDetails).getUserId()
+
         return Jwts
             .builder()
             .subject(authentication.name)
             .claim("auth", authorities)
+            .claim("userId", userId)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(secretKey)
