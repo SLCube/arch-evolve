@@ -42,6 +42,7 @@ dependencies {
     // Testing
     testImplementation(libs.spring.boot.starter.test)
     testImplementation(libs.bundles.kotest)
+    testImplementation(libs.mockito.kotlin)
 }
 
 java {
