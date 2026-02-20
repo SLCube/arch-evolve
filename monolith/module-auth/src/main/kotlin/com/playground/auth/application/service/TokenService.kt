@@ -97,7 +97,13 @@ class TokenService(
     }
 
     private fun createAuthentication(userInfo: UserInfo): Authentication {
+        val authUserDetails = AuthUserDetails(
+            userId = userInfo.userId,
+            loginId = userInfo.loginId,
+            password = "",
+            roles = listOf(userInfo.role),
+        )
         val authorities = listOf(SimpleGrantedAuthority("ROLE_${userInfo.role}"))
-        return UsernamePasswordAuthenticationToken(userInfo.loginId, null, authorities)
+        return UsernamePasswordAuthenticationToken(authUserDetails, null, authorities)
     }
 }

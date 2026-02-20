@@ -39,11 +39,18 @@ class JwtTokenProviderTest {
 
     @Test
     fun `generateToken 은 사용자 정보와 권한을 포함한 JWT 를 생성한다`() {
-        val authentication: Authentication = mock()
+        val authUserDetails = AuthUserDetails(
+            userId = 1L,
+            loginId = "tester",
+            password = "encodedPassword",
+            roles = listOf("USER", "ADMIN"),
+        )
         val authorities = listOf(SimpleGrantedAuthority("ROLE_USER"), SimpleGrantedAuthority("ROLE_ADMIN"))
+        val authentication: Authentication = mock()
 
         given(authentication.name).willReturn("tester")
         given(authentication.authorities).willReturn(authorities)
+        given(authentication.principal).willReturn(authUserDetails)
 
         val token = jwtTokenProvider.generateAccessToken(authentication)
 
