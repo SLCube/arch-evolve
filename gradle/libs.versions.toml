@@ -15,6 +15,9 @@ restdocsApiSpec = "0.19.4"
 openfeignQuerydsl = "7.1"
 postgres = "42.7.10"
 
+logstashLogbackEncoder = "9.0"
+loki4j = "1.6.0"
+
 [libraries]
 # --- Spring Boot ---
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
@@ -46,6 +49,10 @@ openfeign-querydsl-ksp = { module = "io.github.openfeign.querydsl:querydsl-ksp-c
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
 jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+
+# --- Logging ---
+logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstashLogbackEncoder" }
+loki-logback-appender = { module = "com.github.loki4j:loki-logback-appender", version.ref = "loki4j" }
 
 # --- Kafka ---
 spring-kafka = { module = "org.springframework.kafka:spring-kafka" }

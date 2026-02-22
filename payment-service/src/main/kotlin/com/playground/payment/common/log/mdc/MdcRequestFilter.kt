@@ -1,4 +1,4 @@
-package com.playground.common.log.mdc
+package com.playground.payment.common.log.mdc
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -9,8 +9,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 import java.util.UUID
 
 @Component
-class MdcRequestFilter: OncePerRequestFilter() {
-
+class MdcRequestFilter : OncePerRequestFilter() {
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val uri = request.requestURI
         return uri.startsWith("/actuator") || uri.startsWith("/health")
@@ -19,14 +18,16 @@ class MdcRequestFilter: OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val startNs = System.nanoTime()
 
-        val requestId = request.getHeader("X-Request-Id")
-            ?.takeIf { it.isNotBlank() }
-            ?.trim()
-            ?: UUID.randomUUID().toString()
+        val requestId =
+            request
+                .getHeader("X-Request-Id")
+                ?.takeIf { it.isNotBlank() }
+                ?.trim()
+                ?: UUID.randomUUID().toString()
 
         MDC.put(MdcKeys.REQUEST_ID, requestId)
         MDC.put(MdcKeys.METHOD, request.method)

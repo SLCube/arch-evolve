@@ -33,6 +33,10 @@ dependencies {
     implementation(libs.openfeign.querydsl.jpa)
     ksp(libs.openfeign.querydsl.ksp)
 
+    // Logging
+    implementation(libs.logstash.logback.encoder)
+    implementation(libs.loki.logback.appender)
+
     // Kafka
     implementation(libs.spring.kafka)
 

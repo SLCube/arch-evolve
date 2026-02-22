@@ -24,5 +24,5 @@ class BlockInternalPathFilter :
         return chain.filter(exchange)
     }
 
-    override fun getOrder(): Int = Ordered.HIGHEST_PRECEDENCE
+    override fun getOrder(): Int = Ordered.HIGHEST_PRECEDENCE + 1
 }

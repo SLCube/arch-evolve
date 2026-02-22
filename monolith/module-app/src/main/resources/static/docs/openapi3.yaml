@@ -309,9 +309,9 @@ paths:
               examples:
                 결제 수단 등록 실패 - 필수 항목이 비어있음:
                   value: "{\n  \"code\" : \"INVALID_INPUT\",\n  \"message\" : \"입력\
-                    값이 유효하지 않습니다.\",\n  \"errors\" : {\n    \"authKey\" : \"must not\
-                    \ be blank\",\n    \"cardCompany\" : \"must not be blank\",\n\
-                    \    \"cardNumberMasked\" : \"must not be blank\"\n  }\n}"
+                    값이 유효하지 않습니다.\",\n  \"errors\" : {\n    \"cardNumberMasked\" :\
+                    \ \"must not be blank\",\n    \"authKey\" : \"must not be blank\"\
+                    ,\n    \"cardCompany\" : \"must not be blank\"\n  }\n}"
         "201":
           description: "201"
           content:
