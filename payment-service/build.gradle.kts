@@ -33,6 +33,10 @@ dependencies {
     implementation(libs.openfeign.querydsl.jpa)
     ksp(libs.openfeign.querydsl.ksp)
 
+    // Actuator
+    implementation(libs.spring.boot.starter.actuator)
+    runtimeOnly(libs.micrometer.registry.prometheus)
+
     // Logging
     implementation(libs.logstash.logback.encoder)
     implementation(libs.loki.logback.appender)

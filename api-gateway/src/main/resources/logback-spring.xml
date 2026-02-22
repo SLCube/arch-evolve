@@ -3,7 +3,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
-                %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%-7.7thread] [%-40.40logger{39}] - %msg method=%X{method}, path=%X{path}, requestId=%X{requestId}%n
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%-7.7thread] [%-40.40logger{39}] - %msg%n
             </pattern>
         </encoder>
     </appender>
@@ -16,12 +16,12 @@
 
         <format>
             <label>
-                <pattern>app=playground,env=local,level=%level,logger=%logger{20}</pattern>
+                <pattern>app=gateway,env=local,level=%level,logger=%logger{20}</pattern>
             </label>
 
             <message class="net.logstash.logback.layout.LogstashLayout">
                 <includeMdc>true</includeMdc>
-                <customFields>{"app":"playground"}</customFields>
+                <customFields>{"app":"gateway"}</customFields>
             </message>
         </format>
     </appender>

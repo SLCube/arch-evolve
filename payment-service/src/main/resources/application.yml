@@ -27,6 +27,15 @@ spring:
         format_sql: false
     show-sql: false
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: payment-service
+
 logging:
   level:
     root: info

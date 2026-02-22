@@ -39,6 +39,14 @@ dependencies {
     runtimeOnly(libs.jjwt.impl)
     runtimeOnly(libs.jjwt.jackson)
 
+    // Actuator
+    implementation(libs.spring.boot.starter.actuator)
+    runtimeOnly(libs.micrometer.registry.prometheus)
+
+    // Logging
+    implementation(libs.logstash.logback.encoder)
+    implementation(libs.loki.logback.appender)
+
     // Testing
     testImplementation(libs.spring.boot.starter.test)
     testImplementation(libs.bundles.kotest)
