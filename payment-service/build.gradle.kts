@@ -33,6 +33,9 @@ dependencies {
     implementation(libs.openfeign.querydsl.jpa)
     ksp(libs.openfeign.querydsl.ksp)
 
+    // Kafka
+    implementation(libs.spring.kafka)
+
     // Database
     runtimeOnly(libs.postgres)
     // Testing
