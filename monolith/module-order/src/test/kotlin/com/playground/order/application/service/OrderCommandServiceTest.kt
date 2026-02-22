@@ -6,9 +6,9 @@ import com.playground.order.application.port.inbound.command.OrderFailCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
+import com.playground.order.application.port.outbound.PaymentPort
 import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.contract.domain.event.OrderCompletedEvent
-import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
@@ -37,19 +37,22 @@ class OrderCommandServiceTest {
     private val orderCommandPort: OrderCommandPort = mock()
     private val orderEventPort: OrderEventPort = mock()
     private val orderExternalDataProvider: OrderExternalDataProvider = mock()
+    private val paymentPort: PaymentPort = mock()
 
     private val orderCommandService: OrderCommandService = OrderCommandService(
         orderQueryPort = orderQueryPort,
         orderCommandPort = orderCommandPort,
         orderEventPort = orderEventPort,
         orderExternalDataProvider = orderExternalDataProvider,
+        paymentPort = paymentPort,
     )
 
     @Test
-    fun `주문 생성 Command 수신 시 주문 Aggregate가 생성되고 Event가 발행되어야 한다`() {
+    fun `주문 생성 Command 수신 시 결제 승인을 요청하고 주문이 완료 상태로 저장되어야 한다`() {
         //given
         val userId = 2L
         val orderId = 1L
+        val pgTransactionId = "test-pg-tx-id"
         val command = OrderCommandTestFixture.createOrderCommand(userId = userId)
         val mockProductInfo = ProductInfoTestFixture.mockProductInfos()
         val mockAddressInfo = AddressInfoTestFixture.mockAddressInfo()
@@ -62,24 +65,26 @@ class OrderCommandServiceTest {
             .willReturn(mockProductInfo)
         given(orderExternalDataProvider.getAddressInfoByAddressId(eq(userId), eq(command.addressId)))
             .willReturn(mockAddressInfo)
-
         given(orderCommandPort.save(any<Order>()))
             .willReturn(mockOrder)
+        given(paymentPort.authorize(eq(userId), eq(orderId), any()))
+            .willReturn(pgTransactionId)
+        given(orderCommandPort.update(any<Order>()))
+            .willAnswer { invocation -> invocation.arguments[0] as Order }
 
         // when
         val createdOrder = orderCommandService.createOrder(command)
 
         // then
         verify(orderCommandPort).save(any<Order>())
-
-        verify(orderEventPort).publish(check<OrderCreatedEvent> { event ->
-            event.orderId shouldBe orderId
-            event.userId shouldBe userId
-            event.totalAmount shouldBe createdOrder.totalPrice
+        verify(paymentPort).authorize(eq(userId), eq(orderId), any())
+        verify(orderCommandPort).update(check { order ->
+            order.status shouldBe OrderStatus.COMPLETED
+            order.pgTransactionId shouldBe pgTransactionId
         })
 
         createdOrder.id shouldBe orderId
-        createdOrder.status shouldBe OrderStatus.PENDING
+        createdOrder.status shouldBe OrderStatus.COMPLETED
     }
 
     @Test
