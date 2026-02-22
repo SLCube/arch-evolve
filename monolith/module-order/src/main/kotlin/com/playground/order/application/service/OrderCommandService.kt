@@ -9,9 +9,9 @@ import com.playground.order.application.port.inbound.command.OrderFailCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
+import com.playground.order.application.port.outbound.PaymentPort
 import com.playground.order.application.provider.OrderExternalDataProvider
 import com.playground.order.contract.domain.event.OrderCompletedEvent
-import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
@@ -26,6 +26,7 @@ class OrderCommandService(
     private val orderQueryPort: OrderQueryPort,
     private val orderEventPort: OrderEventPort,
     private val orderExternalDataProvider: OrderExternalDataProvider,
+    private val paymentPort: PaymentPort,
 ) : OrderCommandUseCase {
     override fun createOrder(command: OrderCreateCommand): Order {
         val productIds = command.orderProducts.map { it.productId }
@@ -40,9 +41,9 @@ class OrderCommandService(
         )
 
         val savedOrder = orderCommandPort.save(order)
-        orderEventPort.publish(OrderCreatedEvent.from(savedOrder))
-
-        return savedOrder
+        val pgTransactionId = paymentPort.authorize(command.userId, savedOrder.id!!, savedOrder.totalPrice)
+        savedOrder.completeOrder(pgTransactionId)
+        return orderCommandPort.update(savedOrder)
     }
 
     override fun completeOrder(command: OrderCompleteCommand): Order {
