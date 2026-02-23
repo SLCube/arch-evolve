@@ -7,36 +7,8 @@ spring:
   docker:
     compose:
       file: payment-service/docker-compose.yml
-  datasource:
-    url: jdbc:postgresql://localhost:5433/payment
-    username: payment
-    password: payment
-    driver-class-name: org.postgresql.Driver
-    hikari:
-      maximum-pool-size: 50
-      minimum-idle: 10
-      connection-timeout: 3000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
-    show-sql: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, prometheus
-  metrics:
-    tags:
-      application: payment-service
-
-logging:
-  level:
-    root: info
-    com.playground: info
+  profiles:
+    include:
+      - db
+      - kafka
+      - monitoring
