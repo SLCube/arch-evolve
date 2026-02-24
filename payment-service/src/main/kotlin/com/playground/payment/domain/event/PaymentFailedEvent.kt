@@ -1,10 +1,12 @@
-package com.playground.payment.infra.kafka.event
+package com.playground.payment.domain.event
 
 import java.time.LocalDateTime
+import java.util.UUID
 
 data class PaymentFailedEvent(
+    val eventId: UUID,
     val orderId: Long,
     val userId: Long,
     val failReason: String?,
-    val occurredAt: LocalDateTime = LocalDateTime.now(),
+    val occurredAt: LocalDateTime,
 )
