@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component
 class OutboxQueryAdapter(
     private val paymentEventOutboxRepository: PaymentEventOutboxRepository,
 ) : OutboxQueryPort {
-    override fun findByStatus(status: OutboxStatus): List<PaymentEventOutbox> {
-        return paymentEventOutboxRepository.findByStatus(status).map { it.toDomain() }
-    }
+    override fun findByStatus(status: OutboxStatus): List<PaymentEventOutbox> =
+        paymentEventOutboxRepository.findByStatus(status).map { it.toDomain() }
 }
