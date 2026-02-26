@@ -2,32 +2,29 @@ package com.playground.payment.application.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.playground.payment.domain.event.PaymentAuthorizedEvent
+import com.playground.payment.domain.event.PaymentDomainEvent
 import com.playground.payment.domain.event.PaymentFailedEvent
 import com.playground.payment.domain.outbox.OutboxEventType
 import com.playground.payment.domain.outbox.OutboxStatus
 import com.playground.payment.domain.outbox.PaymentEventOutbox
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
 
 @Component
 class OutboxFactory(
     private val objectMapper: ObjectMapper,
 ) {
-    fun from(event: PaymentAuthorizedEvent): PaymentEventOutbox =
-        PaymentEventOutbox(
+    fun from(event: PaymentDomainEvent): PaymentEventOutbox {
+        val eventType =
+            when (event) {
+                is PaymentAuthorizedEvent -> OutboxEventType.PAYMENT_AUTHORIZED
+                is PaymentFailedEvent -> OutboxEventType.PAYMENT_FAILED
+            }
+        return PaymentEventOutbox(
             eventId = event.eventId,
-            eventType = OutboxEventType.PAYMENT_AUTHORIZED,
+            eventType = eventType,
             payload = objectMapper.writeValueAsString(event),
             status = OutboxStatus.PENDING,
-            occurredAt = LocalDateTime.now(),
+            occurredAt = event.occurredAt,
         )
-
-    fun from(event: PaymentFailedEvent): PaymentEventOutbox =
-        PaymentEventOutbox(
-            eventId = event.eventId,
-            eventType = OutboxEventType.PAYMENT_FAILED,
-            payload = objectMapper.writeValueAsString(event),
-            status = OutboxStatus.PENDING,
-            occurredAt = LocalDateTime.now(),
-        )
+    }
 }

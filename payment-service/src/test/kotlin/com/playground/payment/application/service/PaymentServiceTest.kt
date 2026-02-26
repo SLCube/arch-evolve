@@ -1,23 +1,15 @@
 package com.playground.payment.application.service
 
-import com.playground.payment.application.port.outbound.PaymentCommandPort
 import com.playground.payment.application.port.outbound.PaymentGatewayPort
-import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
-import com.playground.payment.application.port.outbound.PaymentQueryPort
 import com.playground.payment.application.support.PaymentTransactionManager
 import com.playground.payment.domain.enum.PaymentStatus
-import com.playground.payment.domain.exception.PaymentFailedException
-import com.playground.payment.domain.model.Payment
 import com.playground.payment.domain.vo.PgAuthorizationResult
 import com.playground.payment.fixture.application.command.PaymentCommandTestFixture
 import com.playground.payment.fixture.application.domain.PaymentDomainTestFixture
 import com.playground.payment.fixture.application.domain.PaymentMethodDomainTestFixture
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.check
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
@@ -27,17 +19,8 @@ import java.math.BigDecimal
 
 @Suppress("NonAsciiCharacters")
 class PaymentServiceTest {
-    private val paymentQueryPort: PaymentQueryPort = mock()
-    private val paymentCommandPort: PaymentCommandPort = mock()
+    private val paymentTransactionManager: PaymentTransactionManager = mock()
     private val paymentGatewayPort: PaymentGatewayPort = mock()
-    private val paymentMethodQueryPort: PaymentMethodQueryPort = mock()
-
-    private val paymentTransactionManager =
-        PaymentTransactionManager(
-            paymentQueryPort = paymentQueryPort,
-            paymentCommandPort = paymentCommandPort,
-            paymentMethodQueryPort = paymentMethodQueryPort,
-        )
 
     private val paymentService: PaymentService =
         PaymentService(
@@ -62,7 +45,7 @@ class PaymentServiceTest {
                 amount = existingPayment.amount,
             )
 
-        given(paymentQueryPort.findByOrderId(eq(command.orderId)))
+        given(paymentTransactionManager.findByOrderId(eq(command.orderId)))
             .willReturn(existingPayment)
 
         // when
@@ -71,10 +54,9 @@ class PaymentServiceTest {
         // then
         result shouldBe existingPayment
 
-        verify(paymentQueryPort).findByOrderId(command.orderId)
+        verify(paymentTransactionManager).findByOrderId(command.orderId)
         verify(paymentGatewayPort, never()).requestAuthorization(any(), any())
-        verify(paymentMethodQueryPort, never()).findDefaultByUserId(any())
-        verify(paymentCommandPort, never()).save(any())
+        verify(paymentTransactionManager, never()).savePaymentResult(any(), any(), any())
     }
 
     @Test
@@ -104,14 +86,21 @@ class PaymentServiceTest {
                 failReason = null,
             )
 
-        given(paymentQueryPort.findByOrderId(eq(command.orderId)))
+        val completedPayment =
+            PaymentDomainTestFixture.mockPayment(
+                status = PaymentStatus.COMPLETED,
+                pgTransactionId = pgTransactionId,
+                approvalNumber = approvalNumber,
+            )
+
+        given(paymentTransactionManager.findByOrderId(eq(command.orderId)))
             .willReturn(null)
-        given(paymentMethodQueryPort.findDefaultByUserId(eq(command.userId)))
+        given(paymentTransactionManager.getPaymentMethod(eq(command.userId)))
             .willReturn(paymentMethod)
         given(paymentGatewayPort.requestAuthorization(eq(paymentMethod.billingKey), eq(command.amount)))
             .willReturn(pgResult)
-        given(paymentCommandPort.save(any()))
-            .willAnswer { invocation -> invocation.arguments[0] as Payment }
+        given(paymentTransactionManager.savePaymentResult(any(), any(), any()))
+            .willReturn(completedPayment)
 
         // when
         val result = paymentService.authorizePayment(command)
@@ -122,19 +111,11 @@ class PaymentServiceTest {
         result.approvalNumber shouldBe approvalNumber
 
         verify(paymentGatewayPort).requestAuthorization(paymentMethod.billingKey, command.amount)
-        verify(paymentMethodQueryPort).findDefaultByUserId(command.userId)
-
-        verify(paymentCommandPort).save(
-            check<Payment> { saved ->
-                saved.status shouldBe PaymentStatus.COMPLETED
-                saved.pgTransactionId shouldBe pgTransactionId
-                saved.approvalNumber shouldBe approvalNumber
-            },
-        )
+        verify(paymentTransactionManager).savePaymentResult(any(), any(), eq(paymentMethod.billingKey))
     }
 
     @Test
-    fun `PG 승인 실패 시 PaymentFailedException을 던지고 실패 상태로 저장해야 한다`() {
+    fun `PG 승인 실패 시 FAILED 상태 Payment를 반환해야 한다`() {
         // given
         val command =
             PaymentCommandTestFixture.authorizeCommand(
@@ -158,25 +139,29 @@ class PaymentServiceTest {
                 failReason = failReason,
             )
 
-        given(paymentQueryPort.findByOrderId(eq(command.orderId)))
+        val failedPayment =
+            PaymentDomainTestFixture.mockPayment(
+                status = PaymentStatus.FAILED,
+                failReason = failReason,
+            )
+
+        given(paymentTransactionManager.findByOrderId(eq(command.orderId)))
             .willReturn(null)
-        given(paymentMethodQueryPort.findDefaultByUserId(eq(command.userId)))
+        given(paymentTransactionManager.getPaymentMethod(eq(command.userId)))
             .willReturn(paymentMethod)
         given(paymentGatewayPort.requestAuthorization(eq(paymentMethod.billingKey), eq(command.amount)))
             .willReturn(pgResult)
-        given(paymentCommandPort.save(any()))
-            .willAnswer { invocation -> invocation.arguments[0] as Payment }
+        given(paymentTransactionManager.savePaymentResult(any(), any(), any()))
+            .willReturn(failedPayment)
 
-        // when & then
-        shouldThrow<PaymentFailedException> {
-            paymentService.authorizePayment(command)
-        }.message shouldContain failReason
+        // when
+        val result = paymentService.authorizePayment(command)
 
-        verify(paymentCommandPort).save(
-            check<Payment> { failedPayment ->
-                failedPayment.status shouldBe PaymentStatus.FAILED
-                failedPayment.failReason shouldBe failReason
-            },
-        )
+        // then
+        result.status shouldBe PaymentStatus.FAILED
+        result.failReason shouldBe failReason
+
+        verify(paymentGatewayPort).requestAuthorization(paymentMethod.billingKey, command.amount)
+        verify(paymentTransactionManager).savePaymentResult(any(), any(), eq(paymentMethod.billingKey))
     }
 }

@@ -5,10 +5,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class PaymentAuthorizedEvent(
-    val eventId: UUID,
-    val orderId: Long,
-    val userId: Long,
+    override val eventId: UUID,
+    override val orderId: Long,
+    override val userId: Long,
     val amount: BigDecimal,
     val pgTransactionId: String,
-    val occurredAt: LocalDateTime,
-)
+    override val occurredAt: LocalDateTime,
+) : PaymentDomainEvent
