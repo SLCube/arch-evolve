@@ -24,7 +24,7 @@ class PaymentEventOutboxJpaEntity(
     @Column(nullable = false, updatable = false)
     val eventId: UUID,
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     val eventType: OutboxEventType,
     @Column(nullable = false, columnDefinition = "TEXT")
     val payload: String,

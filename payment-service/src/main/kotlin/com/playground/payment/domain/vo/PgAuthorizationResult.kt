@@ -8,5 +8,5 @@ data class PgAuthorizationResult(
 ) {
     fun requirePgTransactionId(): String = pgTransactionId ?: throw IllegalStateException("거래 ID 누락")
 
-    fun requireApprovalNumber(): String = approvalNumber ?: throw java.lang.IllegalStateException("승인번호 누락")
+    fun requireApprovalNumber(): String = approvalNumber ?: throw IllegalStateException("승인번호 누락")
 }
