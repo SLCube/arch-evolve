@@ -108,3 +108,5 @@ class Product(...) : BaseEntity() {
    - 의존성 역전 원칙(DIP) 적용
 
 이를 통해 더욱 유연하고 유지보수하기 쉬운 아키텍처로 진화할 것입니다.
+
+**→ [V1.5: Hexagonal Architecture로 이동](./README-V1.5.md)**
