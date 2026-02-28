@@ -1,7 +1,6 @@
 package com.playground.payment.application.support
 
 import com.playground.payment.application.port.outbound.OutboxCommandPort
-import com.playground.payment.application.port.outbound.OutboxEventPublisherPort
 import com.playground.payment.application.port.outbound.PaymentCommandPort
 import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
 import com.playground.payment.application.port.outbound.PaymentQueryPort
@@ -37,7 +36,6 @@ class PaymentTransactionManagerTest {
     private val paymentMethodQueryPort: PaymentMethodQueryPort = mock()
     private val outboxCommandPort: OutboxCommandPort = mock()
     private val outboxFactory: OutboxFactory = mock()
-    private val eventPublisher: OutboxEventPublisherPort = mock()
 
     private val paymentTransactionManager =
         PaymentTransactionManager(
@@ -46,7 +44,6 @@ class PaymentTransactionManagerTest {
             paymentMethodQueryPort = paymentMethodQueryPort,
             outboxCommandPort = outboxCommandPort,
             outboxFactory = outboxFactory,
-            eventPublisher = eventPublisher,
         )
 
     @Test
@@ -154,7 +151,6 @@ class PaymentTransactionManagerTest {
         }
 
         verify(outboxCommandPort).save(eq(savedOutbox))
-        verify(eventPublisher).publish(eq(savedOutbox))
     }
 
     @Test
@@ -216,7 +212,6 @@ class PaymentTransactionManagerTest {
         }
 
         verify(outboxCommandPort).save(eq(savedOutbox))
-        verify(eventPublisher).publish(eq(savedOutbox))
     }
 
     @Test

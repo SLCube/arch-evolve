@@ -2,7 +2,6 @@ package com.playground.payment.application.support
 
 import com.playground.payment.application.port.inbound.command.PaymentAuthorizeCommand
 import com.playground.payment.application.port.outbound.OutboxCommandPort
-import com.playground.payment.application.port.outbound.OutboxEventPublisherPort
 import com.playground.payment.application.port.outbound.PaymentCommandPort
 import com.playground.payment.application.port.outbound.PaymentMethodQueryPort
 import com.playground.payment.application.port.outbound.PaymentQueryPort
@@ -32,7 +31,6 @@ class PaymentTransactionManager(
     private val paymentMethodQueryPort: PaymentMethodQueryPort,
     private val outboxCommandPort: OutboxCommandPort,
     private val outboxFactory: OutboxFactory,
-    private val eventPublisher: OutboxEventPublisherPort,
 ) {
     @Transactional(readOnly = true)
     fun findByOrderId(orderId: Long): Payment? = paymentQueryPort.findByOrderId(orderId)
@@ -62,8 +60,7 @@ class PaymentTransactionManager(
                 payment.fail(pgResult.failReason)
             }
         val savedPayment = paymentCommandPort.save(payment)
-        val savedOutbox = outboxCommandPort.save(outboxFactory.from(domainEvent))
-        eventPublisher.publish(savedOutbox)
+        outboxCommandPort.save(outboxFactory.from(domainEvent))
         return savedPayment
     }
 }
