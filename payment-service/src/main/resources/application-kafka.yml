@@ -8,6 +8,8 @@ spring:
       retries: 3
       properties:
         enable.idempotence: true
+        delivery.timeout.ms: 5000
+        request.timeout.ms: 3000
     consumer:
       group-id: payment-service
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
