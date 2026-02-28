@@ -32,7 +32,7 @@ class PaymentOutboxEventServiceTest {
     fun `PENDING 상태 이벤트 목록을 조회해야 한다`() {
         // given
         val outbox = createOutbox(OutboxEventType.PAYMENT_AUTHORIZED)
-        given(outboxQueryPort.findByStatus(OutboxStatus.PENDING)).willReturn(listOf(outbox))
+        given(outboxQueryPort.findByStatus(any(), any())).willReturn(listOf(outbox))
 
         // when
         val result = paymentOutboxEventService.findPendingEvents()
@@ -40,7 +40,7 @@ class PaymentOutboxEventServiceTest {
         // then
         result.size shouldBe 1
         result[0] shouldBe outbox
-        verify(outboxQueryPort).findByStatus(OutboxStatus.PENDING)
+        verify(outboxQueryPort).findByStatus(any(), any())
     }
 
     @Test

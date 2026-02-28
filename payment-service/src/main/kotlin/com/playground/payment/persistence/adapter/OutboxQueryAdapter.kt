@@ -5,12 +5,15 @@ import com.playground.payment.domain.outbox.OutboxStatus
 import com.playground.payment.domain.outbox.PaymentEventOutbox
 import com.playground.payment.persistence.mapper.toDomain
 import com.playground.payment.persistence.repository.PaymentEventOutboxRepository
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 
 @Component
 class OutboxQueryAdapter(
     private val paymentEventOutboxRepository: PaymentEventOutboxRepository,
 ) : OutboxQueryPort {
-    override fun findByStatus(status: OutboxStatus): List<PaymentEventOutbox> =
-        paymentEventOutboxRepository.findByStatus(status).map { it.toDomain() }
+    override fun findByStatus(
+        status: OutboxStatus,
+        limit: Int,
+    ): List<PaymentEventOutbox> = paymentEventOutboxRepository.findByStatus(status, PageRequest.ofSize(limit)).map { it.toDomain() }
 }

@@ -16,7 +16,11 @@ class PaymentOutboxEventService(
     private val paymentEventPublisherPort: PaymentEventPublisherPort,
 ) : PaymentOutboxEventUseCase {
     @Transactional(readOnly = true)
-    override fun findPendingEvents(): List<PaymentEventOutbox> = outboxQueryPort.findByStatus(OutboxStatus.PENDING)
+    override fun findPendingEvents(): List<PaymentEventOutbox> = outboxQueryPort.findByStatus(OutboxStatus.PENDING, POLL_LIMIT)
+
+    companion object {
+        private const val POLL_LIMIT = 50
+    }
 
     @Transactional
     override fun publishEvent(outbox: PaymentEventOutbox) {
