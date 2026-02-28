@@ -17,11 +17,13 @@
 
 ### Backend
 - **언어**: Kotlin
-- **프레임워크**: Spring Boot 3.5.10
+- **프레임워크**: Spring Boot 3.5.10, Spring Cloud Gateway
 - **데이터베이스**: PostgreSQL
 - **캐시**: Redis
 - **ORM**: Spring Data JPA
+- **메시징**: Apache Kafka
 - **보안**: Spring Security, JWT
+- **빌드**: Gradle (Kotlin DSL, Composite Build)
 
 ### 테스트 & 품질
 - **테스트**: Kotest, JUnit5, Spring REST Docs
@@ -33,9 +35,6 @@
 - **부하 테스트**: k6
 - **메트릭**: Grafana + Prometheus
 - **로그**: Loki
-
-### 빌드
-- **빌드 도구**: Gradle (Kotlin DSL)
 
 ## 아키텍처 로드맵
 
