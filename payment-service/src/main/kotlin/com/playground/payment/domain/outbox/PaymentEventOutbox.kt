@@ -10,6 +10,7 @@ class PaymentEventOutbox(
     val payload: String,
     var status: OutboxStatus,
     val occurredAt: LocalDateTime,
+    val requestId: String,
 ) {
     fun markAsPublished() {
         this.status = OutboxStatus.PUBLISHED
