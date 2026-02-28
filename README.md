@@ -13,6 +13,34 @@
 - **실패도 포함**: 분산 락 실험 → 성능 악화 → 대안 선택 등 시행착오 기록
 - **성능 측정**: 각 Phase별 Before/After를 수치와 그래프로 증명
 
+## 아키텍처 로드맵
+
+### V1.0: Single Module Layered Architecture
+전통적인 계층형 아키텍처로 시작. **의도적 기술 부채**(Fat JPA Domain, Service 간 강한 결합)를 생성하여 문제를 식별하고 다음 단계의 동기를 확보.
+
+### V1.5: Single Module Hexagonal Architecture
+Ports & Adapters 패턴으로 **도메인 순수성 확보**. JPA Entity와 Domain Model 분리, CQS 패턴 적용. 단일 모듈의 한계(도메인 간 순환 참조, 관례 기반 경계) 식별.
+
+### V2.0: Multi Module Hexagonal Architecture
+각 도메인을 독립 Gradle 모듈로 분리. **Contract Module**을 도입하여 도메인 경계를 컴파일 타임에 강제. 통합테스트 → 레이어별 단위테스트 전환.
+
+### V2.5: High Performed Monolith
+- Redis 재고 관리: **P95 94.9% 개선** (1.41s → 88.8ms), Connection Pool Pending 174 → 0
+- 비동기 이벤트 처리: **P95 99.8% 개선** (16.4s → 13.8ms), 에러율 29% → 0%
+- 모놀리스 한계 증명: RPS 700에서 PostgreSQL max_connections 병목 → **MSA 전환 근거 확보**
+
+### V3.0: Microservices Architecture (현재)
+API Gateway + 서비스 분리, Kafka 기반 이벤트 드리븐, Outbox Pattern으로 이벤트 유실 방지, MDC 기반 분산 추적.
+
+## 각 버전 상세 문서
+
+각 Phase별 상세한 아키텍처 결정, 문제 인식, 해결 과정은 아래 문서를 참고하세요:
+
+- **[V1.0: Layered Monolith](./README-V1.md)**
+- **[V1.5: Hexagonal Architecture](./README-V1.5.md)**
+- **[V2.0: Multi Module Hexagonal Architecture](./README-V2.0.md)**
+- **[V2.5: High Performed Monolith](./README-V2.5.md)**
+
 ## 기술 스택
 
 ### Backend
@@ -36,64 +64,6 @@
 - **메트릭**: Grafana + Prometheus
 - **로그**: Loki
 
-## 아키텍처 로드맵
-
-```
-v1.0  → Single Module Layered Architecture
-          └─ 의도적 기술 부채: Fat JPA Domain, Service 간 강한 결합
-
-v1.5  → Single Module Hexagonal Architecture
-          └─ Ports & Adapters, 도메인 순수성 확보, CQS 패턴
-
-v2.0  → Multi Module Hexagonal Architecture
-          └─ Contract Module, 도메인 경계 컴파일 타임 강제
-
-v2.5  → High Performed Monolith
-          └─ 성능 최적화 (P95 99.8%↓), 모놀리스 한계 데이터 증명
-
-v3.0  → Microservices Architecture (현재)
-          └─ 독립 DB, 리소스 격리, Saga 패턴, 분산 트랜잭션 처리
-```
-
-## 공통 테스트 도구
-
-### `performAndDocument` DSL
-
-이 프로젝트는 테스트 코드의 가독성, 일관성, 유지보수성을 높이기 위해 `performAndDocument`라는 커스텀 DSL(Domain-Specific Language) 기반의 테스트 프레임워크를 구축했습니다.
-
-**특징:**
-- **선언적 API 테스트**: `httpMethod`, `urlTemplate`, `requestBody`, `expectedStatus` 등 테스트의 의도를 명확하게 표현
-- **문서화 통합**: 하나의 테스트 코드로 API 테스트와 Spring REST Docs 문서 생성을 동시에 해결
-- **일관성**: 모든 버전에서 동일한 테스트 방식 적용
-
-```kotlin
-// 예시: performAndDocument DSL 사용법
-performAndDocument("주문 생성 - 성공") {
-    httpMethod = HttpMethod.POST
-    urlTemplate = "/orders"
-    requestBody = orderRequest
-    accessToken = jwtToken
-    expectedStatus = status().isCreated
-    // ...
-}
-```
-
-## 각 버전 상세 문서
-
-각 Phase별 상세한 아키텍처 결정, 문제 인식, 해결 과정은 아래 문서를 참고하세요:
-
-- **[V1.0: Layered Monolith](./README-V1.md)**
-  전통적인 계층형 아키텍처, 의도적 기술 부채 생성
-
-- **[V1.5: Hexagonal Architecture](./README-V1.5.md)**
-  Ports & Adapters, 도메인 순수성, CQS 패턴
-
-- **[V2.0: Multi Module Hexagonal Architecture](./README-V2.0.md)**
-  Contract Module, 도메인 경계 컴파일 타임 강제
-
-- **[V2.5: High Performed Monolith](./README-V2.5.md)**
-  성능 최적화 (P95 99.8%↓), 모놀리스 한계 데이터 증명
-
 ## 브랜치 구조
 
 ```
@@ -101,7 +71,23 @@ phase/1.0-single-layered-architecture          (V1.0)
 phase/1.5-single-module-hexagonal-architecture (V1.5)
 phase/2.0-multi-module-hexagonal-architecture  (V2.0)
 phase/2.5-high-performed-monolith              (V2.5)
-phase/3.0-micro-services-architecture                  (V3.0, 현재)
+phase/3.0-micro-services-architecture          (V3.0, 현재)
 ```
 
 각 브랜치는 해당 Phase의 완성된 코드를 포함하며, 독립적으로 실행 가능합니다.
+
+## 공통 테스트 도구
+
+### `performAndDocument` DSL
+
+테스트 코드의 가독성, 일관성, 유지보수성을 높이기 위한 커스텀 DSL 기반 테스트 프레임워크입니다.
+
+```kotlin
+performAndDocument("주문 생성 - 성공") {
+    httpMethod = HttpMethod.POST
+    urlTemplate = "/orders"
+    requestBody = orderRequest
+    accessToken = jwtToken
+    expectedStatus = status().isCreated
+}
+```
