@@ -4,6 +4,8 @@ import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.model.Order
+import java.time.LocalDateTime
+import java.util.UUID
 
 fun OrderCreatedEvent.Companion.from(order: Order): OrderCreatedEvent {
     val orderProductDetails =
@@ -14,10 +16,12 @@ fun OrderCreatedEvent.Companion.from(order: Order): OrderCreatedEvent {
             )
         }
     return OrderCreatedEvent(
+        eventId = UUID.randomUUID(),
         orderId = order.id!!,
         userId = order.userId,
         products = orderProductDetails,
         totalAmount = order.totalPrice,
+        occurredAt = LocalDateTime.now(),
     )
 }
 

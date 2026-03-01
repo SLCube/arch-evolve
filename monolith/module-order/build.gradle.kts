@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.security.core)
+    implementation(libs.spring.kafka)
 
     runtimeOnly(libs.postgres)
 

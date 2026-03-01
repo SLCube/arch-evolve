@@ -3,9 +3,6 @@ jwt:
   expiration-hours: ${jwt.expiration-hours}
   refresh-expiration-hours: ${jwt.refresh-expiration-hours}
 
-payment-service:
-  url: http://localhost:8082
-
 spring:
   profiles:
     include:

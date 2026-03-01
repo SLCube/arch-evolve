@@ -1,0 +1,26 @@
+package com.playground.order.persistence.mapper
+
+import com.playground.order.domain.outbox.OrderEventOutbox
+import com.playground.order.persistence.entity.OrderEventOutboxJpaEntity
+
+fun OrderEventOutboxJpaEntity.toDomain(): OrderEventOutbox =
+    OrderEventOutbox(
+        id = this.id,
+        eventId = this.eventId,
+        eventType = this.eventType,
+        payload = this.payload,
+        status = this.status,
+        occurredAt = this.occurredAt,
+        requestId = this.requestId,
+    )
+
+fun OrderEventOutbox.toJpaEntity(): OrderEventOutboxJpaEntity =
+    OrderEventOutboxJpaEntity(
+        id = this.id,
+        eventId = this.eventId,
+        eventType = this.eventType,
+        payload = this.payload,
+        status = this.status,
+        occurredAt = this.occurredAt,
+        requestId = this.requestId,
+    )

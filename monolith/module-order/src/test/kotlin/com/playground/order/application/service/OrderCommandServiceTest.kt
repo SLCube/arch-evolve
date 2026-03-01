@@ -6,8 +6,11 @@ import com.playground.order.application.port.inbound.command.OrderFailCommand
 import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
-import com.playground.order.application.port.outbound.PaymentPort
+import com.playground.order.application.port.outbound.OutboxCommandPort
 import com.playground.order.application.provider.OrderExternalDataProvider
+import com.playground.order.application.support.OutboxFactory
+import com.playground.order.contract.domain.event.OrderCreatedEvent
+import com.playground.order.domain.outbox.OrderEventOutbox
 import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.enum.OrderStatus
@@ -36,23 +39,24 @@ class OrderCommandServiceTest {
     private val orderQueryPort: OrderQueryPort = mock()
     private val orderCommandPort: OrderCommandPort = mock()
     private val orderEventPort: OrderEventPort = mock()
+    private val outboxCommandPort: OutboxCommandPort = mock()
+    private val outboxFactory: OutboxFactory = mock()
     private val orderExternalDataProvider: OrderExternalDataProvider = mock()
-    private val paymentPort: PaymentPort = mock()
 
     private val orderCommandService: OrderCommandService = OrderCommandService(
-        orderQueryPort = orderQueryPort,
         orderCommandPort = orderCommandPort,
+        orderQueryPort = orderQueryPort,
         orderEventPort = orderEventPort,
+        outboxCommandPort = outboxCommandPort,
+        outboxFactory = outboxFactory,
         orderExternalDataProvider = orderExternalDataProvider,
-        paymentPort = paymentPort,
     )
 
     @Test
-    fun `주문 생성 Command 수신 시 결제 승인을 요청하고 주문이 완료 상태로 저장되어야 한다`() {
-        //given
+    fun `주문 생성 시 PENDING 상태로 저장되고 Spring Event와 Outbox가 생성되어야 한다`() {
+        // given
         val userId = 2L
         val orderId = 1L
-        val pgTransactionId = "test-pg-tx-id"
         val command = OrderCommandTestFixture.createOrderCommand(userId = userId)
         val mockProductInfo = ProductInfoTestFixture.mockProductInfos()
         val mockAddressInfo = AddressInfoTestFixture.mockAddressInfo()
@@ -60,6 +64,7 @@ class OrderCommandServiceTest {
             id = orderId,
             userId = userId,
         )
+        val mockOutbox: OrderEventOutbox = mock()
 
         given(orderExternalDataProvider.getVerifiedProductInfos(any()))
             .willReturn(mockProductInfo)
@@ -67,24 +72,25 @@ class OrderCommandServiceTest {
             .willReturn(mockAddressInfo)
         given(orderCommandPort.save(any<Order>()))
             .willReturn(mockOrder)
-        given(paymentPort.authorize(eq(userId), eq(orderId), any()))
-            .willReturn(pgTransactionId)
-        given(orderCommandPort.update(any<Order>()))
-            .willAnswer { invocation -> invocation.arguments[0] as Order }
+        given(outboxFactory.from(any<OrderCreatedEvent>()))
+            .willReturn(mockOutbox)
+        given(outboxCommandPort.save(any<OrderEventOutbox>()))
+            .willReturn(mockOutbox)
 
         // when
         val createdOrder = orderCommandService.createOrder(command)
 
         // then
         verify(orderCommandPort).save(any<Order>())
-        verify(paymentPort).authorize(eq(userId), eq(orderId), any())
-        verify(orderCommandPort).update(check { order ->
-            order.status shouldBe OrderStatus.COMPLETED
-            order.pgTransactionId shouldBe pgTransactionId
+        verify(orderEventPort).publish(check<OrderCreatedEvent> { event ->
+            event.orderId shouldBe orderId
+            event.userId shouldBe userId
         })
+        verify(outboxFactory).from(any<OrderCreatedEvent>())
+        verify(outboxCommandPort).save(any<OrderEventOutbox>())
 
         createdOrder.id shouldBe orderId
-        createdOrder.status shouldBe OrderStatus.COMPLETED
+        createdOrder.status shouldBe OrderStatus.PENDING
     }
 
     @Test
