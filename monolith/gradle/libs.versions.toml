@@ -13,7 +13,7 @@ archunit = "1.4.1"
 asciidoctor = "4.0.5"
 ktlint = "14.0.1"
 restdocsApiSpec = "0.19.4"
-springdoc = "2.8.15"
+springdoc = "2.8.16"
 
 openfeignQuerydsl = "7.1"
 ksp = "2.3.6"
