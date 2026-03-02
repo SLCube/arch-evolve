@@ -6,11 +6,11 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.config.TopicBuilder
 
 @Configuration
-class KafkaTopicConfig {
+class KafkaProducerTopicConfig {
     @Bean
     fun paymentAuthorizedTopic(): NewTopic =
         TopicBuilder
-            .name(KafkaTopic.PAYMENT_AUTHORIZED)
+            .name(KafkaProducerTopic.PAYMENT_AUTHORIZED)
             .partitions(1)
             .replicas(1)
             .build()
@@ -18,7 +18,7 @@ class KafkaTopicConfig {
     @Bean
     fun paymentFailedTopic(): NewTopic =
         TopicBuilder
-            .name(KafkaTopic.PAYMENT_FAILED)
+            .name(KafkaProducerTopic.PAYMENT_FAILED)
             .partitions(1)
             .replicas(1)
             .build()

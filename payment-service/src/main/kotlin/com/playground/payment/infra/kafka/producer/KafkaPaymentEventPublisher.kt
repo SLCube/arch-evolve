@@ -2,7 +2,7 @@ package com.playground.payment.infra.kafka.producer
 
 import com.playground.payment.application.port.outbound.PaymentEventPublisherPort
 import com.playground.payment.domain.outbox.PaymentEventOutbox
-import com.playground.payment.infra.kafka.config.KafkaTopic
+import com.playground.payment.infra.kafka.config.KafkaProducerTopic
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Component
@@ -14,7 +14,7 @@ class KafkaPaymentEventPublisher(
     override fun publish(outbox: PaymentEventOutbox) {
         val record =
             ProducerRecord<String, String>(
-                KafkaTopic.from(outbox.eventType),
+                KafkaProducerTopic.from(outbox.eventType),
                 outbox.eventId.toString(),
                 outbox.payload,
             )

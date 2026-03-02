@@ -1,6 +1,7 @@
-package com.playground.payment.infra.kafka.consumer
+package com.playground.payment.consumer.event
 
 import java.math.BigDecimal
+import java.time.LocalDateTime
 import java.util.UUID
 
 data class OrderCreatedEvent(
@@ -9,6 +10,7 @@ data class OrderCreatedEvent(
     val userId: Long,
     val products: List<OrderProductDetail>,
     val totalAmount: BigDecimal,
+    val occurredAt: LocalDateTime,
 ) {
     data class OrderProductDetail(
         val productId: Long,
