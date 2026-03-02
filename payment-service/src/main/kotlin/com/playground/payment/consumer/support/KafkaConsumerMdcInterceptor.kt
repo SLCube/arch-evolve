@@ -1,5 +1,6 @@
 package com.playground.payment.consumer.support
 
+import com.playground.payment.common.log.mdc.HeaderKeys
 import com.playground.payment.common.log.mdc.MdcKeys
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -16,7 +17,7 @@ class KafkaConsumerMdcInterceptor : RecordInterceptor<String, String> {
         val requestId =
             record
                 .headers()
-                .lastHeader("X-Request-Id")
+                .lastHeader(HeaderKeys.X_REQUEST_ID)
                 ?.value()
                 ?.let { String(it) }
                 ?: ""

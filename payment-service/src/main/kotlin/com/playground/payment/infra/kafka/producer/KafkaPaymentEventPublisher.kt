@@ -1,6 +1,7 @@
 package com.playground.payment.infra.kafka.producer
 
 import com.playground.payment.application.port.outbound.PaymentEventPublisherPort
+import com.playground.payment.common.log.mdc.HeaderKeys
 import com.playground.payment.domain.outbox.PaymentEventOutbox
 import com.playground.payment.infra.kafka.config.KafkaProducerTopic
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -18,7 +19,7 @@ class KafkaPaymentEventPublisher(
                 outbox.eventId.toString(),
                 outbox.payload,
             )
-        record.headers().add("X-Request-Id", outbox.requestId.toByteArray())
+        record.headers().add(HeaderKeys.X_REQUEST_ID, outbox.requestId.toByteArray())
         kafkaTemplate.send(record).get()
     }
 }
