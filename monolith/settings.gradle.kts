@@ -21,9 +21,6 @@ include("module-auth-contract")
 include("module-order")
 include("module-order-contract")
 
-include("module-payment")
-include("module-payment-contract")
-
 include("module-delivery")
 include("module-delivery-contract")
 

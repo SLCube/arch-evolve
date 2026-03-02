@@ -15,7 +15,6 @@ dependencies {
     implementation(project(":module-auth"))
     implementation(project(":module-order"))
     implementation(project(":module-delivery"))
-    implementation(project(":module-payment"))
     implementation(project(":module-monitoring"))
 
     implementation(libs.spring.boot.starter.web)
@@ -51,7 +50,6 @@ val copySnippets = tasks.register<Copy>("copySnippets") {
         "module-user",
         "module-product",
         "module-order",
-        "module-payment",
         "module-auth"
     )
 
@@ -67,7 +65,6 @@ val copySnippets = tasks.register<Copy>("copySnippets") {
         ":module-user:test",
         ":module-product:test",
         ":module-order:test",
-        ":module-payment:test",
         ":module-auth:test"
     )
 }
