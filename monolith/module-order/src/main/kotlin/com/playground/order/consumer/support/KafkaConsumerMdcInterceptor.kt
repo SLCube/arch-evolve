@@ -29,6 +29,6 @@ class KafkaConsumerMdcInterceptor : RecordInterceptor<String, String> {
         record: ConsumerRecord<String, String>,
         consumer: Consumer<String, String>,
     ) {
-        MDC.clear()
+        MDC.remove(MdcKeys.REQUEST_ID)
     }
 }

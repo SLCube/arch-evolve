@@ -42,7 +42,12 @@ class MdcRequestFilter : OncePerRequestFilter() {
             val tookMs = (System.nanoTime() - startNs) / 1_000_000
             MDC.put(MdcKeys.STATUS, response.status.toString())
             MDC.put(MdcKeys.DURATION_MS, tookMs.toString())
-            MDC.clear()
+            MDC.remove(MdcKeys.REQUEST_ID)
+            MDC.remove(MdcKeys.METHOD)
+            MDC.remove(MdcKeys.PATH)
+            MDC.remove(MdcKeys.USER_ID)
+            MDC.remove(MdcKeys.STATUS)
+            MDC.remove(MdcKeys.DURATION_MS)
         }
     }
 }

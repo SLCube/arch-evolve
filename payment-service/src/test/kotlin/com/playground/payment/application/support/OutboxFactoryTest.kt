@@ -27,7 +27,7 @@ class OutboxFactoryTest {
 
     @AfterEach
     fun tearDown() {
-        MDC.clear()
+        MDC.remove("requestId")
     }
 
     @Test
