@@ -1,4 +1,4 @@
-package playground.common.kafka.config
+package com.playground.common.kafka.config
 
 import org.apache.kafka.clients.admin.NewTopic
 import org.springframework.context.annotation.Bean
@@ -11,7 +11,7 @@ class KafkaTopicConfig {
     @Bean
     fun orderCreatedTopic(): NewTopic =
         TopicBuilder
-            .name(KafkaTopic.ORDER_CREATED)
+            .name(KafkaProducerTopic.ORDER_CREATED)
             .partitions(1)
             .replicas(1)
             .build()

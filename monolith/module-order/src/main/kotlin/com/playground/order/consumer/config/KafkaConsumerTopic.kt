@@ -1,7 +1,6 @@
-package playground.common.kafka.config
+package com.playground.order.consumer.config
 
-object KafkaTopic {
-    const val ORDER_CREATED = "order.created"
+object KafkaConsumerTopic {
     const val PAYMENT_AUTHORIZED = "payment.authorized"
     const val PAYMENT_FAILED = "payment.failed"
 }

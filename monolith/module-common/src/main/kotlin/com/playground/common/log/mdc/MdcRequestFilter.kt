@@ -23,7 +23,7 @@ class MdcRequestFilter: OncePerRequestFilter() {
     ) {
         val startNs = System.nanoTime()
 
-        val requestId = request.getHeader("X-Request-Id")
+        val requestId = request.getHeader(HeaderKeys.X_REQUEST_ID)
             ?.takeIf { it.isNotBlank() }
             ?.trim()
             ?: UUID.randomUUID().toString()
@@ -33,7 +33,7 @@ class MdcRequestFilter: OncePerRequestFilter() {
         MDC.put(MdcKeys.PATH, request.requestURI)
         request.getHeader("X-User-Id")?.let { MDC.put(MdcKeys.USER_ID, it) }
 
-        response.setHeader("X-Request-Id", requestId)
+        response.setHeader(HeaderKeys.X_REQUEST_ID, requestId)
 
         try {
             filterChain.doFilter(request, response)

@@ -15,9 +15,11 @@ import com.playground.order.application.support.OutboxFactory
 import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.contract.domain.event.OrderFailedEvent
+import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.model.Order
 import com.playground.order.domain.model.OrderProduct
 import com.playground.product.contract.domain.vo.ProductInfo
+import com.playground.common.log.utils.logger
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -31,6 +33,8 @@ class OrderCommandService(
     private val outboxFactory: OutboxFactory,
     private val orderExternalDataProvider: OrderExternalDataProvider,
 ) : OrderCommandUseCase {
+    private val log = logger()
+
     override fun createOrder(command: OrderCreateCommand): Order {
         val productIds = command.orderProducts.map { it.productId }
         val productInfoMap = orderExternalDataProvider.getVerifiedProductInfos(productIds)
@@ -53,6 +57,11 @@ class OrderCommandService(
     override fun completeOrder(command: OrderCompleteCommand): Order {
         val order = orderQueryPort.findById(command.orderId)
 
+        if (order.status != OrderStatus.PENDING) {
+            log.info("이미 처리된 주문 [orderId={}, status={}]", command.orderId, order.status)
+            return order
+        }
+
         order.completeOrder(command.pgTransactionId)
         val updatedOrder = orderCommandPort.update(order)
 
@@ -70,6 +79,12 @@ class OrderCommandService(
 
     override fun failOrder(command: OrderFailCommand): Order {
         val order = orderQueryPort.findById(command.orderId)
+
+        if (order.status != OrderStatus.PENDING) {
+            log.info("이미 처리된 주문 [orderId={}, status={}]", command.orderId, order.status)
+            return order
+        }
+
         order.fail()
         val updatedOrder = orderCommandPort.update(order)
 

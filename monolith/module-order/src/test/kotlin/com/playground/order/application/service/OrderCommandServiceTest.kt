@@ -143,7 +143,7 @@ class OrderCommandServiceTest {
     }
 
     @Test
-    fun `결제 완료 Command 수신 시 주문상태가 PENDING이 아니라면 OrderStatusValidException을 던진다`() {
+    fun `결제 완료 Command 수신 시 주문상태가 PENDING이 아니라면 멱등하게 기존 주문을 반환한다`() {
         // given
         val orderId = 1L
         val mockOrder = OrderDomainTestFixture.mockOrder(
@@ -158,16 +158,17 @@ class OrderCommandServiceTest {
             paidAmount = OrderDomainTestFixture.mockOrder().totalPrice
         )
 
-        // when
         given(orderQueryPort.findById(eq(orderId)))
             .willReturn(mockOrder)
 
-        // then
-        shouldThrow<OrderStatusInvalidException> {
-            orderCommandService.completeOrder(command)
-        }
+        // when
+        val result = orderCommandService.completeOrder(command)
 
+        // then
+        result shouldBe mockOrder
+        result.status shouldBe OrderStatus.CANCELLED
         verify(orderCommandPort, never()).update(any())
+        verify(orderEventPort, never()).publish(any())
     }
 
     @Test
@@ -303,7 +304,7 @@ class OrderCommandServiceTest {
     }
 
     @Test
-    fun `주문 실패 Command 수신 시 주문상태가 PENDING이 아니라면 OrderStatusInvalidException을 던진다`() {
+    fun `주문 실패 Command 수신 시 주문상태가 PENDING이 아니라면 멱등하게 기존 주문을 반환한다`() {
         // given
         val orderId = 1L
         val mockOrder = OrderDomainTestFixture.mockOrder(
@@ -313,14 +314,14 @@ class OrderCommandServiceTest {
 
         val command = OrderFailCommand(orderId = orderId)
 
-        // when
         given(orderQueryPort.findById(orderId)).willReturn(mockOrder)
 
-        // then
-        shouldThrow<OrderStatusInvalidException> {
-            orderCommandService.failOrder(command)
-        }
+        // when
+        val result = orderCommandService.failOrder(command)
 
+        // then
+        result shouldBe mockOrder
+        result.status shouldBe OrderStatus.COMPLETED
         verify(orderCommandPort, never()).update(any())
         verify(orderEventPort, never()).publish(any())
     }
