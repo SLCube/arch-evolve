@@ -27,6 +27,3 @@ logging:
 
 loki4j:
   enabled: false
-
-payment-service:
-  url: http://localhost:8082
