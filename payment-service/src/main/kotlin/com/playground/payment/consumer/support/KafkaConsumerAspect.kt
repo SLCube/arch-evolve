@@ -1,9 +1,9 @@
 package com.playground.payment.consumer.support
 
+import com.playground.payment.common.log.utils.logger
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
-import com.playground.payment.common.log.utils.logger
 import org.springframework.stereotype.Component
 
 @Aspect
