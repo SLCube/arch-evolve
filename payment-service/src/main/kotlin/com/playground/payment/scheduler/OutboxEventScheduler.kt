@@ -1,7 +1,7 @@
 package com.playground.payment.scheduler
 
 import com.playground.payment.application.port.inbound.PaymentOutboxEventUseCase
-import org.slf4j.LoggerFactory
+import com.playground.payment.common.log.utils.logger
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 class OutboxEventScheduler(
     private val paymentOutboxEventUseCase: PaymentOutboxEventUseCase,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = logger()
 
     @Scheduled(fixedDelay = 1000)
     fun pollAndPublish() {

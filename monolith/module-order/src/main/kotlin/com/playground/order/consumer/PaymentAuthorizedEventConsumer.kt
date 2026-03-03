@@ -6,6 +6,7 @@ import com.playground.order.application.port.inbound.command.OrderCompleteComman
 import com.playground.order.consumer.config.KafkaConsumerTopic
 import com.playground.order.consumer.event.PaymentAuthorizedEvent
 import com.playground.order.consumer.support.KafkaConsumerHandler
+import com.playground.common.log.utils.logger
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
@@ -15,12 +16,15 @@ class PaymentAuthorizedEventConsumer(
     private val orderCommandUseCase: OrderCommandUseCase,
     private val objectMapper: ObjectMapper,
 ) {
+    private val log = logger()
+
     @KafkaConsumerHandler
     @KafkaListener(topics = [KafkaConsumerTopic.PAYMENT_AUTHORIZED])
     fun consume(
         @Payload payload: String,
     ) {
         val event = objectMapper.readValue(payload, PaymentAuthorizedEvent::class.java)
+        log.info("결제 승인 이벤트 수신 [orderId={}, pgTxId={}]", event.orderId, event.pgTransactionId)
 
         val command =
             OrderCompleteCommand(

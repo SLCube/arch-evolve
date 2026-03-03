@@ -15,9 +15,9 @@ class KafkaConsumerAspect {
     fun handleConsumer(joinPoint: ProceedingJoinPoint): Any? {
         val methodName = joinPoint.signature.toShortString()
         try {
-            log.debug("==> Kafka Consumer 시작: {}", methodName)
+            log.info("==> Kafka Consumer 시작: {}", methodName)
             val result = joinPoint.proceed()
-            log.debug("<== Kafka Consumer 완료: {}", methodName)
+            log.info("<== Kafka Consumer 완료: {}", methodName)
             return result
         } catch (e: Exception) {
             log.error("Kafka Consumer 처리 실패 [{}]", methodName, e)

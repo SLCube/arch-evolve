@@ -2,7 +2,7 @@ package com.playground.payment.presentation.advice
 
 import com.playground.payment.domain.exception.BusinessException
 import com.playground.payment.domain.exception.ErrorCode
-import org.slf4j.LoggerFactory
+import com.playground.payment.common.log.utils.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.FieldError
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = logger()
 
     @ExceptionHandler(BusinessException::class)
     fun handleBusinessException(e: BusinessException): ResponseEntity<ErrorResponse> {

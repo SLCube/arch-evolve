@@ -5,7 +5,7 @@ import com.playground.payment.application.port.inbound.command.PaymentAuthorizeC
 import com.playground.payment.application.port.outbound.PaymentGatewayPort
 import com.playground.payment.application.support.PaymentTransactionManager
 import com.playground.payment.domain.model.Payment
-import org.slf4j.LoggerFactory
+import com.playground.payment.common.log.utils.logger
 import org.springframework.stereotype.Service
 
 @Service
@@ -13,7 +13,7 @@ class PaymentService(
     private val paymentTransactionManager: PaymentTransactionManager,
     private val paymentGatewayPort: PaymentGatewayPort,
 ) : PaymentUseCase {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = logger()
 
     override fun authorizePayment(command: PaymentAuthorizeCommand): Payment {
         paymentTransactionManager.findByOrderId(command.orderId)?.let { existingPayment ->
