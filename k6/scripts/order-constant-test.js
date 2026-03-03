@@ -24,7 +24,7 @@ const LOGIN_PATH = __ENV.LOGIN_PATH || "/users/login";
 const ORDER_PATH = __ENV.ORDER_PATH || "/orders";
 
 const USER_COUNT = parseInt(__ENV.USER_COUNT || "1000", 10);
-const PASSWORD = __ENV.PASSWORD || "testpassword";
+const PASSWORD = __ENV.PASSWORD || "password1234";
 
 const PRODUCT_ID = parseInt(__ENV.PRODUCT_ID || "2", 10);
 const QTY = parseInt(__ENV.QTY || "1", 10);
