@@ -5,5 +5,5 @@ import com.playground.payment.domain.outbox.PaymentEventOutbox
 interface PaymentOutboxEventUseCase {
     fun findPendingEvents(): List<PaymentEventOutbox>
 
-    fun publishEvent(outbox: PaymentEventOutbox)
+    fun publishEvents(outboxes: List<PaymentEventOutbox>)
 }

@@ -14,13 +14,12 @@ class OutboxEventScheduler(
     @Scheduled(fixedDelay = 1000)
     fun pollAndPublish() {
         val pendingEvents = paymentOutboxEventUseCase.findPendingEvents()
+        if (pendingEvents.isEmpty()) return
 
-        pendingEvents.forEach { outbox ->
-            try {
-                paymentOutboxEventUseCase.publishEvent(outbox)
-            } catch (e: Exception) {
-                log.error("Outbox 이벤트 발행 실패 [eventId={}]", outbox.eventId, e)
-            }
+        try {
+            paymentOutboxEventUseCase.publishEvents(pendingEvents)
+        } catch (e: Exception) {
+            log.error("Outbox 배치 발행 실패", e)
         }
     }
 }

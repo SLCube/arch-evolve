@@ -16,16 +16,17 @@ class PaymentOutboxEventService(
     private val paymentEventPublisherPort: PaymentEventPublisherPort,
 ) : PaymentOutboxEventUseCase {
     companion object {
-        private const val POLL_LIMIT = 50
+        private const val POLL_LIMIT = 1000
     }
 
     @Transactional(readOnly = true)
     override fun findPendingEvents(): List<PaymentEventOutbox> = outboxQueryPort.findByStatus(OutboxStatus.PENDING, POLL_LIMIT)
 
     @Transactional
-    override fun publishEvent(outbox: PaymentEventOutbox) {
-        paymentEventPublisherPort.publish(outbox)
-        outbox.markAsPublished()
-        outboxCommandPort.save(outbox)
+    override fun publishEvents(outboxes: List<PaymentEventOutbox>) {
+        val published = paymentEventPublisherPort.publishAll(outboxes)
+        if (published.isNotEmpty()) {
+            outboxCommandPort.bulkMarkAsPublished(published.map { it.id!! })
+        }
     }
 }

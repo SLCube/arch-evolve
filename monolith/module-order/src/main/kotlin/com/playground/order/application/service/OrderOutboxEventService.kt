@@ -16,7 +16,7 @@ class OrderOutboxEventService(
     private val orderEventPublisherPort: OrderEventPublisherPort,
 ) : OrderOutboxEventUseCase {
     companion object {
-        private const val POLL_LIMIT = 50
+        private const val POLL_LIMIT = 1000
     }
 
     @Transactional(readOnly = true)
@@ -24,9 +24,10 @@ class OrderOutboxEventService(
         outboxQueryPort.findByStatus(OutboxStatus.PENDING, POLL_LIMIT)
 
     @Transactional
-    override fun publishEvent(outbox: OrderEventOutbox) {
-        orderEventPublisherPort.publish(outbox)
-        outbox.markAsPublished()
-        outboxCommandPort.save(outbox)
+    override fun publishEvents(outboxes: List<OrderEventOutbox>) {
+        val published = orderEventPublisherPort.publishAll(outboxes)
+        if (published.isNotEmpty()) {
+            outboxCommandPort.bulkMarkAsPublished(published.map { it.id!! })
+        }
     }
 }

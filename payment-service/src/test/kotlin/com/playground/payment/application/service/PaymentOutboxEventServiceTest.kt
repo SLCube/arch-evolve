@@ -44,18 +44,18 @@ class PaymentOutboxEventServiceTest {
     }
 
     @Test
-    fun `이벤트를 Kafka로 발행하고 PUBLISHED로 상태를 변경해야 한다`() {
+    fun `이벤트를 Kafka로 배치 발행하고 PUBLISHED로 벌크 업데이트해야 한다`() {
         // given
         val outbox = createOutbox(OutboxEventType.PAYMENT_AUTHORIZED)
-        given(outboxCommandPort.save(any())).willReturn(outbox)
+        val outboxes = listOf(outbox)
+        given(paymentEventPublisherPort.publishAll(outboxes)).willReturn(outboxes)
 
         // when
-        paymentOutboxEventService.publishEvent(outbox)
+        paymentOutboxEventService.publishEvents(outboxes)
 
         // then
-        verify(paymentEventPublisherPort).publish(outbox)
-        verify(outboxCommandPort).save(outbox)
-        outbox.status shouldBe OutboxStatus.PUBLISHED
+        verify(paymentEventPublisherPort).publishAll(outboxes)
+        verify(outboxCommandPort).bulkMarkAsPublished(listOf(1L))
     }
 
     private fun createOutbox(eventType: OutboxEventType): PaymentEventOutbox =

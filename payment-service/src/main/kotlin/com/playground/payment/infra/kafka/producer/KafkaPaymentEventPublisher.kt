@@ -2,6 +2,7 @@ package com.playground.payment.infra.kafka.producer
 
 import com.playground.payment.application.port.outbound.PaymentEventPublisherPort
 import com.playground.payment.common.log.mdc.HeaderKeys
+import com.playground.payment.common.log.utils.logger
 import com.playground.payment.domain.outbox.PaymentEventOutbox
 import com.playground.payment.infra.kafka.config.KafkaProducerTopic
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -12,14 +13,31 @@ import org.springframework.stereotype.Component
 class KafkaPaymentEventPublisher(
     private val kafkaTemplate: KafkaTemplate<String, String>,
 ) : PaymentEventPublisherPort {
-    override fun publish(outbox: PaymentEventOutbox) {
-        val record =
-            ProducerRecord<String, String>(
-                KafkaProducerTopic.from(outbox.eventType),
-                outbox.eventId.toString(),
-                outbox.payload,
-            )
-        record.headers().add(HeaderKeys.X_REQUEST_ID, outbox.requestId.toByteArray())
-        kafkaTemplate.send(record).get()
+    private val log = logger()
+
+    override fun publishAll(outboxes: List<PaymentEventOutbox>): List<PaymentEventOutbox> {
+        val futures =
+            outboxes.map { outbox ->
+                val record =
+                    ProducerRecord<String, String>(
+                        KafkaProducerTopic.from(outbox.eventType),
+                        outbox.eventId.toString(),
+                        outbox.payload,
+                    )
+                record.headers().add(HeaderKeys.X_REQUEST_ID, outbox.requestId.toByteArray())
+                outbox to kafkaTemplate.send(record)
+            }
+
+        kafkaTemplate.flush()
+
+        return futures.mapNotNull { (outbox, future) ->
+            try {
+                future.get()
+                outbox
+            } catch (e: Exception) {
+                log.error("Kafka 발행 실패 [eventId={}]", outbox.eventId, e)
+                null
+            }
+        }
     }
 }

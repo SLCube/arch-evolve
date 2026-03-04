@@ -5,5 +5,5 @@ import com.playground.order.domain.outbox.OrderEventOutbox
 interface OrderOutboxEventUseCase {
     fun findPendingEvents(): List<OrderEventOutbox>
 
-    fun publishEvent(outbox: OrderEventOutbox)
+    fun publishEvents(outboxes: List<OrderEventOutbox>)
 }
