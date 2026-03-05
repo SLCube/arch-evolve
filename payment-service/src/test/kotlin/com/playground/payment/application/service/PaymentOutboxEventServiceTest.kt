@@ -6,11 +6,11 @@ import com.playground.payment.application.port.outbound.PaymentEventPublisherPor
 import com.playground.payment.domain.outbox.OutboxEventType
 import com.playground.payment.domain.outbox.OutboxStatus
 import com.playground.payment.domain.outbox.PaymentEventOutbox
-import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import java.time.LocalDateTime
 import java.util.UUID
@@ -29,33 +29,49 @@ class PaymentOutboxEventServiceTest {
         )
 
     @Test
-    fun `PENDING 상태 이벤트 목록을 조회해야 한다`() {
-        // given
-        val outbox = createOutbox(OutboxEventType.PAYMENT_AUTHORIZED)
-        given(outboxQueryPort.findByStatus(any(), any())).willReturn(listOf(outbox))
-
-        // when
-        val result = paymentOutboxEventService.findPendingEvents()
-
-        // then
-        result.size shouldBe 1
-        result[0] shouldBe outbox
-        verify(outboxQueryPort).findByStatus(any(), any())
-    }
-
-    @Test
-    fun `이벤트를 Kafka로 배치 발행하고 PUBLISHED로 벌크 업데이트해야 한다`() {
+    fun `PENDING 이벤트를 조회하여 Kafka로 발행하고 PUBLISHED로 벌크 업데이트해야 한다`() {
         // given
         val outbox = createOutbox(OutboxEventType.PAYMENT_AUTHORIZED)
         val outboxes = listOf(outbox)
+        given(outboxQueryPort.findByStatus(any(), any())).willReturn(outboxes)
         given(paymentEventPublisherPort.publishAll(outboxes)).willReturn(outboxes)
 
         // when
-        paymentOutboxEventService.publishEvents(outboxes)
+        paymentOutboxEventService.pollAndPublishEvents()
+
+        // then
+        verify(outboxQueryPort).findByStatus(any(), any())
+        verify(paymentEventPublisherPort).publishAll(outboxes)
+        verify(outboxCommandPort).bulkMarkAsPublished(listOf(1L))
+    }
+
+    @Test
+    fun `PENDING 이벤트가 없으면 발행하지 않아야 한다`() {
+        // given
+        given(outboxQueryPort.findByStatus(any(), any())).willReturn(emptyList())
+
+        // when
+        paymentOutboxEventService.pollAndPublishEvents()
+
+        // then
+        verify(paymentEventPublisherPort, never()).publishAll(any())
+        verify(outboxCommandPort, never()).bulkMarkAsPublished(any())
+    }
+
+    @Test
+    fun `Kafka 발행이 모두 실패하면 벌크 업데이트하지 않아야 한다`() {
+        // given
+        val outbox = createOutbox(OutboxEventType.PAYMENT_AUTHORIZED)
+        val outboxes = listOf(outbox)
+        given(outboxQueryPort.findByStatus(any(), any())).willReturn(outboxes)
+        given(paymentEventPublisherPort.publishAll(outboxes)).willReturn(emptyList())
+
+        // when
+        paymentOutboxEventService.pollAndPublishEvents()
 
         // then
         verify(paymentEventPublisherPort).publishAll(outboxes)
-        verify(outboxCommandPort).bulkMarkAsPublished(listOf(1L))
+        verify(outboxCommandPort, never()).bulkMarkAsPublished(any())
     }
 
     private fun createOutbox(eventType: OutboxEventType): PaymentEventOutbox =

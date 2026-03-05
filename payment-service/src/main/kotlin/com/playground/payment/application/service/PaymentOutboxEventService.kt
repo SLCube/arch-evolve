@@ -5,7 +5,6 @@ import com.playground.payment.application.port.outbound.OutboxCommandPort
 import com.playground.payment.application.port.outbound.OutboxQueryPort
 import com.playground.payment.application.port.outbound.PaymentEventPublisherPort
 import com.playground.payment.domain.outbox.OutboxStatus
-import com.playground.payment.domain.outbox.PaymentEventOutbox
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,12 +18,12 @@ class PaymentOutboxEventService(
         private const val POLL_LIMIT = 1000
     }
 
-    @Transactional(readOnly = true)
-    override fun findPendingEvents(): List<PaymentEventOutbox> = outboxQueryPort.findByStatus(OutboxStatus.PENDING, POLL_LIMIT)
-
     @Transactional
-    override fun publishEvents(outboxes: List<PaymentEventOutbox>) {
-        val published = paymentEventPublisherPort.publishAll(outboxes)
+    override fun pollAndPublishEvents() {
+        val pendingEvents = outboxQueryPort.findByStatus(OutboxStatus.PENDING, POLL_LIMIT)
+        if (pendingEvents.isEmpty()) return
+
+        val published = paymentEventPublisherPort.publishAll(pendingEvents)
         if (published.isNotEmpty()) {
             outboxCommandPort.bulkMarkAsPublished(published.map { it.id!! })
         }

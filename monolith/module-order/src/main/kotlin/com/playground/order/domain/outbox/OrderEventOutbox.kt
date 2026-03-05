@@ -8,11 +8,7 @@ class OrderEventOutbox(
     val eventId: UUID,
     val eventType: OutboxEventType,
     val payload: String,
-    var status: OutboxStatus,
+    val status: OutboxStatus,
     val occurredAt: LocalDateTime,
     val requestId: String,
-) {
-    fun markAsPublished() {
-        this.status = OutboxStatus.PUBLISHED
-    }
-}
+)
