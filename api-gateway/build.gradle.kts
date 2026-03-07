@@ -43,6 +43,10 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     runtimeOnly(libs.micrometer.registry.prometheus)
 
+    // Tracing
+    implementation(libs.micrometer.tracing.bridge.otel)
+    implementation(libs.opentelemetry.exporter.otlp)
+
     // Logging
     implementation(libs.logstash.logback.encoder)
     implementation(libs.loki.logback.appender)

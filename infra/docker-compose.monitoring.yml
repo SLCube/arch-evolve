@@ -13,8 +13,21 @@ services:
     networks:
       - monitoring
 
+  tempo:
+    image: grafana/tempo:2.6.1
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo/tempo.yml" ]
+    volumes:
+      - ./src/main/resources/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200"
+      - "4318:4318"
+    networks:
+      - monitoring
+
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.6.0
     container_name: grafana
     environment:
       - GF_SECURITY_ADMIN_USER=admin
@@ -64,4 +77,5 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
+  tempo_data:
   influxdb_data:

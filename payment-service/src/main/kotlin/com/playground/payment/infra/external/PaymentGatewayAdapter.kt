@@ -5,26 +5,36 @@ import com.playground.payment.domain.exception.BusinessException
 import com.playground.payment.domain.exception.PaymentGatewayTimeoutException
 import com.playground.payment.domain.exception.PaymentLimitExceededException
 import com.playground.payment.domain.vo.PgAuthorizationResult
+import com.playground.payment.infra.external.dto.BillingKeyResponse
+import com.playground.payment.infra.external.dto.PgAuthorizeResponse
+import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestClient
 import java.math.BigDecimal
-import java.time.Instant
-import java.util.UUID
-import kotlin.random.Random
 
 @Component
-class PaymentGatewayAdapter : PaymentGatewayPort {
+class PaymentGatewayAdapter(
+    private val pgRestClient: RestClient,
+) : PaymentGatewayPort {
     override fun issueBillingKey(
         authKey: String,
         userId: Long,
     ): String {
-        simulateLatency(100, 300)
-
         if (authKey.startsWith("FAIL_ISSUE_TIMEOUT")) {
             throw PaymentGatewayTimeoutException()
         }
 
-        val timestamp = Instant.now().epochSecond
-        return "bil_${userId}_${timestamp}_${Random.nextInt(1000)}"
+        val response =
+            pgRestClient
+                .post()
+                .uri("/pg/billing-key")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(mapOf("authKey" to authKey, "userId" to userId))
+                .retrieve()
+                .body(BillingKeyResponse::class.java)
+                ?: throw PaymentGatewayTimeoutException()
+
+        return response.billingKey
     }
 
     override fun requestAuthorization(
@@ -32,12 +42,27 @@ class PaymentGatewayAdapter : PaymentGatewayPort {
         amount: BigDecimal,
     ): PgAuthorizationResult =
         try {
-            callExternalPgApi(paymentKey, amount)
+            if (paymentKey.startsWith("FAIL_")) {
+                throw PaymentGatewayTimeoutException()
+            }
+            if (amount >= BigDecimal("10000000")) {
+                throw PaymentLimitExceededException()
+            }
+
+            val response =
+                pgRestClient
+                    .post()
+                    .uri("/pg/authorize")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(mapOf("paymentKey" to paymentKey, "amount" to amount))
+                    .retrieve()
+                    .body(PgAuthorizeResponse::class.java)
+                    ?: throw PaymentGatewayTimeoutException()
 
             PgAuthorizationResult(
                 isSuccess = true,
-                pgTransactionId = "TID_${UUID.randomUUID().toString().substring(0, 8)}",
-                approvalNumber = Random.nextInt(10000000, 99999999).toString(),
+                pgTransactionId = response.pgTransactionId,
+                approvalNumber = response.approvalNumber,
                 failReason = null,
             )
         } catch (e: Exception) {
@@ -53,30 +78,4 @@ class PaymentGatewayAdapter : PaymentGatewayPort {
                 failReason = errorMessage,
             )
         }
-
-    private fun callExternalPgApi(
-        paymentKey: String,
-        amount: BigDecimal,
-    ) {
-        simulateLatency(300, 500)
-        if (paymentKey.startsWith("FAIL_")) {
-            throw PaymentGatewayTimeoutException()
-        }
-
-        if (amount >= BigDecimal("10000000")) {
-            throw PaymentLimitExceededException()
-        }
-    }
-
-    private fun simulateLatency(
-        min: Long,
-        max: Long,
-    ) {
-        val latency = Random.nextLong(min, max)
-        try {
-            Thread.sleep(latency)
-        } catch (e: InterruptedException) {
-            Thread.currentThread().interrupt()
-        }
-    }
 }

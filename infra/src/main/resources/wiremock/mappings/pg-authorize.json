@@ -1,0 +1,19 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/pg/authorize"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "pgTransactionId": "TID_{{randomValue length=8 type='ALPHANUMERIC'}}",
+      "approvalNumber": "{{randomValue length=8 type='NUMERIC'}}",
+      "status": "APPROVED"
+    },
+    "transformers": ["response-template"],
+    "fixedDelayMilliseconds": 400
+  }
+}

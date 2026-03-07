@@ -1,0 +1,17 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPathPattern": "/pg/billing-key"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "billingKey": "bil_{{request.body.userId}}_{{now format='epoch'}}_{{randomValue length=3 type='NUMERIC'}}"
+    },
+    "transformers": ["response-template"],
+    "fixedDelayMilliseconds": 200
+  }
+}

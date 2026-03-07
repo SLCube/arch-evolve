@@ -9,5 +9,17 @@ datasources:
 
   - name: Loki
     type: loki
+    uid: loki-uid
     url: http://loki:3100
     editable: false
+
+  - name: Tempo
+    type: tempo
+    url: http://tempo:3200
+    editable: false
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: loki-uid
+        filterByTraceID: true
+      nodeGraph:
+        enabled: true
