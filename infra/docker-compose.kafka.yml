@@ -21,14 +21,5 @@ services:
       - kafka-data:/var/kafka-logs
     restart: always
 
-  wiremock:
-    image: wiremock/wiremock:3.13.0
-    container_name: wiremock
-    command: [ "--port", "8080", "--container-threads", "500" ]
-    volumes:
-      - ./src/main/resources/wiremock:/home/wiremock
-    ports:
-      - "9091:8080"
-
 volumes:
   kafka-data:
