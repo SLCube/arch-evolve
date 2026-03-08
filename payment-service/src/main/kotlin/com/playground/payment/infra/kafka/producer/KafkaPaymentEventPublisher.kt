@@ -15,29 +15,18 @@ class KafkaPaymentEventPublisher(
 ) : PaymentEventPublisherPort {
     private val log = logger()
 
-    override fun publishAll(outboxes: List<PaymentEventOutbox>): List<PaymentEventOutbox> {
-        val futures =
-            outboxes.map { outbox ->
-                val record =
-                    ProducerRecord<String, String>(
-                        KafkaProducerTopic.from(outbox.eventType),
-                        outbox.eventId.toString(),
-                        outbox.payload,
-                    )
-                record.headers().add(HeaderKeys.X_REQUEST_ID, outbox.requestId.toByteArray())
-                outbox to kafkaTemplate.send(record)
-            }
-
-        kafkaTemplate.flush()
-
-        return futures.mapNotNull { (outbox, future) ->
-            try {
-                future.get()
-                outbox
-            } catch (e: Exception) {
-                log.error("Kafka 발행 실패 [eventId={}]", outbox.eventId, e)
-                null
-            }
-        }
-    }
+    override fun publishAll(outboxes: List<PaymentEventOutbox>): List<PaymentEventOutbox> =
+        kafkaTemplate.sendAll(
+            items = outboxes,
+            toRecord = { outbox ->
+                ProducerRecord<String, String>(
+                    KafkaProducerTopic.from(outbox.eventType),
+                    outbox.eventId.toString(),
+                    outbox.payload,
+                ).apply {
+                    headers().add(HeaderKeys.X_REQUEST_ID, outbox.requestId.toByteArray())
+                }
+            },
+            onError = { outbox, e -> log.error("Kafka 발행 실패 [eventId={}]", outbox.eventId, e) },
+        )
 }
