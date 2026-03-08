@@ -1,6 +1,7 @@
 package com.playground.payment.infra.external
 
 import com.playground.payment.application.port.outbound.PaymentGatewayPort
+import com.playground.payment.common.log.utils.logger
 import com.playground.payment.domain.exception.BusinessException
 import com.playground.payment.domain.exception.PaymentGatewayTimeoutException
 import com.playground.payment.domain.exception.PaymentLimitExceededException
@@ -16,6 +17,7 @@ import java.math.BigDecimal
 class PaymentGatewayAdapter(
     private val pgRestClient: RestClient,
 ) : PaymentGatewayPort {
+    private val log = logger()
     override fun issueBillingKey(
         authKey: String,
         userId: Long,
@@ -71,6 +73,7 @@ class PaymentGatewayAdapter(
                     is BusinessException -> e.message
                     else -> "PG 연동 오류 ${e.message}"
                 }
+            log.warn("PG 결제 승인 실패 [reason={}]", errorMessage, e)
             PgAuthorizationResult(
                 isSuccess = false,
                 pgTransactionId = null,

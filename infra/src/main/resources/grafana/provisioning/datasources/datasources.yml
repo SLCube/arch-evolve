@@ -12,6 +12,12 @@ datasources:
     uid: loki-uid
     url: http://loki:3100
     editable: false
+    jsonData:
+      derivedFields:
+        - name: traceId
+          matcherRegex: '"traceId":"([a-f0-9]+)"'
+          url: '$${__value.raw}'
+          datasourceUid: P214B5B846CF3925F
 
   - name: Tempo
     type: tempo

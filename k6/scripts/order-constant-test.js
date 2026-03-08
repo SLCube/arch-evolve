@@ -6,11 +6,11 @@ export const options = {
     scenarios: {
         constant_load: {
             executor: "constant-arrival-rate",
-            rate: parseInt(__ENV.RATE || "700", 10), // 목표 RPS (기본 100)
+            rate: parseInt(__ENV.RATE || "1", 10), // 목표 RPS (기본 100)
             timeUnit: "1s",
-            duration: __ENV.DURATION || "3m", // 테스트 지속 시간 (기본 3분)
-            preAllocatedVUs: parseInt(__ENV.PRE_VUS || "700", 10),
-            maxVUs: parseInt(__ENV.MAX_VUS || "1000", 10),
+            duration: __ENV.DURATION || "5m", // 테스트 지속 시간 (기본 3분)
+            preAllocatedVUs: parseInt(__ENV.PRE_VUS || "1", 10),
+            maxVUs: parseInt(__ENV.MAX_VUS || "1", 10),
         },
     },
     thresholds: {
@@ -23,7 +23,7 @@ const BASE_URL = __ENV.BASE_URL || "http://localhost:8080";
 const LOGIN_PATH = __ENV.LOGIN_PATH || "/users/login";
 const ORDER_PATH = __ENV.ORDER_PATH || "/orders";
 
-const USER_COUNT = parseInt(__ENV.USER_COUNT || "1000", 10);
+const USER_COUNT = parseInt(__ENV.USER_COUNT || "1", 10);
 const PASSWORD = __ENV.PASSWORD || "password1234";
 
 const PRODUCT_ID = parseInt(__ENV.PRODUCT_ID || "2", 10);
