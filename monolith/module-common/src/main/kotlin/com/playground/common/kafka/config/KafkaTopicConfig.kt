@@ -12,7 +12,7 @@ class KafkaTopicConfig {
     fun orderCreatedTopic(): NewTopic =
         TopicBuilder
             .name(KafkaProducerTopic.ORDER_CREATED)
-            .partitions(1)
+            .partitions(3)
             .replicas(1)
             .build()
 }

@@ -15,6 +15,7 @@ class KafkaConsumerConfig {
     ): ConcurrentKafkaListenerContainerFactory<Any, Any> {
         val factory = ConcurrentKafkaListenerContainerFactory<Any, Any>()
         configurer.configure(factory, consumerFactory)
+        factory.setConcurrency(3)
         factory.containerProperties.isObservationEnabled = true
         return factory
     }

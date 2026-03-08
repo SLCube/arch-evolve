@@ -24,6 +24,7 @@ class KafkaConsumerConfig(
         val factory = ConcurrentKafkaListenerContainerFactory<Any, Any>()
         configurer.configure(factory, consumerFactory)
         factory.isBatchListener = true
+        factory.setConcurrency(3)
         factory.setBatchInterceptor(kafkaConsumerBatchLoggingInterceptor)
         factory.setCommonErrorHandler(
             DefaultErrorHandler(
