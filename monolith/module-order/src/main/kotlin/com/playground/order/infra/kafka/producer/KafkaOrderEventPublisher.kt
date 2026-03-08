@@ -1,7 +1,6 @@
 package com.playground.order.infra.kafka.producer
 
 import com.playground.common.kafka.config.KafkaProducerTopic
-import com.playground.common.log.mdc.HeaderKeys
 import com.playground.order.application.port.outbound.OrderEventPublisherPort
 import com.playground.order.domain.outbox.OrderEventOutbox
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -23,9 +22,7 @@ class KafkaOrderEventPublisher(
                     KafkaProducerTopic.ORDER_CREATED,
                     outbox.eventId.toString(),
                     outbox.payload,
-                ).apply {
-                    headers().add(HeaderKeys.X_REQUEST_ID, outbox.requestId.toByteArray())
-                }
+                )
             },
             onError = { outbox, e -> log.error("Kafka 발행 실패 [eventId={}]", outbox.eventId, e) },
         )

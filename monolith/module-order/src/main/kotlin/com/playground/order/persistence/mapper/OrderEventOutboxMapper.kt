@@ -11,7 +11,6 @@ fun OrderEventOutboxJpaEntity.toDomain(): OrderEventOutbox =
         payload = this.payload,
         status = this.status,
         occurredAt = this.occurredAt,
-        requestId = this.requestId,
     )
 
 fun OrderEventOutbox.toJpaEntity(): OrderEventOutboxJpaEntity =
@@ -22,5 +21,4 @@ fun OrderEventOutbox.toJpaEntity(): OrderEventOutboxJpaEntity =
         payload = this.payload,
         status = this.status,
         occurredAt = this.occurredAt,
-        requestId = this.requestId,
     )

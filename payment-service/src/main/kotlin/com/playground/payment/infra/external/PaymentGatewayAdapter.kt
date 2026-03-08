@@ -18,6 +18,7 @@ class PaymentGatewayAdapter(
     private val pgRestClient: RestClient,
 ) : PaymentGatewayPort {
     private val log = logger()
+
     override fun issueBillingKey(
         authKey: String,
         userId: Long,

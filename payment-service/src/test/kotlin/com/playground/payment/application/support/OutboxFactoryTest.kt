@@ -7,10 +7,7 @@ import com.playground.payment.domain.event.PaymentFailedEvent
 import com.playground.payment.domain.outbox.OutboxEventType
 import com.playground.payment.domain.outbox.OutboxStatus
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.slf4j.MDC
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
@@ -19,16 +16,6 @@ import java.util.UUID
 class OutboxFactoryTest {
     private val objectMapper = ObjectMapper().registerModule(JavaTimeModule())
     private val outboxFactory = OutboxFactory(objectMapper)
-
-    @BeforeEach
-    fun setUp() {
-        MDC.put("requestId", "test-request-id")
-    }
-
-    @AfterEach
-    fun tearDown() {
-        MDC.remove("requestId")
-    }
 
     @Test
     fun `PaymentAuthorizedEvent를 Outbox로 변환하면 PAYMENT_AUTHORIZED 타입으로 생성되어야 한다`() {
@@ -52,7 +39,6 @@ class OutboxFactoryTest {
         outbox.status shouldBe OutboxStatus.PENDING
         outbox.eventId shouldBe event.eventId
         outbox.occurredAt shouldBe event.occurredAt
-        outbox.requestId shouldBe "test-request-id"
 
         val payloadTree = objectMapper.readTree(outbox.payload)
         payloadTree["orderId"].longValue() shouldBe event.orderId

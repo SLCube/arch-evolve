@@ -7,7 +7,6 @@ import com.playground.payment.domain.event.PaymentFailedEvent
 import com.playground.payment.domain.outbox.OutboxEventType
 import com.playground.payment.domain.outbox.OutboxStatus
 import com.playground.payment.domain.outbox.PaymentEventOutbox
-import org.slf4j.MDC
 import org.springframework.stereotype.Component
 
 @Component
@@ -26,7 +25,6 @@ class OutboxFactory(
             payload = objectMapper.writeValueAsString(event),
             status = OutboxStatus.PENDING,
             occurredAt = event.occurredAt,
-            requestId = MDC.get("requestId") ?: "",
         )
     }
 }

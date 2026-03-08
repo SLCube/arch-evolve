@@ -7,7 +7,6 @@ import org.springframework.core.Ordered
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
-import java.util.UUID
 
 @Component
 class MdcGlobalFilter :
@@ -19,27 +18,16 @@ class MdcGlobalFilter :
         exchange: ServerWebExchange,
         chain: GatewayFilterChain,
     ): Mono<Void> {
-        val requestId = UUID.randomUUID().toString()
         val request = exchange.request
         val startTime = System.currentTimeMillis()
 
-        val mutatedRequest =
-            request
-                .mutate()
-                .header("X-Request-Id", requestId)
-                .build()
-
-        val mutatedExchange =
-            exchange.mutate().request(mutatedRequest).build()
-
         return chain
-            .filter(mutatedExchange)
+            .filter(exchange)
             .doFinally {
                 val duration = System.currentTimeMillis() - startTime
-                val status = mutatedExchange.response.statusCode?.value() ?: 0
+                val status = exchange.response.statusCode?.value() ?: 0
                 log.info(
-                    "[{}] {} {} | {} | {}ms",
-                    requestId,
+                    "{} {} | {} | {}ms",
                     request.method,
                     request.uri.path,
                     status,

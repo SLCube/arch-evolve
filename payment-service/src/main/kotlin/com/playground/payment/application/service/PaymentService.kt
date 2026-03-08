@@ -30,6 +30,8 @@ class PaymentService(
 
         val pgResult = paymentGatewayPort.requestAuthorization(paymentMethod.billingKey, command.amount)
 
-        return paymentTransactionManager.savePaymentResult(command, pgResult, paymentMethod.billingKey)
+        return paymentTransactionManager.savePaymentResult(command, pgResult, paymentMethod.billingKey).also {
+            log.info("결제 처리 완료 [orderId={}, paymentId={}, status={}]", it.orderId, it.id, it.status)
+        }
     }
 }

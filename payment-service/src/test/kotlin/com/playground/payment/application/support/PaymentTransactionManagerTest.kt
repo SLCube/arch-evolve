@@ -120,7 +120,6 @@ class PaymentTransactionManagerTest {
                 payload = "{}",
                 status = OutboxStatus.PENDING,
                 occurredAt = LocalDateTime.now(),
-                requestId = "test-request-id",
             )
 
         given(paymentCommandPort.save(any())).willReturn(completedPayment)
@@ -184,7 +183,6 @@ class PaymentTransactionManagerTest {
                 payload = "{}",
                 status = OutboxStatus.PENDING,
                 occurredAt = LocalDateTime.now(),
-                requestId = "test-request-id",
             )
 
         given(paymentCommandPort.save(any())).willReturn(failedPayment)
@@ -237,7 +235,6 @@ class PaymentTransactionManagerTest {
                 payload = "{}",
                 status = OutboxStatus.PENDING,
                 occurredAt = LocalDateTime.now(),
-                requestId = "test-request-id",
             )
 
         given(paymentCommandPort.save(any())).willReturn(

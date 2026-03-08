@@ -11,8 +11,10 @@ fun <T> KafkaTemplate<String, String>.sendAll(
     val futures = items.map { it to send(toRecord(it)) }
     flush()
     return futures.mapNotNull { (item, future) ->
-        runCatching { future.get(); item }
-            .onFailure { onError(item, it as Exception) }
+        runCatching {
+            future.get()
+            item
+        }.onFailure { onError(item, it as Exception) }
             .getOrNull()
     }
 }

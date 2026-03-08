@@ -82,6 +82,5 @@ class PaymentOutboxEventServiceTest {
             payload = "{}",
             status = OutboxStatus.PENDING,
             occurredAt = LocalDateTime.now(),
-            requestId = "test-request-id",
         )
 }

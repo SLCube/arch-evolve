@@ -17,5 +17,7 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       auto-offset-reset: earliest
       observation-enabled: true
+      max-poll-records: 50
     listener:
       observation-enabled: true
+      ack-mode: batch
