@@ -14,6 +14,7 @@ class OutboxFactory(
     fun from(event: OrderCreatedEvent): OrderEventOutbox =
         OrderEventOutbox(
             eventId = event.eventId,
+            orderId = event.orderId,
             eventType = OutboxEventType.ORDER_CREATED,
             payload = objectMapper.writeValueAsString(event),
             status = OutboxStatus.PENDING,

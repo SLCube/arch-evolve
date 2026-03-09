@@ -116,6 +116,7 @@ class PaymentTransactionManagerTest {
             PaymentEventOutbox(
                 id = 1L,
                 eventId = UUID.randomUUID(),
+                orderId = command.orderId,
                 eventType = OutboxEventType.PAYMENT_AUTHORIZED,
                 payload = "{}",
                 status = OutboxStatus.PENDING,
@@ -179,6 +180,7 @@ class PaymentTransactionManagerTest {
             PaymentEventOutbox(
                 id = 2L,
                 eventId = UUID.randomUUID(),
+                orderId = command.orderId,
                 eventType = OutboxEventType.PAYMENT_FAILED,
                 payload = "{}",
                 status = OutboxStatus.PENDING,
@@ -231,6 +233,7 @@ class PaymentTransactionManagerTest {
             PaymentEventOutbox(
                 id = 3L,
                 eventId = UUID.randomUUID(),
+                orderId = command.orderId,
                 eventType = OutboxEventType.PAYMENT_FAILED,
                 payload = "{}",
                 status = OutboxStatus.PENDING,

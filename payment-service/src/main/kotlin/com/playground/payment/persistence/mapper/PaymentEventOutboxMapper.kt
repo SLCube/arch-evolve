@@ -7,6 +7,7 @@ fun PaymentEventOutboxJpaEntity.toDomain(): PaymentEventOutbox =
     PaymentEventOutbox(
         id = this.id,
         eventId = this.eventId,
+        orderId = this.orderId,
         eventType = this.eventType,
         payload = this.payload,
         status = this.status,
@@ -17,6 +18,7 @@ fun PaymentEventOutbox.toJpaEntity(): PaymentEventOutboxJpaEntity =
     PaymentEventOutboxJpaEntity(
         id = this.id,
         eventId = this.eventId,
+        orderId = this.orderId,
         eventType = this.eventType,
         payload = this.payload,
         status = this.status,

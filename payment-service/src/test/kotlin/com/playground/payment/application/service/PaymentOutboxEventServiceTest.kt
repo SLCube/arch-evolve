@@ -78,6 +78,7 @@ class PaymentOutboxEventServiceTest {
         PaymentEventOutbox(
             id = 1L,
             eventId = UUID.randomUUID(),
+            orderId = 1L,
             eventType = eventType,
             payload = "{}",
             status = OutboxStatus.PENDING,

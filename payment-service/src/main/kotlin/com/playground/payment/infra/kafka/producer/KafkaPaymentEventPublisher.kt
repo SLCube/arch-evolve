@@ -20,7 +20,7 @@ class KafkaPaymentEventPublisher(
             toRecord = { outbox ->
                 ProducerRecord<String, String>(
                     KafkaProducerTopic.from(outbox.eventType),
-                    outbox.eventId.toString(),
+                    outbox.orderId.toString(),
                     outbox.payload,
                 )
             },

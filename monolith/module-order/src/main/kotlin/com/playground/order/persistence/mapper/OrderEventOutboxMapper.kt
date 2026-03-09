@@ -7,6 +7,7 @@ fun OrderEventOutboxJpaEntity.toDomain(): OrderEventOutbox =
     OrderEventOutbox(
         id = this.id,
         eventId = this.eventId,
+        orderId = this.orderId,
         eventType = this.eventType,
         payload = this.payload,
         status = this.status,
@@ -17,6 +18,7 @@ fun OrderEventOutbox.toJpaEntity(): OrderEventOutboxJpaEntity =
     OrderEventOutboxJpaEntity(
         id = this.id,
         eventId = this.eventId,
+        orderId = this.orderId,
         eventType = this.eventType,
         payload = this.payload,
         status = this.status,

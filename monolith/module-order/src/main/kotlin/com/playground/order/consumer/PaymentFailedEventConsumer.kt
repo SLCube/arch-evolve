@@ -7,8 +7,8 @@ import com.playground.order.consumer.config.KafkaConsumerTopic
 import com.playground.order.consumer.event.PaymentFailedEvent
 import com.playground.order.consumer.support.KafkaConsumerHandler
 import com.playground.common.log.utils.logger
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.messaging.handler.annotation.Payload
 import org.springframework.stereotype.Component
 
 @Component
@@ -20,12 +20,9 @@ class PaymentFailedEventConsumer(
 
     @KafkaConsumerHandler
     @KafkaListener(topics = [KafkaConsumerTopic.PAYMENT_FAILED])
-    fun consume(
-        @Payload payload: String,
-    ) {
-        val event = objectMapper.readValue(payload, PaymentFailedEvent::class.java)
+    fun consume(record: ConsumerRecord<String, String>) {
+        val event = objectMapper.readValue(record.value(), PaymentFailedEvent::class.java)
         log.info("결제 실패 이벤트 수신 [orderId={}]", event.orderId)
-
         orderCommandUseCase.failOrder(OrderFailCommand(event.orderId))
     }
 }

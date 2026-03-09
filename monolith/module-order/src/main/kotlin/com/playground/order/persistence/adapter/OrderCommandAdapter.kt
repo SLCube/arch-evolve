@@ -1,7 +1,6 @@
 package com.playground.order.persistence.adapter
 
 import com.playground.order.application.port.outbound.OrderCommandPort
-import com.playground.order.domain.exception.OrderNotFoundException
 import com.playground.order.domain.model.Order
 import com.playground.order.persistence.entity.OrderJpaEntity
 import com.playground.order.persistence.entity.OrderProductJpaEntity
@@ -36,17 +35,9 @@ class OrderCommandAdapter(
 
     override fun update(order: Order): Order {
         val orderId = order.id!!
-
-        val orderJpaEntity =
-            orderRepository
-                .findById(orderId)
-                .orElseThrow { OrderNotFoundException(orderId) }
-
-        orderJpaEntity.updateFromDomain(order)
-
+        val orderJpaEntity = orderRepository.save(OrderJpaEntity.toJpaEntity(order))
         val orderProductJpaEntities = orderProductRepository.findByOrderId(orderId)
         val orderProducts = orderProductJpaEntities.map { it.toDomain() }.toMutableList()
-
         return orderJpaEntity.toDomain(orderProducts)
     }
 }

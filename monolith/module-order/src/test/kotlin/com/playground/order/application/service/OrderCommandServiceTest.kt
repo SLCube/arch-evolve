@@ -94,46 +94,37 @@ class OrderCommandServiceTest {
     }
 
     @Test
-    fun `결제 완료 Command 수신 시 주문상태가 PAID로 변경되고 PG_TXID가 기록되서 저장된다`() {
+    fun `결제 완료 Command 수신 시 PENDING 주문의 상태가 COMPLETED로 변경되고 이벤트가 발행되어야 한다`() {
         // given
         val orderId = 1L
+        val pgTxId = "testPgTransactionId"
         val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             status = OrderStatus.PENDING,
         )
-
-        val pgTxId = "testPgTransactionId"
         val command = OrderCompleteCommand(
             orderId = orderId,
             pgTransactionId = pgTxId,
-            paidAmount = mockOrder.totalPrice
+            paidAmount = mockOrder.totalPrice,
         )
 
-        // when
-        given(orderQueryPort.findById(eq(mockOrder.id!!)))
+        given(orderQueryPort.findById(orderId))
             .willReturn(mockOrder)
 
-        given(orderCommandPort.update(any<Order>()))
-            .willAnswer { invocation ->
-                invocation.arguments[0] as Order
-            }
-
-        val completeOrder = orderCommandService.completeOrder(command)
+        // when
+        orderCommandService.completeOrder(command)
 
         // then
-        verify(orderQueryPort).findById(mockOrder.id)
         verify(orderCommandPort).update(
-            check { savedOrder ->
-                savedOrder.pgTransactionId.shouldNotBeEmpty()
-                savedOrder.pgTransactionId shouldBe pgTxId
-                savedOrder.status shouldBe OrderStatus.COMPLETED
-            }
+            check { order ->
+                order.status shouldBe OrderStatus.COMPLETED
+                order.pgTransactionId shouldBe pgTxId
+            },
         )
-
         verify(orderEventPort).publish(check<OrderCompletedEvent> { event ->
             event.orderId shouldBe orderId
-            event.userId shouldBe completeOrder.userId
-            event.totalAmount shouldBe completeOrder.totalPrice
+            event.userId shouldBe mockOrder.userId
+            event.totalAmount shouldBe mockOrder.totalPrice
             event.receiverName shouldBe mockOrder.orderReceiver.receiverName
             event.receiverPhoneNumber shouldBe mockOrder.orderReceiver.receiverPhoneNumber
             event.zipCode shouldBe mockOrder.orderAddress.zipCode
@@ -143,30 +134,26 @@ class OrderCommandServiceTest {
     }
 
     @Test
-    fun `결제 완료 Command 수신 시 주문상태가 PENDING이 아니라면 멱등하게 기존 주문을 반환한다`() {
+    fun `결제 완료 Command 수신 시 PENDING이 아닌 주문은 멱등하게 스킵된다`() {
         // given
         val orderId = 1L
         val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
-            status = OrderStatus.CANCELLED
+            status = OrderStatus.CANCELLED,
         )
-
-        val pgTxId = "testPgTransactionId"
         val command = OrderCompleteCommand(
             orderId = orderId,
-            pgTransactionId = pgTxId,
-            paidAmount = OrderDomainTestFixture.mockOrder().totalPrice
+            pgTransactionId = "pgTxId",
+            paidAmount = mockOrder.totalPrice,
         )
 
-        given(orderQueryPort.findById(eq(orderId)))
+        given(orderQueryPort.findById(orderId))
             .willReturn(mockOrder)
 
         // when
-        val result = orderCommandService.completeOrder(command)
+        orderCommandService.completeOrder(command)
 
         // then
-        result shouldBe mockOrder
-        result.status shouldBe OrderStatus.CANCELLED
         verify(orderCommandPort, never()).update(any())
         verify(orderEventPort, never()).publish(any())
     }
@@ -261,7 +248,7 @@ class OrderCommandServiceTest {
     }
 
     @Test
-    fun `주문 실패 Command 수신 시 주문 상태가 FAILED로 변경되고 OrderFailedEvent가 발행되어야 한다`() {
+    fun `결제 실패 Command 수신 시 PENDING 주문의 상태가 FAILED로 변경되고 이벤트가 발행되어야 한다`() {
         // given
         val orderId = 1L
         val userId = 2L
@@ -270,58 +257,45 @@ class OrderCommandServiceTest {
             userId = userId,
             status = OrderStatus.PENDING,
         )
-
         val command = OrderFailCommand(orderId = orderId)
 
+        given(orderQueryPort.findById(orderId))
+            .willReturn(mockOrder)
+
         // when
-        given(orderQueryPort.findById(orderId)).willReturn(mockOrder)
-
-        given(orderCommandPort.update(any<Order>()))
-            .willAnswer { invocation ->
-                invocation.arguments[0] as Order
-            }
-
-        val failedOrder = orderCommandService.failOrder(command)
+        orderCommandService.failOrder(command)
 
         // then
-        verify(orderQueryPort).findById(orderId)
-
         verify(orderCommandPort).update(
-            check { savedOrder ->
-                savedOrder.id shouldBe orderId
-                savedOrder.status shouldBe OrderStatus.FAILED
-            }
+            check { order ->
+                order.status shouldBe OrderStatus.FAILED
+            },
         )
-
         verify(orderEventPort).publish(check<OrderFailedEvent> { event ->
             event.orderId shouldBe orderId
             event.userId shouldBe userId
-            event.totalAmount shouldBe failedOrder.totalPrice
+            event.totalAmount shouldBe mockOrder.totalPrice
             event.products.size shouldBe mockOrder.orderProducts.size
         })
-
-        failedOrder.status shouldBe OrderStatus.FAILED
     }
 
     @Test
-    fun `주문 실패 Command 수신 시 주문상태가 PENDING이 아니라면 멱등하게 기존 주문을 반환한다`() {
+    fun `결제 실패 Command 수신 시 PENDING이 아닌 주문은 멱등하게 스킵된다`() {
         // given
         val orderId = 1L
         val mockOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
-            status = OrderStatus.COMPLETED
+            status = OrderStatus.COMPLETED,
         )
-
         val command = OrderFailCommand(orderId = orderId)
 
-        given(orderQueryPort.findById(orderId)).willReturn(mockOrder)
+        given(orderQueryPort.findById(orderId))
+            .willReturn(mockOrder)
 
         // when
-        val result = orderCommandService.failOrder(command)
+        orderCommandService.failOrder(command)
 
         // then
-        result shouldBe mockOrder
-        result.status shouldBe OrderStatus.COMPLETED
         verify(orderCommandPort, never()).update(any())
         verify(orderEventPort, never()).publish(any())
     }

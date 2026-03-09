@@ -23,6 +23,8 @@ class PaymentEventOutboxJpaEntity(
     val id: Long? = null,
     @Column(nullable = false, updatable = false)
     val eventId: UUID,
+    @Column(nullable = false, updatable = false)
+    val orderId: Long,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     val eventType: OutboxEventType,

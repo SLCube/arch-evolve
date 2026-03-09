@@ -20,7 +20,7 @@ class KafkaOrderEventPublisher(
             toRecord = { outbox ->
                 ProducerRecord<String, String>(
                     KafkaProducerTopic.ORDER_CREATED,
-                    outbox.eventId.toString(),
+                    outbox.orderId.toString(),
                     outbox.payload,
                 )
             },

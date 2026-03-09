@@ -21,6 +21,7 @@ class OutboxFactory(
             }
         return PaymentEventOutbox(
             eventId = event.eventId,
+            orderId = event.orderId,
             eventType = eventType,
             payload = objectMapper.writeValueAsString(event),
             status = OutboxStatus.PENDING,
