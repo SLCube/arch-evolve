@@ -36,6 +36,10 @@ class KafkaConsumerConfig(
     @Bean
     fun dltTopics(): NewTopics =
         NewTopics(
-            TopicBuilder.name("order-created.DLT").partitions(3).replicas(1).build(),
+            TopicBuilder
+                .name("order-created.DLT")
+                .partitions(3)
+                .replicas(1)
+                .build(),
         )
 }
