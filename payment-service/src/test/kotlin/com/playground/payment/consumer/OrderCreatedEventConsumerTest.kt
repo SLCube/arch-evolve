@@ -55,6 +55,6 @@ class OrderCreatedEventConsumerTest {
                 occurredAt = LocalDateTime.now(),
             )
         val payload = objectMapper.writeValueAsString(event)
-        return ConsumerRecord<String, String>("order-created", 0, 0L, orderId.toString(), payload)
+        return ConsumerRecord("order-created", 0, 0L, orderId.toString(), payload)
     }
 }

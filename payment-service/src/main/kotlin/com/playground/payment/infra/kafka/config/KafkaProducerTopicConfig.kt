@@ -11,7 +11,7 @@ class KafkaProducerTopicConfig {
     fun paymentAuthorizedTopic(): NewTopic =
         TopicBuilder
             .name(KafkaProducerTopic.PAYMENT_AUTHORIZED)
-            .partitions(3)
+            .partitions(50)
             .replicas(1)
             .build()
 
@@ -19,7 +19,7 @@ class KafkaProducerTopicConfig {
     fun paymentFailedTopic(): NewTopic =
         TopicBuilder
             .name(KafkaProducerTopic.PAYMENT_FAILED)
-            .partitions(3)
+            .partitions(50)
             .replicas(1)
             .build()
 }
