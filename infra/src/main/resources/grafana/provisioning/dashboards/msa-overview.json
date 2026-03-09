@@ -94,7 +94,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "rate(spring_cloud_gateway_requests_seconds_sum[1m]) / rate(spring_cloud_gateway_requests_seconds_count[1m])",
+          "expr": "rate(spring_cloud_gateway_requests_seconds_sum{application=\"gateway\"}[1m]) / rate(spring_cloud_gateway_requests_seconds_count{application=\"gateway\"}[1m])",
           "legendFormat": "{{routeId}}",
           "refId": "A"
         }
@@ -247,7 +247,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "max by (topic) (kafka_consumer_fetch_manager_records_lag_max{application=\"payment-service\"})",
+          "expr": "max by (topic) (clamp_min(kafka_consumer_fetch_manager_records_lag_max{application=\"payment-service\"}, 0))",
           "legendFormat": "{{topic}}",
           "refId": "A"
         }
@@ -280,11 +280,37 @@
       ]
     },
     {
+      "id": 17,
+      "type": "timeseries",
+      "title": "Outbox Scheduler Duration",
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "lineWidth": 1, "fillOpacity": 10 }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 26 },
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "rate(tasks_scheduled_execution_seconds_sum{application=\"payment-service\"}[1m]) / rate(tasks_scheduled_execution_seconds_count{application=\"payment-service\"}[1m])",
+          "legendFormat": "payment-service outbox scheduler",
+          "refId": "A"
+        }
+      ]
+    },
+    {
       "id": 20,
       "type": "row",
       "title": "monolith",
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 34 },
       "panels": []
     },
     {
@@ -299,7 +325,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 27 },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 35 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -326,7 +352,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 27 },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 35 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -352,7 +378,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 27 },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 35 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -378,7 +404,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 35 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 43 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -386,7 +412,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
-          "expr": "max by (topic) (kafka_consumer_fetch_manager_records_lag_max{application=\"playground\"})",
+          "expr": "max by (topic) (clamp_min(kafka_consumer_fetch_manager_records_lag_max{application=\"playground\"}, 0))",
           "legendFormat": "{{topic}}",
           "refId": "A"
         }
@@ -418,7 +444,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 35 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 43 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -433,11 +459,34 @@
       ]
     },
     {
+      "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+      "fieldConfig": {
+        "defaults": { "unit": "s", "custom": { "lineWidth": 1, "fillOpacity": 10 } },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 51 },
+      "id": 26,
+      "options": {
+        "tooltip": { "mode": "multi", "sort": "desc" },
+        "legend": { "displayMode": "list", "placement": "bottom" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "PBFA97CFB590B2093" },
+          "expr": "rate(tasks_scheduled_execution_seconds_sum{application=\"playground\"}[1m]) / rate(tasks_scheduled_execution_seconds_count{application=\"playground\"}[1m])",
+          "legendFormat": "monolith outbox scheduler",
+          "refId": "A"
+        }
+      ],
+      "title": "Outbox Scheduler Duration",
+      "type": "timeseries"
+    },
+    {
       "id": 30,
       "type": "row",
       "title": "k6 부하테스트",
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 43 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 59 },
       "panels": []
     },
     {
@@ -452,7 +501,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 44 },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 60 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -477,7 +526,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 44 },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 60 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -503,7 +552,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 44 },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 60 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }
@@ -528,7 +577,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 44 },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 60 },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
         "legend": { "displayMode": "list", "placement": "bottom" }

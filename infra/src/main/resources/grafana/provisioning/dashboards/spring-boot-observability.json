@@ -1368,7 +1368,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "max by (topic) (kafka_consumer_fetch_manager_records_lag_max{application=\"$app_name\"})",
+          "expr": "max by (topic) (clamp_min(kafka_consumer_fetch_manager_records_lag_max{application=\"$app_name\"}, 0))",
           "legendFormat": "{{application}} - {{topic}}",
           "range": true,
           "refId": "A"
@@ -1429,7 +1429,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "spring_kafka_listener_seconds_max",
+          "expr": "spring_kafka_listener_seconds_max{application=\"$app_name\"}",
           "legendFormat": "{{application}}",
           "range": true,
           "refId": "A"
@@ -1490,7 +1490,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kafka_consumer_fetch_manager_records_consumed_rate",
+          "expr": "kafka_consumer_fetch_manager_records_consumed_rate{application=\"$app_name\"}",
           "legendFormat": "{{application}} - {{topic}}",
           "range": true,
           "refId": "A"
@@ -1551,7 +1551,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "kafka_producer_topic_record_send_rate",
+          "expr": "kafka_producer_topic_record_send_rate{application=\"$app_name\"}",
           "legendFormat": "{{application}} - {{topic}}",
           "range": true,
           "refId": "A"
@@ -1559,6 +1559,74 @@
       ],
       "title": "Producer Record Send Rate",
       "type": "timeseries"
+    },
+    {
+      "id": 126,
+      "type": "timeseries",
+      "title": "DLT Records Consumed Rate",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 79
+      },
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "kafka_consumer_fetch_manager_records_consumed_rate{application=\"$app_name\", topic=~\".+\\\\.DLT\"}",
+          "legendFormat": "{{application}} - {{topic}}",
+          "range": true,
+          "refId": "A"
+        }
+      ]
     },
     {
       "id": 124,
@@ -1579,7 +1647,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 87
       },
       "options": {
         "tooltip": {
@@ -1622,7 +1690,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 87
       },
       "options": {
         "tooltip": {
@@ -1652,7 +1720,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 79
+        "y": 95
       },
       "id": 109,
       "title": "DB Connection Pool (HikariCP)",
@@ -1705,7 +1773,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 80
+        "y": 96
       },
       "id": 110,
       "options": {
@@ -1766,7 +1834,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 80
+        "y": 96
       },
       "id": 111,
       "options": {
@@ -1827,7 +1895,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 80
+        "y": 96
       },
       "id": 112,
       "options": {
@@ -1900,7 +1968,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 0
+        "y": 104
       },
       "options": {
         "tooltip": {
@@ -1943,7 +2011,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 104
       },
       "options": {
         "tooltip": {
@@ -1973,7 +2041,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 88
+        "y": 112
       },
       "id": 105,
       "title": "JVM",
@@ -2009,7 +2077,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 89
+        "y": 113
       },
       "id": 106,
       "options": {
@@ -2070,7 +2138,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 89
+        "y": 113
       },
       "id": 107,
       "options": {
@@ -2131,7 +2199,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 89
+        "y": 113
       },
       "id": 108,
       "options": {
@@ -2168,7 +2236,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 97
+        "y": 121
       },
       "id": 120,
       "title": "Logs",
@@ -2183,7 +2251,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 98
+        "y": 122
       },
       "id": 121,
       "options": {
@@ -2200,7 +2268,7 @@
             "uid": "loki-uid"
           },
           "editorMode": "code",
-          "expr": "{app=~\".+\"} | json | orderId=`$request_id`",
+          "expr": "{app=~\".+\"} | json | orderId=`$order_id`",
           "queryType": "range",
           "refId": "A"
         }
@@ -2265,10 +2333,10 @@
           "text": "",
           "value": ""
         },
-        "description": "filter logs by requestId",
+        "description": "filter logs by orderId",
         "hide": 0,
         "label": "Order ID",
-        "name": "request_id",
+        "name": "order_id",
         "options": [
           {
             "selected": true,
