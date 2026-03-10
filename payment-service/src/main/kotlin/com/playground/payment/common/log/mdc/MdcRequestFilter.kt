@@ -11,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Component
 class MdcRequestFilter : OncePerRequestFilter() {
     private val log = logger()
+
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val uri = request.requestURI
         return uri.startsWith("/actuator") || uri.startsWith("/health")

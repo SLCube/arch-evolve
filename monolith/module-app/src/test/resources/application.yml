@@ -27,3 +27,6 @@ logging:
 
 loki4j:
   enabled: false
+
+delivery-service:
+  base-url: http://localhost:8083
