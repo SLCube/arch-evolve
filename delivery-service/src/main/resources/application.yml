@@ -1,0 +1,14 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: delivery-service
+  docker:
+    compose:
+      file: delivery-service/docker-compose.yml
+  profiles:
+    include:
+      - db
+      - kafka
+      - monitoring

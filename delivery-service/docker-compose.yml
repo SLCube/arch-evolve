@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: delivery-postgres
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=delivery
+      - POSTGRES_PASSWORD=delivery
+      - POSTGRES_DB=delivery
+    volumes:
+      - delivery-postgres-data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  delivery-postgres-data:

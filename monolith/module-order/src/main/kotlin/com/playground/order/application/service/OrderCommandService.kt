@@ -63,7 +63,9 @@ class OrderCommandService(
         if (order.status != OrderStatus.PENDING) return
         order.completeOrder(command.pgTransactionId)
         orderCommandPort.update(order)
-        orderEventPort.publish(OrderCompletedEvent.from(order))
+        val event = OrderCompletedEvent.from(order)
+        orderEventPort.publish(event)
+        outboxCommandPort.save(outboxFactory.from(event))
     }
 
     override fun failOrder(command: OrderFailCommand) {

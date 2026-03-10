@@ -10,7 +10,7 @@ export const options = {
             timeUnit: "1s",
             duration: __ENV.DURATION || "3m", // 테스트 지속 시간 (기본 3분)
             preAllocatedVUs: parseInt(__ENV.PRE_VUS || "100", 10),
-            maxVUs: parseInt(__ENV.MAX_VUS || "100", 10),
+            maxVUs: parseInt(__ENV.MAX_VUS || "300", 10),
         },
     },
     thresholds: {

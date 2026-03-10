@@ -3,6 +3,9 @@ jwt:
   expiration-hours: ${jwt.expiration-hours}
   refresh-expiration-hours: ${jwt.refresh-expiration-hours}
 
+delivery-service:
+  base-url: http://localhost:8083
+
 spring:
   profiles:
     include:

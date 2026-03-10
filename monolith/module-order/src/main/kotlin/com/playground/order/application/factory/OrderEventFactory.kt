@@ -34,6 +34,7 @@ fun OrderCompletedEvent.Companion.from(order: Order): OrderCompletedEvent {
             )
         }
     return OrderCompletedEvent(
+        eventId = UUID.randomUUID(),
         userId = order.userId,
         orderId = order.id!!,
         products = orderProductDetails,
@@ -43,6 +44,7 @@ fun OrderCompletedEvent.Companion.from(order: Order): OrderCompletedEvent {
         zipCode = order.orderAddress.zipCode,
         baseAddress = order.orderAddress.baseAddress,
         detailAddress = order.orderAddress.detailAddress,
+        occurredAt = LocalDateTime.now(),
     )
 }
 

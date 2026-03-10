@@ -1,6 +1,7 @@
 package com.playground.order.application.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.playground.order.contract.domain.event.OrderCompletedEvent
 import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.domain.outbox.OrderEventOutbox
 import com.playground.order.domain.outbox.OutboxEventType
@@ -16,6 +17,16 @@ class OutboxFactory(
             eventId = event.eventId,
             orderId = event.orderId,
             eventType = OutboxEventType.ORDER_CREATED,
+            payload = objectMapper.writeValueAsString(event),
+            status = OutboxStatus.PENDING,
+            occurredAt = event.occurredAt,
+        )
+
+    fun from(event: OrderCompletedEvent): OrderEventOutbox =
+        OrderEventOutbox(
+            eventId = event.eventId,
+            orderId = event.orderId,
+            eventType = OutboxEventType.ORDER_COMPLETED,
             payload = objectMapper.writeValueAsString(event),
             status = OutboxStatus.PENDING,
             occurredAt = event.occurredAt,

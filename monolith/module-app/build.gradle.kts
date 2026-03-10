@@ -14,7 +14,6 @@ dependencies {
     implementation(project(":module-user"))
     implementation(project(":module-auth"))
     implementation(project(":module-order"))
-    implementation(project(":module-delivery"))
     implementation(project(":module-monitoring"))
 
     implementation(libs.spring.boot.starter.web)

@@ -1,0 +1,24 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    tags:
+      application: delivery-service
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
+  otlp:
+    tracing:
+      endpoint: http://localhost:4318/v1/traces  # 로컬 JVM 기동 기준. 컨테이너화 시 tempo:4318로 변경 필요
+
+logging:
+  level:
+    root: info
+    com.playground: info

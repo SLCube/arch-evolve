@@ -15,4 +15,12 @@ class KafkaTopicConfig {
             .partitions(50)
             .replicas(1)
             .build()
+
+    @Bean
+    fun orderCompletedTopic(): NewTopic =
+        TopicBuilder
+            .name(KafkaProducerTopic.ORDER_COMPLETED)
+            .partitions(50)
+            .replicas(1)
+            .build()
 }

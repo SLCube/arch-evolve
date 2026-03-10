@@ -1,0 +1,51 @@
+name: Delivery Service CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "phase/3.0-micro-services-architecture"
+    paths:
+      - 'delivery-service/**'
+      - 'gradle/**'
+      - '.github/workflows/delivery-service-ci.yml'
+  pull_request:
+    branches:
+      - "main"
+      - "phase/3.0-micro-services-architecture"
+    paths:
+      - 'delivery-service/**'
+      - 'gradle/**'
+      - '.github/workflows/delivery-service-ci.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-delivery-${{ hashFiles('delivery-service/**/*.gradle.kts', 'gradle/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-delivery-
+
+      - name: Grant execute permission for gradlew
+        working-directory: delivery-service
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        working-directory: delivery-service
+        run: ./gradlew build
