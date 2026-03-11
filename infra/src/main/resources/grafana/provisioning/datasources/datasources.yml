@@ -38,5 +38,6 @@ datasources:
     url: http://influxdb:8086
     editable: false
     jsonData:
+      version: InfluxQL
       dbName: k6
       httpMode: GET
