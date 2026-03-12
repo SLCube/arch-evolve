@@ -10,10 +10,8 @@ import com.playground.order.application.service.result.OrderDetailResult
 import com.playground.order.application.service.result.OrderSummaryResult
 import com.playground.product.contract.domain.vo.ProductInfo
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional(readOnly = true)
 class OrderQueryService(
     private val orderQueryPort: OrderQueryPort,
     private val orderExternalDataProvider: OrderExternalDataProvider,

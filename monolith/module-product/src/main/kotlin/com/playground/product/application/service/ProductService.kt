@@ -72,9 +72,7 @@ class ProductService(
         return updatedProduct
     }
 
-    @Transactional(readOnly = true)
     override fun getProduct(query: ProductGetQuery): Product = productQueryPort.findById(query.id)
 
-    @Transactional(readOnly = true)
     override fun getAllProducts(): List<Product> = productQueryPort.findAll()
 }

@@ -32,10 +32,8 @@ class PaymentTransactionManager(
     private val outboxCommandPort: OutboxCommandPort,
     private val outboxFactory: OutboxFactory,
 ) {
-    @Transactional(readOnly = true)
     fun findByOrderId(orderId: Long): Payment? = paymentQueryPort.findByOrderId(orderId)
 
-    @Transactional(readOnly = true)
     fun getPaymentMethod(userId: Long): PaymentMethod = paymentMethodQueryPort.findDefaultByUserId(userId)
 
     @Transactional

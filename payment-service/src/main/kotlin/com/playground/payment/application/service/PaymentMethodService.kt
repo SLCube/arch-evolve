@@ -47,7 +47,6 @@ class PaymentMethodService(
         return paymentMethodCommandPort.save(newPaymentMethod)
     }
 
-    @Transactional(readOnly = true)
     override fun getPaymentMethodList(userId: Long): List<PaymentMethod> = paymentMethodQueryPort.findAllByUserId(userId)
 
     override fun deletePaymentMethod(command: PaymentMethodDeleteCommand) {

@@ -33,7 +33,6 @@ class OrderTransactionManager(
     private val outboxFactory: OutboxFactory,
     private val orderExternalDataProvider: OrderExternalDataProvider,
 ) {
-    @Transactional(readOnly = true)
     fun getExternalData(
         productIds: List<Long>,
         userId: Long,
