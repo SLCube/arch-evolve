@@ -7,27 +7,25 @@ import com.playground.order.application.port.outbound.OrderCommandPort
 import com.playground.order.application.port.outbound.OrderEventPort
 import com.playground.order.application.port.outbound.OrderQueryPort
 import com.playground.order.application.port.outbound.OutboxCommandPort
-import com.playground.order.application.provider.OrderExternalDataProvider
+import com.playground.order.application.support.OrderTransactionManager
 import com.playground.order.application.support.OutboxFactory
-import com.playground.order.contract.domain.event.OrderCreatedEvent
-import com.playground.order.domain.outbox.OrderEventOutbox
 import com.playground.order.contract.domain.event.OrderCompletedEvent
+import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderStatusInvalidException
 import com.playground.order.domain.model.Order
-import com.playground.order.fixture.application.domain.AddressInfoTestFixture
+import com.playground.order.domain.outbox.OrderEventOutbox
 import com.playground.order.fixture.application.command.OrderCommandTestFixture
+import com.playground.order.fixture.application.domain.AddressInfoTestFixture
 import com.playground.order.fixture.application.domain.OrderDomainTestFixture
 import com.playground.order.fixture.application.domain.ProductInfoTestFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldNotBeEmpty
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
-import org.mockito.kotlin.eq
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -36,20 +34,20 @@ import org.mockito.kotlin.verify
 @Suppress("NonAsciiCharacters")
 class OrderCommandServiceTest {
 
+    private val orderTransactionManager: OrderTransactionManager = mock()
     private val orderQueryPort: OrderQueryPort = mock()
     private val orderCommandPort: OrderCommandPort = mock()
     private val orderEventPort: OrderEventPort = mock()
     private val outboxCommandPort: OutboxCommandPort = mock()
     private val outboxFactory: OutboxFactory = mock()
-    private val orderExternalDataProvider: OrderExternalDataProvider = mock()
 
     private val orderCommandService: OrderCommandService = OrderCommandService(
-        orderCommandPort = orderCommandPort,
+        orderTransactionManager = orderTransactionManager,
         orderQueryPort = orderQueryPort,
+        orderCommandPort = orderCommandPort,
         orderEventPort = orderEventPort,
         outboxCommandPort = outboxCommandPort,
         outboxFactory = outboxFactory,
-        orderExternalDataProvider = orderExternalDataProvider,
     )
 
     @Test
@@ -64,30 +62,18 @@ class OrderCommandServiceTest {
             id = orderId,
             userId = userId,
         )
-        val mockOutbox: OrderEventOutbox = mock()
 
-        given(orderExternalDataProvider.getVerifiedProductInfos(any()))
-            .willReturn(mockProductInfo)
-        given(orderExternalDataProvider.getAddressInfoByAddressId(eq(userId), eq(command.addressId)))
-            .willReturn(mockAddressInfo)
-        given(orderCommandPort.save(any<Order>()))
+        given(orderTransactionManager.getExternalData(any(), any(), any()))
+            .willReturn(mockProductInfo to mockAddressInfo)
+        given(orderTransactionManager.saveOrderWithEventAndOutbox(any<Order>()))
             .willReturn(mockOrder)
-        given(outboxFactory.from(any<OrderCreatedEvent>()))
-            .willReturn(mockOutbox)
-        given(outboxCommandPort.save(any<OrderEventOutbox>()))
-            .willReturn(mockOutbox)
 
         // when
         val createdOrder = orderCommandService.createOrder(command)
 
         // then
-        verify(orderCommandPort).save(any<Order>())
-        verify(orderEventPort).publish(check<OrderCreatedEvent> { event ->
-            event.orderId shouldBe orderId
-            event.userId shouldBe userId
-        })
-        verify(outboxFactory).from(any<OrderCreatedEvent>())
-        verify(outboxCommandPort).save(any<OrderEventOutbox>())
+        verify(orderTransactionManager).getExternalData(any(), any(), any())
+        verify(orderTransactionManager).saveOrderWithEventAndOutbox(any<Order>())
 
         createdOrder.id shouldBe orderId
         createdOrder.status shouldBe OrderStatus.PENDING
@@ -166,13 +152,13 @@ class OrderCommandServiceTest {
 
         val command = OrderCancelCommand(
             userId = authenticatedUserId,
-            orderId = orderId
+            orderId = orderId,
         )
 
         val pendingOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = authenticatedUserId,
-            status = OrderStatus.PENDING
+            status = OrderStatus.PENDING,
         )
 
         // when
@@ -187,7 +173,7 @@ class OrderCommandServiceTest {
             check { savedOrder ->
                 savedOrder.id shouldBe orderId
                 savedOrder.status shouldBe OrderStatus.CANCELLED
-            }
+            },
         )
     }
 
@@ -199,13 +185,13 @@ class OrderCommandServiceTest {
 
         val command = OrderCancelCommand(
             userId = authenticatedUserId,
-            orderId = orderId
+            orderId = orderId,
         )
 
         val cancelledOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = authenticatedUserId,
-            status = OrderStatus.CANCELLED
+            status = OrderStatus.CANCELLED,
         )
 
         // when
@@ -233,7 +219,7 @@ class OrderCommandServiceTest {
         val pendingOrder = OrderDomainTestFixture.mockOrder(
             id = orderId,
             userId = authenticatedUserId,
-            status = OrderStatus.PENDING
+            status = OrderStatus.PENDING,
         )
 
         // when
