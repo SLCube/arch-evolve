@@ -11,4 +11,5 @@ class OrderEventOutbox(
     val payload: String,
     val status: OutboxStatus,
     val occurredAt: LocalDateTime,
+    val traceparent: String? = null,
 )

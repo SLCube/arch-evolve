@@ -12,6 +12,7 @@ fun PaymentEventOutboxJpaEntity.toDomain(): PaymentEventOutbox =
         payload = this.payload,
         status = this.status,
         occurredAt = this.occurredAt,
+        traceparent = this.traceparent,
     )
 
 fun PaymentEventOutbox.toJpaEntity(): PaymentEventOutboxJpaEntity =
@@ -23,4 +24,5 @@ fun PaymentEventOutbox.toJpaEntity(): PaymentEventOutboxJpaEntity =
         payload = this.payload,
         status = this.status,
         occurredAt = this.occurredAt,
+        traceparent = this.traceparent,
     )

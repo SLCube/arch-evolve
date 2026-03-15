@@ -12,6 +12,7 @@ fun DeliveryEventOutboxJpaEntity.toDomain(): DeliveryEventOutbox =
         payload = this.payload,
         status = this.status,
         occurredAt = this.occurredAt,
+        traceparent = this.traceparent,
     )
 
 fun DeliveryEventOutbox.toJpaEntity(): DeliveryEventOutboxJpaEntity =
@@ -23,4 +24,5 @@ fun DeliveryEventOutbox.toJpaEntity(): DeliveryEventOutboxJpaEntity =
         payload = this.payload,
         status = this.status,
         occurredAt = this.occurredAt,
+        traceparent = this.traceparent,
     )

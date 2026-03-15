@@ -22,7 +22,9 @@ class KafkaDeliveryEventPublisher(
                     KafkaProducerTopic.from(outbox.eventType),
                     outbox.orderId.toString(),
                     outbox.payload,
-                )
+                ).also { record ->
+                    outbox.traceparent?.let { record.headers().add("traceparent", it.toByteArray()) }
+                }
             },
             onError = { outbox, e -> log.error("Kafka 발행 실패 [eventId={}]", outbox.eventId, e) },
         )
