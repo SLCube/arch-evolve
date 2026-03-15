@@ -2,15 +2,19 @@ package com.playground.order.persistence.repository
 
 import com.playground.order.domain.outbox.OutboxStatus
 import com.playground.order.persistence.entity.OrderEventOutboxJpaEntity
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 
 interface OrderEventOutboxRepository : JpaRepository<OrderEventOutboxJpaEntity, Long> {
-    fun findByStatus(
-        status: OutboxStatus,
-        pageable: Pageable,
+    @Query(
+        value = "SELECT * FROM order_event_outbox WHERE status = :status ORDER BY outbox_id LIMIT :limit FOR UPDATE SKIP LOCKED",
+        nativeQuery = true,
+    )
+    fun findByStatusWithLock(
+        @Param("status") status: String,
+        @Param("limit") limit: Int,
     ): List<OrderEventOutboxJpaEntity>
 
     @Modifying
