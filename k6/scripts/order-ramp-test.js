@@ -1,7 +1,7 @@
 // ramping-arrival-rate 기반 부하 테스트
-// 목적: RPS를 1 → 10 → 20 → 30 → 40 → 50으로 단계적으로 올려
-//       시스템이 부하 증가에 따라 어느 지점에서 병목이 발생하는지 관찰한다.
-//       각 단계는 1분씩 유지되며, 총 테스트 시간은 6분이다.
+// 목적: RPS를 50 → 60 → 70 → 80으로 단계적으로 올려
+//       payment_authorized consumer lag이 partition/concurrency 15 조정 후 해소됐는지 확인한다.
+//       각 단계는 2분씩 유지되며, 총 테스트 시간은 8분이다.
 
 import http from "k6/http";
 import { check, sleep } from "k6";
@@ -11,17 +11,15 @@ export const options = {
     scenarios: {
         ramping_load: {
             executor: "ramping-arrival-rate",
-            startRate: 1,
+            startRate: 50,
             timeUnit: "1s",
-            preAllocatedVUs: 50,
-            maxVUs: 150,
+            preAllocatedVUs: 200,
+            maxVUs: 400,
             stages: [
-                { target: 1,  duration: "1m" },
-                { target: 10, duration: "1m" },
-                { target: 20, duration: "1m" },
-                { target: 30, duration: "1m" },
-                { target: 40, duration: "1m" },
-                { target: 50, duration: "1m" },
+                { target: 50, duration: "2m" },
+                { target: 60, duration: "2m" },
+                { target: 70, duration: "2m" },
+                { target: 80, duration: "2m" },
             ],
         },
     },
