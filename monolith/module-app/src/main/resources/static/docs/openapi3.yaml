@@ -638,7 +638,7 @@ paths:
                 회원가입 실패 - loginId가 비어있음:
                   value: "{\n  \"code\" : \"INVALID_INPUT\",\n  \"message\" : \"입력\
                     값이 유효하지 않습니다.\",\n  \"errors\" : {\n    \"loginId\" : \"로그인 ID는\
-                    \ 비어있을 수 없습니다.\"\n  }\n}"
+                    \ 4자 이상 20자 이하로 입력해주세요.\"\n  }\n}"
   /users/addresses/{addressId}/default:
     patch:
       tags:

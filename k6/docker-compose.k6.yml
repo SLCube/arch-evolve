@@ -15,7 +15,7 @@ services:
       "experimental-prometheus-rw",
       "--out",
       "influxdb=http://influxdb:8086/k6",
-      "order-constant-test.js"
+      "${SCRIPT:-order-constant-test.js}"
     ]
     networks:
       - monitoring
