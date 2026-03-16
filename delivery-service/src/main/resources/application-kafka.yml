@@ -17,5 +17,8 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       auto-offset-reset: earliest
       observation-enabled: true
+      properties:
+        heartbeat.interval.ms: 1000
+        session.timeout.ms: 10000
     listener:
       observation-enabled: true
