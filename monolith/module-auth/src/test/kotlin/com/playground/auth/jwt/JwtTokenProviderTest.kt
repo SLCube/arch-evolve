@@ -3,6 +3,7 @@ package com.playground.auth.jwt
 import com.playground.auth.contract.security.AuthUserDetails
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -10,18 +11,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UserDetailsService
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Suppress("NonAsciiCharacters")
 class JwtTokenProviderTest {
-
-    private val userDetailsService: UserDetailsService = mock()
 
     private lateinit var jwtTokenProvider: JwtTokenProvider
 
@@ -34,7 +31,7 @@ class JwtTokenProviderTest {
 
     @BeforeEach
     fun setUp() {
-        jwtTokenProvider = JwtTokenProvider(jwtProperties, userDetailsService)
+        jwtTokenProvider = JwtTokenProvider(jwtProperties)
     }
 
     @Test
@@ -70,26 +67,26 @@ class JwtTokenProviderTest {
     }
 
     @Test
-    fun `getAuthentication 은 토큰의 subject 로 UserDetails 를 조회해 Authentication 을 반환한다`() {
+    fun `getAuthentication 은 토큰의 claims 에서 userId 와 loginId 를 추출해 Authentication 을 반환한다`() {
         val authorities = listOf("ROLE_USER")
-        val authUserDetails =
-            AuthUserDetails(
-                userId = 1L,
-                loginId = "tester",
-                password = "encodedPassword",
-                roles = authorities,
-            )
-
-        given(userDetailsService.loadUserByUsername("tester"))
-            .willReturn(authUserDetails)
-
-        val token = createToken("tester", authorities)
+        val token = createToken(subject = "tester", roles = authorities, userId = 1L)
 
         val authentication = jwtTokenProvider.getAuthentication(token)
 
-        verify(userDetailsService).loadUserByUsername("tester")
-        authentication.principal shouldBe authUserDetails
+        val principal = authentication.principal as AuthUserDetails
+        principal.getUserId() shouldBe 1L
+        principal.username shouldBe "tester"
+        principal.authorities.map { it.authority } shouldBe listOf("ROLE_USER")
         authentication.authorities.map { it.authority } shouldBe listOf("ROLE_USER")
+    }
+
+    @Test
+    fun `getAuthentication 은 userId claim 이 없는 토큰이면 IllegalArgumentException 을 던진다`() {
+        val tokenWithoutUserId = createToken(subject = "tester", roles = listOf("ROLE_USER"), userId = null)
+
+        shouldThrow<IllegalArgumentException> {
+            jwtTokenProvider.getAuthentication(tokenWithoutUserId)
+        }
     }
 
     @Test
@@ -109,6 +106,7 @@ class JwtTokenProviderTest {
     private fun createToken(
         subject: String,
         roles: List<String>,
+        userId: Long? = 1L,
         expired: Boolean = false,
     ): String {
         val now = Instant.now()
@@ -119,13 +117,17 @@ class JwtTokenProviderTest {
                 now.plus(1, ChronoUnit.HOURS)
             }
 
-        return Jwts
-            .builder()
-            .subject(subject)
-            .claim("auth", roles.joinToString(","))
-            .issuedAt(Date.from(now))
-            .expiration(Date.from(expiration))
-            .signWith(Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray()))
-            .compact()
+        val builder =
+            Jwts
+                .builder()
+                .subject(subject)
+                .claim("auth", roles.joinToString(","))
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
+                .signWith(Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray()))
+
+        if (userId != null) builder.claim("userId", userId)
+
+        return builder.compact()
     }
 }

@@ -11,20 +11,16 @@ import io.jsonwebtoken.security.Keys
 import io.jsonwebtoken.security.SignatureException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.Date
-import java.util.stream.Collectors
 import javax.crypto.SecretKey
 
 @Component
 class JwtTokenProvider(
     private val jwtProperties: JwtProperties,
-    private val userDetailsService: UserDetailsService,
 ) {
     private val log = logger()
 
@@ -33,11 +29,7 @@ class JwtTokenProvider(
     }
 
     fun generateAccessToken(authentication: Authentication): String {
-        val authorities =
-            authentication.authorities
-                .stream()
-                .map { it: GrantedAuthority -> it.authority }
-                .collect(Collectors.joining(","))
+        val authorities = authentication.authorities.joinToString(",") { it.authority }
 
         val now = Instant.now()
         val expiration = now.plus(jwtProperties.expirationHours, ChronoUnit.HOURS)
@@ -71,15 +63,17 @@ class JwtTokenProvider(
     fun getAuthentication(token: String): Authentication {
         val claims = parseClaims(token)
 
-        val authorities =
-            claims["auth"]
-                ?.toString()
-                ?.split(",")
-                ?.map { SimpleGrantedAuthority(it) }
-                ?: emptyList()
+        val authClaims = claims["auth"]?.toString()?.split(",") ?: emptyList()
 
-        val userDetails = userDetailsService.loadUserByUsername(claims.subject)
-        return UsernamePasswordAuthenticationToken(userDetails, "", authorities)
+        val roles = authClaims.map { it.removePrefix("ROLE_") }
+
+        val userId =
+            (claims["userId"] as Number?)?.toLong()
+                ?: throw IllegalArgumentException("userId claim is missing")
+        val loginId = claims.subject
+        val userDetails = AuthUserDetails(userId, loginId, "", roles)
+
+        return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
     }
 
     fun validateToken(token: String): Boolean {

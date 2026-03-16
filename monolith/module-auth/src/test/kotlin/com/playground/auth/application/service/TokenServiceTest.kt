@@ -33,10 +33,7 @@ class TokenServiceTest {
         expirationHours = 1,
         refreshExpirationHours = 168,
     )
-    private val jwtTokenProvider = JwtTokenProvider(
-        jwtProperties = jwtProperties,
-        userDetailsService = mock(),
-    )
+    private val jwtTokenProvider = JwtTokenProvider(jwtProperties = jwtProperties)
     private val refreshTokenPort: RefreshTokenPort = mock()
     private val userInfoQueryPort: UserInfoQueryPort = mock()
     private val tokenService = TokenService(
