@@ -11,8 +11,10 @@ import javax.sql.DataSource
 class OpenTelemetryDataSourceConfig(
     private val openTelemetryProvider: ObjectProvider<OpenTelemetry>,
 ) : BeanPostProcessor {
-
-    override fun postProcessAfterInitialization(bean: Any, beanName: String): Any {
+    override fun postProcessAfterInitialization(
+        bean: Any,
+        beanName: String,
+    ): Any {
         if (bean is DataSource) {
             val openTelemetry = openTelemetryProvider.getIfAvailable() ?: return bean
             return JdbcTelemetry.create(openTelemetry).wrap(bean)
