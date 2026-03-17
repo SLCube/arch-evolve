@@ -17,6 +17,7 @@ postgres = "42.7.10"
 
 logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
+opentelemetryJdbc = "2.15.0-alpha"
 
 [libraries]
 # --- Spring Boot ---
@@ -59,6 +60,7 @@ loki-logback-appender = { module = "com.github.loki4j:loki-logback-appender", ve
 # --- Tracing ---
 micrometer-tracing-bridge-otel = { module = "io.micrometer:micrometer-tracing-bridge-otel" }
 opentelemetry-exporter-otlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp" }
+opentelemetry-jdbc = { module = "io.opentelemetry.instrumentation:opentelemetry-jdbc", version.ref = "opentelemetryJdbc" }
 
 # --- Kafka ---
 spring-kafka = { module = "org.springframework.kafka:spring-kafka" }

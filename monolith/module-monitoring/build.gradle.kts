@@ -10,4 +10,5 @@ dependencies {
     // Tracing
     implementation(libs.micrometer.tracing.bridge.otel)
     implementation(libs.opentelemetry.exporter.otlp)
+    implementation(libs.opentelemetry.jdbc)
 }
