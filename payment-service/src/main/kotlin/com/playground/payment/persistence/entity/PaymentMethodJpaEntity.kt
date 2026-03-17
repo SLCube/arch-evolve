@@ -7,10 +7,11 @@ import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "payment_methods")
+@Table(name = "payment_methods", indexes = [Index(name = "idx_payment_methods_user_id", columnList = "user_id")])
 class PaymentMethodJpaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

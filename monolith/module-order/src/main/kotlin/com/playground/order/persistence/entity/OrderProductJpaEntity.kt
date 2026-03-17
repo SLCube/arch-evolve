@@ -9,12 +9,13 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.Index
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import java.math.BigDecimal
 
 @Entity
-@Table(name = "order_products")
+@Table(name = "order_products", indexes = [Index(name = "idx_order_products_order_id", columnList = "order_id")])
 class OrderProductJpaEntity(
     @Id
     @Column(name = "order_item_id")

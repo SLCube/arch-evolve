@@ -10,12 +10,13 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.Index
 import jakarta.persistence.Table
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "payments")
+@Table(name = "payments", indexes = [Index(name = "idx_payments_order_id", columnList = "order_id")])
 class PaymentJpaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
