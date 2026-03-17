@@ -19,7 +19,7 @@ class PaymentAuthorizedEventConsumer(
     private val log = logger()
 
     @KafkaConsumerHandler
-    @KafkaListener(topics = [KafkaConsumerTopic.PAYMENT_AUTHORIZED])
+    @KafkaListener(topics = [KafkaConsumerTopic.PAYMENT_AUTHORIZED], containerFactory = "paymentAuthorizedListenerContainerFactory")
     fun consume(record: ConsumerRecord<String, String>) {
         val event = objectMapper.readValue(record.value(), PaymentAuthorizedEvent::class.java)
         log.info("결제 승인 이벤트 수신 [orderId={}, pgTxId={}]", event.orderId, event.pgTransactionId)

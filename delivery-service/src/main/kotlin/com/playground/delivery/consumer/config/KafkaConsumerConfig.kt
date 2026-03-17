@@ -17,7 +17,7 @@ class KafkaConsumerConfig(
     private val kafkaTemplate: KafkaTemplate<String, String>,
 ) {
     @Bean
-    fun kafkaListenerContainerFactory(
+    fun orderCompletedListenerContainerFactory(
         configurer: ConcurrentKafkaListenerContainerFactoryConfigurer,
         consumerFactory: ConsumerFactory<Any, Any>,
     ): ConcurrentKafkaListenerContainerFactory<Any, Any> {

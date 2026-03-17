@@ -19,7 +19,7 @@ class OrderCreatedEventConsumer(
     private val log = logger()
 
     @KafkaConsumerHandler
-    @KafkaListener(topics = [KafkaConsumerTopic.ORDER_CREATED])
+    @KafkaListener(topics = [KafkaConsumerTopic.ORDER_CREATED], containerFactory = "orderCreatedListenerContainerFactory")
     fun consume(record: ConsumerRecord<String, String>) {
         val event = objectMapper.readValue(record.value(), OrderCreatedEvent::class.java)
         log.info("주문 생성 이벤트 수신 [orderId={}, userId={}]", event.orderId, event.userId)

@@ -19,7 +19,7 @@ class OrderCompletedEventConsumer(
     private val log = logger()
 
     @KafkaConsumerHandler
-    @KafkaListener(topics = [KafkaConsumerTopic.ORDER_COMPLETED])
+    @KafkaListener(topics = [KafkaConsumerTopic.ORDER_COMPLETED], containerFactory = "orderCompletedListenerContainerFactory")
     fun consume(record: ConsumerRecord<String, String>) {
         val event = objectMapper.readValue(record.value(), OrderCompletedEvent::class.java)
         log.info("주문 완료 이벤트 수신 [orderId={}, userId={}]", event.orderId, event.userId)

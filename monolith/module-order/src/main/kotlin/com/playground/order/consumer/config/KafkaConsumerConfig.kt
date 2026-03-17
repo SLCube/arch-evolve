@@ -17,13 +17,30 @@ class KafkaConsumerConfig(
     private val kafkaTemplate: KafkaTemplate<String, String>,
 ) {
     @Bean
-    fun kafkaListenerContainerFactory(
+    fun paymentAuthorizedListenerContainerFactory(
         configurer: ConcurrentKafkaListenerContainerFactoryConfigurer,
         consumerFactory: ConsumerFactory<Any, Any>,
     ): ConcurrentKafkaListenerContainerFactory<Any, Any> {
         val factory = ConcurrentKafkaListenerContainerFactory<Any, Any>()
         configurer.configure(factory, consumerFactory)
-        factory.setConcurrency(12)
+        factory.setConcurrency(10)
+        factory.setCommonErrorHandler(
+            DefaultErrorHandler(
+                DeadLetterPublishingRecoverer(kafkaTemplate),
+                FixedBackOff(1000L, 2L),
+            ),
+        )
+        return factory
+    }
+
+    @Bean
+    fun paymentFailedListenerContainerFactory(
+        configurer: ConcurrentKafkaListenerContainerFactoryConfigurer,
+        consumerFactory: ConsumerFactory<Any, Any>,
+    ): ConcurrentKafkaListenerContainerFactory<Any, Any> {
+        val factory = ConcurrentKafkaListenerContainerFactory<Any, Any>()
+        configurer.configure(factory, consumerFactory)
+        factory.setConcurrency(3)
         factory.setCommonErrorHandler(
             DefaultErrorHandler(
                 DeadLetterPublishingRecoverer(kafkaTemplate),

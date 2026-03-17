@@ -19,7 +19,7 @@ class PaymentFailedEventConsumer(
     private val log = logger()
 
     @KafkaConsumerHandler
-    @KafkaListener(topics = [KafkaConsumerTopic.PAYMENT_FAILED])
+    @KafkaListener(topics = [KafkaConsumerTopic.PAYMENT_FAILED], containerFactory = "paymentFailedListenerContainerFactory")
     fun consume(record: ConsumerRecord<String, String>) {
         val event = objectMapper.readValue(record.value(), PaymentFailedEvent::class.java)
         log.info("결제 실패 이벤트 수신 [orderId={}]", event.orderId)

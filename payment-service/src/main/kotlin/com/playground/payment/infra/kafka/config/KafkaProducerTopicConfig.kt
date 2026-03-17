@@ -19,7 +19,7 @@ class KafkaProducerTopicConfig {
     fun paymentFailedTopic(): NewTopic =
         TopicBuilder
             .name(KafkaProducerTopic.PAYMENT_FAILED)
-            .partitions(15)
+            .partitions(3)
             .replicas(1)
             .build()
 }
