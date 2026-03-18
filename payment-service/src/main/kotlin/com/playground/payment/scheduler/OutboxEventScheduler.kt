@@ -11,7 +11,7 @@ class OutboxEventScheduler(
 ) {
     private val log = logger()
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 200)
     fun pollAndPublish() {
         try {
             paymentOutboxEventUseCase.pollAndPublishEvents()
