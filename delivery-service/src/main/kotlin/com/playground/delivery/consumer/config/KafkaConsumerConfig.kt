@@ -23,7 +23,7 @@ class KafkaConsumerConfig(
     ): ConcurrentKafkaListenerContainerFactory<Any, Any> {
         val factory = ConcurrentKafkaListenerContainerFactory<Any, Any>()
         configurer.configure(factory, consumerFactory)
-        factory.setConcurrency(50)
+        factory.setConcurrency(10)
         factory.setCommonErrorHandler(
             DefaultErrorHandler(
                 DeadLetterPublishingRecoverer(kafkaTemplate),
