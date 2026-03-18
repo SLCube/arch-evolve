@@ -1,7 +1,7 @@
 // ramping-arrival-rate 기반 부하 테스트
 // 목적: RPS를 50 → 60 → 70 → 80으로 단계적으로 올려
-//       payment_authorized consumer lag이 partition/concurrency 15 조정 후 해소됐는지 확인한다.
-//       각 단계는 2분씩 유지되며, 총 테스트 시간은 8분이다.
+//       Kafka consumer 튜닝(max.poll.records=10, concurrency 조정) 후 안정성 확인
+//       각 단계는 1분씩 유지되며, 총 테스트 시간은 4분이다.
 
 import http from "k6/http";
 import { check, sleep } from "k6";
@@ -16,10 +16,10 @@ export const options = {
             preAllocatedVUs: 200,
             maxVUs: 400,
             stages: [
-                { target: 50, duration: "2m" },
-                { target: 60, duration: "2m" },
-                { target: 70, duration: "2m" },
-                { target: 80, duration: "2m" },
+                { target: 50, duration: "1m" },
+                { target: 60, duration: "1m" },
+                { target: 70, duration: "1m" },
+                { target: 80, duration: "1m" },
             ],
         },
     },

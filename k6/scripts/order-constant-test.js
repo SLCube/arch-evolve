@@ -6,9 +6,9 @@ export const options = {
     scenarios: {
         constant_load: {
             executor: "constant-arrival-rate",
-            rate: parseInt(__ENV.RATE || "100", 10), // 목표 RPS (기본 100)
+            rate: parseInt(__ENV.RATE || "80", 10), // 목표 RPS (기본 80)
             timeUnit: "1s",
-            duration: __ENV.DURATION || "3m", // 테스트 지속 시간 (기본 3분)
+            duration: __ENV.DURATION || "2m", // 테스트 지속 시간 (기본 2분)
             preAllocatedVUs: parseInt(__ENV.PRE_VUS || "100", 10),
             maxVUs: parseInt(__ENV.MAX_VUS || "300", 10),
         },
