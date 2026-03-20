@@ -9,7 +9,7 @@ ksp = "2.3.6"
 jjwt = "0.13.0"
 kotest = "6.1.7"
 kotestSpringExtension = "1.3.0"
-mockitoKotlin = "6.2.3"
+mockitoKotlin = "6.3.0"
 restdocsApiSpec = "0.19.4"
 
 openfeignQuerydsl = "7.1"
