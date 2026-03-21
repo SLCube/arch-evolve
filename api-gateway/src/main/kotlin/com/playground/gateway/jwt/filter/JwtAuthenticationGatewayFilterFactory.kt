@@ -30,6 +30,7 @@ class JwtAuthenticationGatewayFilterFactory(
             val mutatedRequest =
                 exchange.request
                     .mutate()
+                    .headers { it.remove("X-User-Id") }
                     .header("X-User-Id", userId)
                     .build()
 
