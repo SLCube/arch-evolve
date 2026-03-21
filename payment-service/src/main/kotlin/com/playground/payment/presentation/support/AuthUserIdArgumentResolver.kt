@@ -19,7 +19,7 @@ class AuthUserIdArgumentResolver : HandlerMethodArgumentResolver {
     ): Long {
         val userId =
             webRequest.getHeader("X-User-Id")
-                ?: throw IllegalArgumentException("X-User-Id header is missing")
+                ?: throw UnauthorizedException()
         return userId.toLong()
     }
 }
