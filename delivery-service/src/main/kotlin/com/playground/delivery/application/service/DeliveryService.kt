@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
 class DeliveryService(
     private val deliveryCommandPort: DeliveryCommandPort,
     private val deliveryQueryPort: DeliveryQueryPort,
@@ -23,6 +22,7 @@ class DeliveryService(
 ) : DeliveryUseCase {
     private val log = logger()
 
+    @Transactional
     override fun createDelivery(command: DeliveryCreateCommand): Delivery {
         val existing = deliveryQueryPort.findByOrderId(command.orderId).orElse(null)
         if (existing != null) {
