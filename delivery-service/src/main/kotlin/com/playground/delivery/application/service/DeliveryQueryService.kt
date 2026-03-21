@@ -9,5 +9,5 @@ import org.springframework.stereotype.Service
 class DeliveryQueryService(
     private val deliveryQueryPort: DeliveryQueryPort,
 ) : DeliveryQueryUseCase {
-    override fun getDeliveryByOrderId(orderId: Long): Delivery = deliveryQueryPort.findByOrderIdOrThrow(orderId)
+    override fun getDeliveryByOrderId(orderId: Long): Delivery = deliveryQueryPort.getByOrderId(orderId)
 }

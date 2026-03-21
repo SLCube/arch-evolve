@@ -14,7 +14,7 @@ class DeliveryQueryAdapter(
 ) : DeliveryQueryPort {
     override fun findByOrderId(orderId: Long): Optional<Delivery> = deliveryRepository.findByOrderId(orderId).map { it.toDomain() }
 
-    override fun findByOrderIdOrThrow(orderId: Long): Delivery =
+    override fun getByOrderId(orderId: Long): Delivery =
         deliveryRepository
             .findByOrderId(orderId)
             .map { it.toDomain() }

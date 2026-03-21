@@ -52,7 +52,7 @@ class DeliveryQueryAdapterTest(
     }
 
     @Test
-    fun `findByOrderIdOrThrow 호출 시 저장된 Delivery를 도메인 모델로 반환해야 한다`() {
+    fun `getByOrderId 호출 시 저장된 Delivery를 도메인 모델로 반환해야 한다`() {
         // given
         val deliveryDomain =
             DeliveryDomainTestFixture.mockDelivery(
@@ -63,7 +63,7 @@ class DeliveryQueryAdapterTest(
         val savedEntity = deliveryRepository.save(DeliveryJpaEntity.toJpaEntity(deliveryDomain))
 
         // when
-        val result = deliveryQueryAdapter.findByOrderIdOrThrow(777L)
+        val result = deliveryQueryAdapter.getByOrderId(777L)
 
         // then
         result shouldNotBe null
@@ -72,10 +72,10 @@ class DeliveryQueryAdapterTest(
     }
 
     @Test
-    fun `findByOrderIdOrThrow 호출 시 존재하지 않는 주문이면 DeliveryNotFoundException을 던져야 한다`() {
+    fun `getByOrderId 호출 시 존재하지 않는 주문이면 DeliveryNotFoundException을 던져야 한다`() {
         // when / then
         assertThrows<DeliveryNotFoundException> {
-            deliveryQueryAdapter.findByOrderIdOrThrow(9999L)
+            deliveryQueryAdapter.getByOrderId(9999L)
         }
     }
 }

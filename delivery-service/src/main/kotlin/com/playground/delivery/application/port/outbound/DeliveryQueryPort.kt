@@ -6,5 +6,5 @@ import java.util.Optional
 interface DeliveryQueryPort {
     fun findByOrderId(orderId: Long): Optional<Delivery>
 
-    fun findByOrderIdOrThrow(orderId: Long): Delivery
+    fun getByOrderId(orderId: Long): Delivery
 }

@@ -75,8 +75,8 @@ class OutboxCommandAdapterTest(
         testEntityManager.clear()
 
         // then
-        val entity1 = deliveryEventOutboxRepository.findById(saved1.id!!).orElse(null)
-        val entity2 = deliveryEventOutboxRepository.findById(saved2.id!!).orElse(null)
+        val entity1 = deliveryEventOutboxRepository.findById(saved1.id).orElse(null)
+        val entity2 = deliveryEventOutboxRepository.findById(saved2.id).orElse(null)
         entity1.status shouldBe OutboxStatus.PUBLISHED
         entity2.status shouldBe OutboxStatus.PUBLISHED
     }
