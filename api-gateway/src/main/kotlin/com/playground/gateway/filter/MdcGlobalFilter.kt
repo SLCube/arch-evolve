@@ -36,5 +36,5 @@ class MdcGlobalFilter :
             }
     }
 
-    override fun getOrder(): Int = Ordered.HIGHEST_PRECEDENCE
+    override fun getOrder(): Int = Ordered.HIGHEST_PRECEDENCE + 1
 }
