@@ -17,7 +17,7 @@ interface PaymentEventOutboxRepository : JpaRepository<PaymentEventOutboxJpaEnti
         @Param("limit") limit: Int,
     ): List<PaymentEventOutboxJpaEntity>
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE PaymentEventOutboxJpaEntity o SET o.status = :status WHERE o.id IN :ids")
     fun bulkUpdateStatus(
         ids: List<Long>,

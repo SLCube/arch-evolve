@@ -17,7 +17,7 @@ interface DeliveryEventOutboxRepository : JpaRepository<DeliveryEventOutboxJpaEn
         @Param("limit") limit: Int,
     ): List<DeliveryEventOutboxJpaEntity>
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE DeliveryEventOutboxJpaEntity o SET o.status = :status WHERE o.id IN :ids")
     fun bulkUpdateStatus(
         ids: List<Long>,
