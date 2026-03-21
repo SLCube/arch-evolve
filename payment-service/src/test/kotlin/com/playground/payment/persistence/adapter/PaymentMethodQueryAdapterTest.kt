@@ -28,13 +28,13 @@ class PaymentMethodQueryAdapterTest(
     }
 
     @Test
-    fun `findDefaultByUserId 호출 시 기본 결제수단을 반환해야 한다`() {
+    fun `getDefaultByUserId 호출 시 기본 결제수단을 반환해야 한다`() {
         // given
         val userId = 12L
         savePaymentMethod(userId = userId, isDefault = true)
 
         // when
-        val defaultMethod = paymentMethodQueryAdapter.findDefaultByUserId(userId)
+        val defaultMethod = paymentMethodQueryAdapter.getDefaultByUserId(userId)
 
         // then
         defaultMethod.userId shouldBe userId
@@ -42,9 +42,9 @@ class PaymentMethodQueryAdapterTest(
     }
 
     @Test
-    fun `findDefaultByUserId 호출 시 기본 결제수단이 없으면 DefaultPaymentMethodNotFoundException을 던져야 한다`() {
+    fun `getDefaultByUserId 호출 시 기본 결제수단이 없으면 DefaultPaymentMethodNotFoundException을 던져야 한다`() {
         shouldThrow<DefaultPaymentMethodNotFoundException> {
-            paymentMethodQueryAdapter.findDefaultByUserId(999L)
+            paymentMethodQueryAdapter.getDefaultByUserId(999L)
         }
     }
 
@@ -78,12 +78,12 @@ class PaymentMethodQueryAdapterTest(
     }
 
     @Test
-    fun `findById 호출 시 PaymentMethod를 반환해야 한다`() {
+    fun `getById 호출 시 PaymentMethod를 반환해야 한다`() {
         // given
         val saved = savePaymentMethod(userId = 22L, isDefault = true)
 
         // when
-        val found = paymentMethodQueryAdapter.findById(saved.id!!)
+        val found = paymentMethodQueryAdapter.getById(saved.id!!)
 
         // then
         found.id shouldBe saved.id
@@ -91,9 +91,9 @@ class PaymentMethodQueryAdapterTest(
     }
 
     @Test
-    fun `findById 호출 시 존재하지 않으면 PaymentMethodNotFoundException을 던져야 한다`() {
+    fun `getById 호출 시 존재하지 않으면 PaymentMethodNotFoundException을 던져야 한다`() {
         shouldThrow<PaymentMethodNotFoundException> {
-            paymentMethodQueryAdapter.findById(9999L)
+            paymentMethodQueryAdapter.getById(9999L)
         }
     }
 

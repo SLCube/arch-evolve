@@ -166,7 +166,7 @@ class PaymentMethodServiceTest {
                 userId = otherUserId,
             )
 
-        given(paymentMethodQueryPort.findById(eq(paymentMethodId)))
+        given(paymentMethodQueryPort.getById(eq(paymentMethodId)))
             .willReturn(otherUsersPaymentMethod)
 
         // when & then
@@ -174,7 +174,7 @@ class PaymentMethodServiceTest {
             paymentMethodService.deletePaymentMethod(command)
         }
 
-        verify(paymentMethodQueryPort).findById(paymentMethodId)
+        verify(paymentMethodQueryPort).getById(paymentMethodId)
         verify(paymentMethodCommandPort, never()).delete(any())
     }
 
@@ -195,14 +195,14 @@ class PaymentMethodServiceTest {
                 userId = userId,
             )
 
-        given(paymentMethodQueryPort.findById(eq(paymentMethodId)))
+        given(paymentMethodQueryPort.getById(eq(paymentMethodId)))
             .willReturn(paymentMethod)
 
         // when
         paymentMethodService.deletePaymentMethod(command)
 
         // then
-        verify(paymentMethodQueryPort).findById(paymentMethodId)
+        verify(paymentMethodQueryPort).getById(paymentMethodId)
         verify(paymentMethodCommandPort).delete(paymentMethod)
     }
 

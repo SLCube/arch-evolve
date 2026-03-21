@@ -33,7 +33,7 @@ class PaymentTransactionManager(
 ) {
     fun findByOrderId(orderId: Long): Payment? = paymentQueryPort.findByOrderId(orderId)
 
-    fun getPaymentMethod(userId: Long): PaymentMethod = paymentMethodQueryPort.findDefaultByUserId(userId)
+    fun getPaymentMethod(userId: Long): PaymentMethod = paymentMethodQueryPort.getDefaultByUserId(userId)
 
     @Transactional
     fun savePaymentResult(

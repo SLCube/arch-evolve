@@ -4,7 +4,7 @@ import com.playground.payment.domain.model.PaymentMethod
 import java.util.Optional
 
 interface PaymentMethodQueryPort {
-    fun findDefaultByUserId(userId: Long): PaymentMethod
+    fun getDefaultByUserId(userId: Long): PaymentMethod
 
     /**
      * 사용자의 기본 결제 수단을 조회하며, 없을 경우 null을 반환합니다.
@@ -14,7 +14,7 @@ interface PaymentMethodQueryPort {
 
     fun findAllByUserId(userId: Long): List<PaymentMethod>
 
-    fun findById(paymentMethodId: Long): PaymentMethod
+    fun getById(paymentMethodId: Long): PaymentMethod
 
     fun countByUserId(userId: Long): Long
 }

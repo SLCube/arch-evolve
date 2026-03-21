@@ -13,7 +13,7 @@ import java.util.Optional
 class PaymentMethodQueryAdapter(
     private val paymentMethodRepository: PaymentMethodRepository,
 ) : PaymentMethodQueryPort {
-    override fun findDefaultByUserId(userId: Long): PaymentMethod =
+    override fun getDefaultByUserId(userId: Long): PaymentMethod =
         paymentMethodRepository
             .findDefaultByUserId(userId)
             .orElseThrow { DefaultPaymentMethodNotFoundException(userId) }
@@ -29,7 +29,7 @@ class PaymentMethodQueryAdapter(
             .findAllByUserId(userId)
             .map { it.toDomain() }
 
-    override fun findById(paymentMethodId: Long): PaymentMethod =
+    override fun getById(paymentMethodId: Long): PaymentMethod =
         paymentMethodRepository
             .findById(paymentMethodId)
             .orElseThrow { PaymentMethodNotFoundException(paymentMethodId) }

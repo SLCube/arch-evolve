@@ -80,14 +80,14 @@ class PaymentTransactionManagerTest {
         // given
         val userId = 2L
         val paymentMethod = PaymentMethodDomainTestFixture.mockPaymentMethod(userId = userId)
-        given(paymentMethodQueryPort.findDefaultByUserId(eq(userId))).willReturn(paymentMethod)
+        given(paymentMethodQueryPort.getDefaultByUserId(eq(userId))).willReturn(paymentMethod)
 
         // when
         val result = paymentTransactionManager.getPaymentMethod(userId)
 
         // then
         result shouldBe paymentMethod
-        verify(paymentMethodQueryPort).findDefaultByUserId(userId)
+        verify(paymentMethodQueryPort).getDefaultByUserId(userId)
     }
 
     @Test

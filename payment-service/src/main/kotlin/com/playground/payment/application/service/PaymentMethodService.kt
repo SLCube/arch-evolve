@@ -50,7 +50,7 @@ class PaymentMethodService(
     override fun getPaymentMethodList(userId: Long): List<PaymentMethod> = paymentMethodQueryPort.findAllByUserId(userId)
 
     override fun deletePaymentMethod(command: PaymentMethodDeleteCommand) {
-        val paymentMethod = paymentMethodQueryPort.findById(command.paymentMethodId)
+        val paymentMethod = paymentMethodQueryPort.getById(command.paymentMethodId)
 
         if (paymentMethod.userId != command.userId) {
             throw PaymentAccessDeniedException(command.userId, command.paymentMethodId)
