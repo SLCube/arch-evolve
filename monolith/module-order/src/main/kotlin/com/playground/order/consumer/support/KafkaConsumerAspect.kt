@@ -1,15 +1,15 @@
 package com.playground.order.consumer.support
 
+import com.playground.common.log.utils.logger
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Aspect
 @Component
 class KafkaConsumerAspect {
-    private val log = LoggerFactory.getLogger(javaClass)
+    private val log = logger()
 
     @Around("@annotation(com.playground.order.consumer.support.KafkaConsumerHandler)")
     fun handleConsumer(joinPoint: ProceedingJoinPoint): Any? {
