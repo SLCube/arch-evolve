@@ -57,9 +57,11 @@ fun OrderFailedEvent.Companion.from(order: Order): OrderFailedEvent {
             )
         }
     return OrderFailedEvent(
+        eventId = UUID.randomUUID(),
         orderId = order.id!!,
         userId = order.userId,
         products = orderProductDetails,
         totalAmount = order.totalPrice,
+        occurredAt = LocalDateTime.now(),
     )
 }

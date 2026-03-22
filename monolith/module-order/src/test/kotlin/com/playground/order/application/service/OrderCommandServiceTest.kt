@@ -10,19 +10,18 @@ import com.playground.order.application.port.outbound.OutboxCommandPort
 import com.playground.order.application.support.OrderTransactionManager
 import com.playground.order.application.support.OutboxFactory
 import com.playground.order.contract.domain.event.OrderCompletedEvent
-import com.playground.order.contract.domain.event.OrderCreatedEvent
 import com.playground.order.contract.domain.event.OrderFailedEvent
 import com.playground.order.domain.enum.OrderStatus
 import com.playground.order.domain.exception.OrderAccessDeniedException
 import com.playground.order.domain.exception.OrderStatusInvalidException
 import com.playground.order.domain.model.Order
-import com.playground.order.domain.outbox.OrderEventOutbox
 import com.playground.order.fixture.application.command.OrderCommandTestFixture
 import com.playground.order.fixture.application.domain.AddressInfoTestFixture
 import com.playground.order.fixture.application.domain.OrderDomainTestFixture
 import com.playground.order.fixture.application.domain.ProductInfoTestFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.check
@@ -258,10 +257,12 @@ class OrderCommandServiceTest {
             },
         )
         verify(orderEventPort).publish(check<OrderFailedEvent> { event ->
+            event.eventId shouldNotBe null
             event.orderId shouldBe orderId
             event.userId shouldBe userId
             event.totalAmount shouldBe mockOrder.totalPrice
             event.products.size shouldBe mockOrder.orderProducts.size
+            event.occurredAt shouldNotBe null
         })
     }
 
