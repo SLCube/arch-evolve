@@ -69,13 +69,13 @@ class OrderLookUpApiTest(
                     jsonPath("$.orderProducts[1].productName").value(mockOrderDetailResult.orderProducts[1].productName),
                     jsonPath("$.orderProducts[1].quantity").value(mockOrderDetailResult.orderProducts[1].quantity),
                     jsonPath("$.orderProducts[1].price").value(mockOrderDetailResult.orderProducts[1].price),
-                    jsonPath("$.delivery.deliveryId").value(mockOrderDetailResult.delivery.deliveryId),
-                    jsonPath("$.delivery.receiverName").value(mockOrderDetailResult.delivery.receiverName),
-                    jsonPath("$.delivery.receiverPhoneNumber").value(mockOrderDetailResult.delivery.receiverPhoneNumber),
-                    jsonPath("$.delivery.zipCode").value(mockOrderDetailResult.delivery.zipCode),
-                    jsonPath("$.delivery.baseAddress").value(mockOrderDetailResult.delivery.baseAddress),
-                    jsonPath("$.delivery.detailAddress").value(mockOrderDetailResult.delivery.detailAddress),
-                    jsonPath("$.delivery.deliveryStatus").value(mockOrderDetailResult.delivery.deliveryStatus),
+                    jsonPath("$.delivery.deliveryId").value(mockOrderDetailResult.delivery!!.deliveryId),
+                    jsonPath("$.delivery.receiverName").value(mockOrderDetailResult.delivery!!.receiverName),
+                    jsonPath("$.delivery.receiverPhoneNumber").value(mockOrderDetailResult.delivery!!.receiverPhoneNumber),
+                    jsonPath("$.delivery.zipCode").value(mockOrderDetailResult.delivery!!.zipCode),
+                    jsonPath("$.delivery.baseAddress").value(mockOrderDetailResult.delivery!!.baseAddress),
+                    jsonPath("$.delivery.detailAddress").value(mockOrderDetailResult.delivery!!.detailAddress),
+                    jsonPath("$.delivery.deliveryStatus").value(mockOrderDetailResult.delivery!!.deliveryStatus),
                     jsonPath("$.createdAt").exists()
                 )
             snippets =

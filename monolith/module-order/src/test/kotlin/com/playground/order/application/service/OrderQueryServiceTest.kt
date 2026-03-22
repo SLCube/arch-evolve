@@ -68,7 +68,7 @@ class OrderQueryServiceTest {
         foundOrder.id shouldBe orderId
         foundOrder.userId shouldBe userId
         foundOrder.orderProducts shouldHaveSize mockOrder.orderProducts.size
-        foundOrder.delivery.deliveryId shouldBe 100L
+        foundOrder.delivery!!.deliveryId shouldBe 100L
         foundOrder.delivery.deliveryStatus shouldBe "PENDING"
 
         verify(orderQueryPort).findById(orderId)
