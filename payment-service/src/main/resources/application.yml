@@ -1,5 +1,6 @@
 server:
   port: 8082
+  shutdown: graceful
 
 pg:
   base-url: http://localhost:9091
@@ -7,6 +8,8 @@ pg:
 spring:
   application:
     name: payment-service
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   docker:
     compose:
       file: payment-service/docker-compose.yml

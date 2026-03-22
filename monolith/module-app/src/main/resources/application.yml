@@ -7,6 +7,8 @@ delivery-service:
   base-url: http://localhost:8083
 
 spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   profiles:
     include:
       - secret
@@ -56,6 +58,7 @@ logging:
 
 server:
   port: 8081
+  shutdown: graceful
   tomcat:
     threads:
       max: 200
