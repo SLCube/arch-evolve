@@ -14,14 +14,14 @@ data class OrderDetailResult(
     val totalPrice: BigDecimal,
     val status: OrderStatus,
     val orderProducts: List<OrderProductDetail>,
-    val delivery: OrderDeliveryDetail,
+    val delivery: OrderDeliveryDetail?,
     val createdAt: LocalDateTime,
 ) {
     companion object {
         fun of(
             order: Order,
             productInfoMap: Map<Long, ProductInfo>,
-            deliveryInfo: DeliveryInfo,
+            deliveryInfo: DeliveryInfo?,
         ): OrderDetailResult {
             val orderProductDetails =
                 order.orderProducts.map { orderProduct ->
@@ -35,7 +35,7 @@ data class OrderDetailResult(
                 totalPrice = order.totalPrice,
                 status = order.status,
                 orderProducts = orderProductDetails,
-                delivery = OrderDeliveryDetail.of(deliveryInfo),
+                delivery = deliveryInfo?.let { OrderDeliveryDetail.of(it) },
                 createdAt = order.createdAt,
             )
         }

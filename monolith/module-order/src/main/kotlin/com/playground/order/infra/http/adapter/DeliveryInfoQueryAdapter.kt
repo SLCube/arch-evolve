@@ -13,26 +13,31 @@ class DeliveryInfoQueryAdapter(
 ) : DeliveryInfoQueryPort {
     private val log = logger()
 
-    override fun getDeliveryInfoByOrderId(orderId: Long): DeliveryInfo {
+    override fun getDeliveryInfoByOrderId(orderId: Long): DeliveryInfo? {
         log.info("delivery-service 배송 정보 조회 [orderId={}]", orderId)
-        val response =
-            deliveryRestClient
-                .get()
-                .uri("/internal/deliveries/{orderId}", orderId)
-                .retrieve()
-                .body(DeliveryInfoResponse::class.java)
-                ?: throw IllegalStateException("delivery-service 응답이 null입니다. [orderId=$orderId]")
+        return try {
+            val response =
+                deliveryRestClient
+                    .get()
+                    .uri("/internal/deliveries/{orderId}", orderId)
+                    .retrieve()
+                    .body(DeliveryInfoResponse::class.java)
+                    ?: return null
 
-        return DeliveryInfo(
-            deliveryId = response.deliveryId,
-            orderId = response.orderId,
-            userId = response.userId,
-            receiverName = response.receiverName,
-            receiverPhoneNumber = response.receiverPhoneNumber,
-            zipCode = response.zipCode,
-            baseAddress = response.baseAddress,
-            detailAddress = response.detailAddress,
-            deliveryStatus = response.deliveryStatus,
-        )
+            DeliveryInfo(
+                deliveryId = response.deliveryId,
+                orderId = response.orderId,
+                userId = response.userId,
+                receiverName = response.receiverName,
+                receiverPhoneNumber = response.receiverPhoneNumber,
+                zipCode = response.zipCode,
+                baseAddress = response.baseAddress,
+                detailAddress = response.detailAddress,
+                deliveryStatus = response.deliveryStatus,
+            )
+        } catch (e: Exception) {
+            log.warn("delivery-service 배송 정보 조회 실패 [orderId={}]: {}", orderId, e.message)
+            null
+        }
     }
 }

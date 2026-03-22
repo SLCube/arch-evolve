@@ -11,7 +11,7 @@ data class OrderDetailResponseDto(
     val totalPrice: BigDecimal,
     val status: OrderStatus,
     val orderProducts: List<OrderProductDetailResponseDto>,
-    val delivery: OrderDeliveryDetailResponseDto,
+    val delivery: OrderDeliveryDetailResponseDto?,
     val createdAt: String,
 ) {
     companion object {
@@ -28,15 +28,17 @@ data class OrderDetailResponseDto(
                 }
 
             val deliveryDetail =
-                OrderDeliveryDetailResponseDto(
-                    deliveryId = result.delivery.deliveryId,
-                    receiverName = result.delivery.receiverName,
-                    receiverPhoneNumber = result.delivery.receiverPhoneNumber,
-                    zipCode = result.delivery.zipCode,
-                    baseAddress = result.delivery.baseAddress,
-                    detailAddress = result.delivery.detailAddress,
-                    deliveryStatus = result.delivery.deliveryStatus,
-                )
+                result.delivery?.let {
+                    OrderDeliveryDetailResponseDto(
+                        deliveryId = it.deliveryId,
+                        receiverName = it.receiverName,
+                        receiverPhoneNumber = it.receiverPhoneNumber,
+                        zipCode = it.zipCode,
+                        baseAddress = it.baseAddress,
+                        detailAddress = it.detailAddress,
+                        deliveryStatus = it.deliveryStatus,
+                    )
+                }
 
             return OrderDetailResponseDto(
                 id = result.id,
