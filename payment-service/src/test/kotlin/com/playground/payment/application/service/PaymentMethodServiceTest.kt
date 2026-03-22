@@ -84,6 +84,37 @@ class PaymentMethodServiceTest {
     }
 
     @Test
+    fun `비기본 카드 등록 시 기존 기본값을 변경하지 않고 비기본으로 저장해야 한다`() {
+        // given
+        val userId = 3L
+        val command =
+            PaymentMethodCommandTestFixture.registerCommand(
+                userId = userId,
+                setAsDefault = false,
+            )
+        val billingKey = "non-default-billing-key"
+
+        given(paymentGatewayPort.issueBillingKey(eq(command.authKey), eq(command.userId)))
+            .willReturn(billingKey)
+        given(paymentMethodQueryPort.countByUserId(eq(userId)))
+            .willReturn(2L)
+        stubSaveReturnsArgument()
+
+        // when
+        val result = paymentMethodService.registerPaymentMethod(command)
+
+        // then
+        verify(paymentMethodQueryPort, never()).findDefaultOrNullByUserId(any())
+        verify(paymentMethodCommandPort).save(
+            check<PaymentMethod> { saved ->
+                saved.isDefault shouldBe false
+                saved.billingKey shouldBe billingKey
+            },
+        )
+        result.isDefault shouldBe false
+    }
+
+    @Test
     fun `첫 결제수단 등록 시 BillingKey를 발급받아 저장해야 한다`() {
         // given
         val userId = 5L
