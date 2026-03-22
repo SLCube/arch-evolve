@@ -1,6 +1,7 @@
 package com.playground.delivery.application.support
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.playground.delivery.domain.event.DeliveryCreatedEvent
 import com.playground.delivery.domain.model.Delivery
 import com.playground.delivery.domain.outbox.DeliveryEventOutbox
 import com.playground.delivery.domain.outbox.OutboxEventType
@@ -20,12 +21,12 @@ class OutboxFactory(
         val occurredAt = LocalDateTime.now()
         val traceparent = tracer.currentSpan()?.context()?.let { "00-${it.traceId().lowercase()}-${it.spanId().lowercase()}-01" }
         val event =
-            mapOf(
-                "eventId" to eventId.toString(),
-                "deliveryId" to delivery.id,
-                "orderId" to delivery.orderId,
-                "userId" to delivery.userId,
-                "occurredAt" to occurredAt.toString(),
+            DeliveryCreatedEvent(
+                eventId = eventId,
+                deliveryId = delivery.id!!,
+                orderId = delivery.orderId,
+                userId = delivery.userId,
+                occurredAt = occurredAt,
             )
         return DeliveryEventOutbox(
             eventId = eventId,
