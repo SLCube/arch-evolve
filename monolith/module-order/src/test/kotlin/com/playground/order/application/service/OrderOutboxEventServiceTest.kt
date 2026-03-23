@@ -74,7 +74,58 @@ class OrderOutboxEventServiceTest {
         verify(outboxCommandPort, never()).bulkMarkAsPublished(any())
     }
 
-    private fun createOutbox(eventType: OutboxEventType): OrderEventOutbox =
+    @Test
+    fun `발행 실패한 이벤트의 retryCount가 MAX_RETRY 미만이면 retryCount를 증가시켜야 한다`() {
+        // given
+        val outbox = createOutbox(OutboxEventType.ORDER_CREATED, retryCount = 0)
+        val outboxes = listOf(outbox)
+        given(outboxQueryPort.findByStatus(any(), any())).willReturn(outboxes)
+        given(orderEventPublisherPort.publishAll(outboxes)).willReturn(emptyList())
+
+        // when
+        orderOutboxEventService.pollAndPublishEvents()
+
+        // then
+        verify(outboxCommandPort).bulkIncrementRetryCount(listOf(1L))
+        verify(outboxCommandPort, never()).bulkMarkAsFailed(any())
+    }
+
+    @Test
+    fun `발행 실패한 이벤트의 retryCount가 MAX_RETRY에 도달하면 FAILED로 전환해야 한다`() {
+        // given
+        val outbox = createOutbox(OutboxEventType.ORDER_CREATED, retryCount = 2)
+        val outboxes = listOf(outbox)
+        given(outboxQueryPort.findByStatus(any(), any())).willReturn(outboxes)
+        given(orderEventPublisherPort.publishAll(outboxes)).willReturn(emptyList())
+
+        // when
+        orderOutboxEventService.pollAndPublishEvents()
+
+        // then
+        verify(outboxCommandPort).bulkMarkAsFailed(listOf(1L))
+        verify(outboxCommandPort, never()).bulkIncrementRetryCount(any())
+    }
+
+    @Test
+    fun `발행 실패 목록이 없으면 retryCount 증가와 FAILED 전환을 하지 않아야 한다`() {
+        // given
+        val outbox = createOutbox(OutboxEventType.ORDER_CREATED)
+        val outboxes = listOf(outbox)
+        given(outboxQueryPort.findByStatus(any(), any())).willReturn(outboxes)
+        given(orderEventPublisherPort.publishAll(outboxes)).willReturn(outboxes)
+
+        // when
+        orderOutboxEventService.pollAndPublishEvents()
+
+        // then
+        verify(outboxCommandPort, never()).bulkIncrementRetryCount(any())
+        verify(outboxCommandPort, never()).bulkMarkAsFailed(any())
+    }
+
+    private fun createOutbox(
+        eventType: OutboxEventType,
+        retryCount: Int = 0,
+    ): OrderEventOutbox =
         OrderEventOutbox(
             id = 1L,
             eventId = UUID.randomUUID(),
@@ -83,5 +134,6 @@ class OrderOutboxEventServiceTest {
             payload = "{}",
             status = OutboxStatus.PENDING,
             occurredAt = LocalDateTime.now(),
+            retryCount = retryCount,
         )
 }

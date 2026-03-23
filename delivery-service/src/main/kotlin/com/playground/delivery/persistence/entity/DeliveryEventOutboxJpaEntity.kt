@@ -29,13 +29,15 @@ class DeliveryEventOutboxJpaEntity(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false)
     val eventType: OutboxEventType,
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(nullable = false, updatable = false, columnDefinition = "TEXT")
     val payload: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: OutboxStatus,
     @Column(nullable = false, updatable = false)
     val occurredAt: LocalDateTime,
-    @Column(length = 55)
+    @Column(length = 55, updatable = false)
     val traceparent: String? = null,
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    var retryCount: Int = 0,
 ) : BaseEntity()

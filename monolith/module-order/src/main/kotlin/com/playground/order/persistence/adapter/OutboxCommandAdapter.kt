@@ -18,4 +18,12 @@ class OutboxCommandAdapter(
     override fun bulkMarkAsPublished(ids: List<Long>) {
         orderEventOutboxRepository.bulkUpdateStatus(ids, OutboxStatus.PUBLISHED)
     }
+
+    override fun bulkIncrementRetryCount(ids: List<Long>) {
+        orderEventOutboxRepository.bulkIncrementRetryCount(ids)
+    }
+
+    override fun bulkMarkAsFailed(ids: List<Long>) {
+        orderEventOutboxRepository.bulkUpdateStatus(ids, OutboxStatus.FAILED)
+    }
 }

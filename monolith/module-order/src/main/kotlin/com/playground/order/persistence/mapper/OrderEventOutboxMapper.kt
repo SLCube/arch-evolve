@@ -13,6 +13,7 @@ fun OrderEventOutboxJpaEntity.toDomain(): OrderEventOutbox =
         status = this.status,
         occurredAt = this.occurredAt,
         traceparent = this.traceparent,
+        retryCount = this.retryCount,
     )
 
 fun OrderEventOutbox.toJpaEntity(): OrderEventOutboxJpaEntity =
@@ -25,4 +26,5 @@ fun OrderEventOutbox.toJpaEntity(): OrderEventOutboxJpaEntity =
         status = this.status,
         occurredAt = this.occurredAt,
         traceparent = this.traceparent,
+        retryCount = this.retryCount,
     )

@@ -6,4 +6,8 @@ interface OutboxCommandPort {
     fun save(outbox: PaymentEventOutbox): PaymentEventOutbox
 
     fun bulkMarkAsPublished(ids: List<Long>)
+
+    fun bulkIncrementRetryCount(ids: List<Long>)
+
+    fun bulkMarkAsFailed(ids: List<Long>)
 }

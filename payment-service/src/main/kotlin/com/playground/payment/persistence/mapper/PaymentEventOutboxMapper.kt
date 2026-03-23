@@ -13,6 +13,7 @@ fun PaymentEventOutboxJpaEntity.toDomain(): PaymentEventOutbox =
         status = this.status,
         occurredAt = this.occurredAt,
         traceparent = this.traceparent,
+        retryCount = this.retryCount,
     )
 
 fun PaymentEventOutbox.toJpaEntity(): PaymentEventOutboxJpaEntity =
@@ -25,4 +26,5 @@ fun PaymentEventOutbox.toJpaEntity(): PaymentEventOutboxJpaEntity =
         status = this.status,
         occurredAt = this.occurredAt,
         traceparent = this.traceparent,
+        retryCount = this.retryCount,
     )

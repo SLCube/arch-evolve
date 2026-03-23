@@ -36,6 +36,8 @@ class OrderEventOutboxJpaEntity(
     var status: OutboxStatus,
     @Column(nullable = false, updatable = false)
     val occurredAt: LocalDateTime,
-    @Column(length = 55)
+    @Column(length = 55, updatable = false)
     val traceparent: String? = null,
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    var retryCount: Int = 0,
 ) : BaseEntity()

@@ -13,6 +13,7 @@ fun DeliveryEventOutboxJpaEntity.toDomain(): DeliveryEventOutbox =
         status = this.status,
         occurredAt = this.occurredAt,
         traceparent = this.traceparent,
+        retryCount = this.retryCount,
     )
 
 fun DeliveryEventOutbox.toJpaEntity(): DeliveryEventOutboxJpaEntity =
@@ -25,4 +26,5 @@ fun DeliveryEventOutbox.toJpaEntity(): DeliveryEventOutboxJpaEntity =
         status = this.status,
         occurredAt = this.occurredAt,
         traceparent = this.traceparent,
+        retryCount = this.retryCount,
     )

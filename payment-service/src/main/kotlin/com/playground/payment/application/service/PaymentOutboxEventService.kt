@@ -16,6 +16,7 @@ class PaymentOutboxEventService(
 ) : PaymentOutboxEventUseCase {
     companion object {
         private const val POLL_LIMIT = 1000
+        private const val MAX_ATTEMPTS = 3
     }
 
     @Transactional
@@ -27,5 +28,13 @@ class PaymentOutboxEventService(
         if (published.isNotEmpty()) {
             outboxCommandPort.bulkMarkAsPublished(published.map { it.id!! })
         }
+
+        val publishedIds = published.map { it.id!! }.toSet()
+        val failed = pendingEvents.filter { it.id!! !in publishedIds }
+        if (failed.isEmpty()) return
+
+        val (overLimit, underLimit) = failed.partition { it.retryCount + 1 >= MAX_ATTEMPTS }
+        if (overLimit.isNotEmpty()) outboxCommandPort.bulkMarkAsFailed(overLimit.map { it.id!! })
+        if (underLimit.isNotEmpty()) outboxCommandPort.bulkIncrementRetryCount(underLimit.map { it.id!! })
     }
 }

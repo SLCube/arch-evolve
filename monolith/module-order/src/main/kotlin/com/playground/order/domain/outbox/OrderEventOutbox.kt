@@ -12,4 +12,5 @@ class OrderEventOutbox(
     val status: OutboxStatus,
     val occurredAt: LocalDateTime,
     val traceparent: String? = null,
+    val retryCount: Int = 0,
 )

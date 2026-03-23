@@ -17,10 +17,16 @@ interface PaymentEventOutboxRepository : JpaRepository<PaymentEventOutboxJpaEnti
         @Param("limit") limit: Int,
     ): List<PaymentEventOutboxJpaEntity>
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE PaymentEventOutboxJpaEntity o SET o.status = :status WHERE o.id IN :ids")
     fun bulkUpdateStatus(
         ids: List<Long>,
         status: OutboxStatus,
+    )
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE PaymentEventOutboxJpaEntity o SET o.retryCount = o.retryCount + 1 WHERE o.id IN :ids")
+    fun bulkIncrementRetryCount(
+        @Param("ids") ids: List<Long>,
     )
 }
