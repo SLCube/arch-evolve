@@ -3,6 +3,7 @@ package com.playground.delivery.application.service
 import com.playground.delivery.application.port.inbound.DeliveryOutboxEventUseCase
 import com.playground.delivery.application.port.outbound.DeliveryEventPublisherPort
 import com.playground.delivery.application.port.outbound.OutboxCommandPort
+import com.playground.delivery.application.port.outbound.OutboxMetricsPort
 import com.playground.delivery.application.port.outbound.OutboxQueryPort
 import com.playground.delivery.domain.outbox.OutboxStatus
 import org.springframework.stereotype.Service
@@ -13,6 +14,7 @@ class DeliveryOutboxEventService(
     private val outboxQueryPort: OutboxQueryPort,
     private val outboxCommandPort: OutboxCommandPort,
     private val deliveryEventPublisherPort: DeliveryEventPublisherPort,
+    private val outboxMetricsPort: OutboxMetricsPort,
 ) : DeliveryOutboxEventUseCase {
     companion object {
         private const val POLL_LIMIT = 1000
@@ -36,5 +38,10 @@ class DeliveryOutboxEventService(
         val (overLimit, underLimit) = failed.partition { it.retryCount + 1 >= MAX_ATTEMPTS }
         if (overLimit.isNotEmpty()) outboxCommandPort.bulkMarkAsFailed(overLimit.map { it.id!! })
         if (underLimit.isNotEmpty()) outboxCommandPort.bulkIncrementRetryCount(underLimit.map { it.id!! })
+    }
+
+    override fun recordMetrics() {
+        outboxMetricsPort.recordPendingCount(outboxQueryPort.countByStatus(OutboxStatus.PENDING))
+        outboxMetricsPort.recordFailedCount(outboxQueryPort.countByStatus(OutboxStatus.FAILED))
     }
 }

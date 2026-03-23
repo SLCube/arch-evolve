@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.security.core)
     implementation(libs.spring.kafka)
+    implementation(libs.spring.boot.starter.actuator)
     implementation(libs.micrometer.tracing.bridge.otel)
 
     runtimeOnly(libs.postgres)

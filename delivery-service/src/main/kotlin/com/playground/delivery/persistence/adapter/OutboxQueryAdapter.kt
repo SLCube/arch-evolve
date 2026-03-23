@@ -15,4 +15,6 @@ class OutboxQueryAdapter(
         status: OutboxStatus,
         limit: Int,
     ): List<DeliveryEventOutbox> = deliveryEventOutboxRepository.findByStatusWithLock(status.name, limit).map { it.toDomain() }
+
+    override fun countByStatus(status: OutboxStatus): Long = deliveryEventOutboxRepository.countByStatus(status)
 }

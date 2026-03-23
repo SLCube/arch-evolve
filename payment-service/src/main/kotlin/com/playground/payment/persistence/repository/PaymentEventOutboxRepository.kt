@@ -29,4 +29,9 @@ interface PaymentEventOutboxRepository : JpaRepository<PaymentEventOutboxJpaEnti
     fun bulkIncrementRetryCount(
         @Param("ids") ids: List<Long>,
     )
+
+    @Query("SELECT COUNT(o) FROM PaymentEventOutboxJpaEntity o WHERE o.status = :status")
+    fun countByStatus(
+        @Param("status") status: OutboxStatus,
+    ): Long
 }

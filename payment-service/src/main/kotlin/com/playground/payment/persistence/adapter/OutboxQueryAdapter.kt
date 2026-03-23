@@ -15,4 +15,6 @@ class OutboxQueryAdapter(
         status: OutboxStatus,
         limit: Int,
     ): List<PaymentEventOutbox> = paymentEventOutboxRepository.findByStatusWithLock(status.name, limit).map { it.toDomain() }
+
+    override fun countByStatus(status: OutboxStatus): Long = paymentEventOutboxRepository.countByStatus(status)
 }

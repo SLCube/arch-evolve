@@ -18,5 +18,6 @@ class OutboxEventScheduler(
         } catch (e: Exception) {
             log.error("Outbox 배치 발행 실패", e)
         }
+        orderOutboxEventUseCase.recordMetrics()
     }
 }

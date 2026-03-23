@@ -46,6 +46,7 @@ spring-security-core = { module = "org.springframework.security:spring-security-
 spring-security-test = { module = "org.springframework.security:spring-security-test" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-aop = { module = "org.springframework.boot:spring-boot-starter-aop" }
+spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 spring-kafka = { module = "org.springframework.kafka:spring-kafka" }
 spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-docker-compose" }
 

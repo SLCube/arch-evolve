@@ -2,6 +2,7 @@ package com.playground.delivery.application.service
 
 import com.playground.delivery.application.port.outbound.DeliveryEventPublisherPort
 import com.playground.delivery.application.port.outbound.OutboxCommandPort
+import com.playground.delivery.application.port.outbound.OutboxMetricsPort
 import com.playground.delivery.application.port.outbound.OutboxQueryPort
 import com.playground.delivery.domain.outbox.DeliveryEventOutbox
 import com.playground.delivery.domain.outbox.OutboxEventType
@@ -20,12 +21,14 @@ class DeliveryOutboxEventServiceTest {
     private val outboxQueryPort: OutboxQueryPort = mock()
     private val outboxCommandPort: OutboxCommandPort = mock()
     private val deliveryEventPublisherPort: DeliveryEventPublisherPort = mock()
+    private val outboxMetricsPort: OutboxMetricsPort = mock()
 
     private val deliveryOutboxEventService =
         DeliveryOutboxEventService(
             outboxQueryPort = outboxQueryPort,
             outboxCommandPort = outboxCommandPort,
             deliveryEventPublisherPort = deliveryEventPublisherPort,
+            outboxMetricsPort = outboxMetricsPort,
         )
 
     @Test
@@ -120,6 +123,20 @@ class DeliveryOutboxEventServiceTest {
         // then
         verify(outboxCommandPort, never()).bulkIncrementRetryCount(any())
         verify(outboxCommandPort, never()).bulkMarkAsFailed(any())
+    }
+
+    @Test
+    fun `recordMetrics는 PENDING과 FAILED 건수를 메트릭 포트에 기록해야 한다`() {
+        // given
+        given(outboxQueryPort.countByStatus(OutboxStatus.PENDING)).willReturn(5L)
+        given(outboxQueryPort.countByStatus(OutboxStatus.FAILED)).willReturn(2L)
+
+        // when
+        deliveryOutboxEventService.recordMetrics()
+
+        // then
+        verify(outboxMetricsPort).recordPendingCount(5L)
+        verify(outboxMetricsPort).recordFailedCount(2L)
     }
 
     private fun createOutbox(
