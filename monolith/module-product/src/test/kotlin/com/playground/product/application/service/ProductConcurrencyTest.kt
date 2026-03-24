@@ -77,7 +77,7 @@ class ProductConcurrencyTest(
 
         // Phase 3: 재고 예약(reserve) 시에는 dirty 플래그를 추가하지 않음
         // 확정(confirm) 시에만 dirty 플래그 추가
-        val dirtyIds = redisStockClient.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
         dirtyIds shouldBe emptySet()
     }
 }

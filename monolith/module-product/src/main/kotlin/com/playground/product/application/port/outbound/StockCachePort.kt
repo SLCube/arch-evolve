@@ -33,7 +33,8 @@ interface StockCachePort {
 
     fun getStock(productId: Long): Int
 
-    fun getDirtyProductIds(): Set<Long>
-
-    fun removeDirtyFlags(productIds: Set<Long>)
+    /**
+     * dirty set의 모든 productId를 원자적으로 읽고 삭제한다.
+     */
+    fun getDirtyProductIdsAndClear(): Set<Long>
 }

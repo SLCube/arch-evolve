@@ -6,7 +6,6 @@ import org.springframework.data.redis.core.script.DefaultRedisScript
  * Redis 재고 관리를 위한 Lua Script 정의
  */
 internal object StockLuaScripts {
-    // Redis Key 상수
     const val STOCK_KEY_PREFIX = "product:stock:"
     const val AVAILABLE_KEY_SUFFIX = ":available"
     const val RESERVED_KEY_SUFFIX = ":reserved"
@@ -92,7 +91,22 @@ redis.call('DECRBY', KEYS[1], quantity)
 return tonumber(redis.call('GET', KEYS[1]))
         """
 
-    // Script 객체 재사용 (GC 부담 감소)
+    /**
+     * Lua Script: dirty set의 모든 productId를 원자적으로 읽고 삭제
+     *
+     * KEYS[1]: product:stock:dirty
+     *
+     * 반환: 삭제된 productId 목록 (String List)
+     */
+    private const val GET_DIRTY_AND_CLEAR_SCRIPT_TEXT =
+        """
+local members = redis.call('SMEMBERS', KEYS[1])
+if #members > 0 then
+    redis.call('DEL', KEYS[1])
+end
+return members
+        """
+
     val RESERVE_STOCK_SCRIPT: DefaultRedisScript<Long> =
         DefaultRedisScript<Long>().apply {
             setScriptText(RESERVE_STOCK_SCRIPT_TEXT)
@@ -109,5 +123,11 @@ return tonumber(redis.call('GET', KEYS[1]))
         DefaultRedisScript<Long>().apply {
             setScriptText(RELEASE_RESERVED_STOCK_SCRIPT_TEXT)
             resultType = Long::class.java
+        }
+
+    val GET_DIRTY_AND_CLEAR_SCRIPT: DefaultRedisScript<List<*>> =
+        DefaultRedisScript<List<*>>().apply {
+            setScriptText(GET_DIRTY_AND_CLEAR_SCRIPT_TEXT)
+            resultType = List::class.java
         }
 }

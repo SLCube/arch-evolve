@@ -5,6 +5,7 @@ import com.playground.product.infra.redis.client.StockLuaScripts.AVAILABLE_KEY_S
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRMED_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRM_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.DIRTY_SET_KEY
+import com.playground.product.infra.redis.client.StockLuaScripts.GET_DIRTY_AND_CLEAR_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.RELEASE_RESERVED_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVED_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCK_SCRIPT
@@ -22,7 +23,6 @@ class RedisStockClient(
 
     private fun getConfirmedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$CONFIRMED_KEY_SUFFIX"
 
-    // 3단계 재고 관리 구현
     override fun reserveStock(
         productId: Long,
         quantity: Int,
@@ -121,19 +121,14 @@ class RedisStockClient(
         return available - reserved - confirmed
     }
 
-    override fun getDirtyProductIds(): Set<Long> =
-        (redisTemplate.opsForSet().members(DIRTY_SET_KEY) ?: emptySet())
-            .map { it.toLong() }
-            .toSet()
+    override fun getDirtyProductIdsAndClear(): Set<Long> {
+        @Suppress("UNCHECKED_CAST")
+        val result =
+            redisTemplate.execute(
+                GET_DIRTY_AND_CLEAR_SCRIPT,
+                listOf(DIRTY_SET_KEY),
+            ) as? List<String> ?: emptyList()
 
-    override fun removeDirtyFlags(productIds: Set<Long>) {
-        if (productIds.isEmpty()) {
-            return
-        }
-
-        redisTemplate.opsForSet().remove(
-            DIRTY_SET_KEY,
-            *productIds.map { it.toString() }.toTypedArray(),
-        )
+        return result.map { it.toLong() }.toSet()
     }
 }

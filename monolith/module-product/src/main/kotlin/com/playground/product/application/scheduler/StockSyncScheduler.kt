@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component
 /**
  * 10초마다 Redis → DB 재고 동기화
  *
- * Snapshot 기반 처리로 동시성 안전성 보장
- * (동기화 중 새로운 재고 차감 발생해도 누락 방지)
+ * Lua script 기반 원자적 처리로 race condition 방지
+ * (getDirtyProductIdsAndClear: SMEMBERS + DEL을 단일 Lua script로 원자적 실행)
  */
 @Component
 class StockSyncScheduler(
@@ -22,7 +22,7 @@ class StockSyncScheduler(
     @Scheduled(fixedRate = 10000)
     fun syncToDatabase() {
         try {
-            val snapshot = stockCachePort.getDirtyProductIds()
+            val snapshot = stockCachePort.getDirtyProductIdsAndClear()
 
             if (snapshot.isEmpty()) {
                 logger.debug("변경된 재고 없음 - 동기화 스킵")
@@ -41,7 +41,6 @@ class StockSyncScheduler(
                 }
 
             productCommandPort.batchUpdateStock(stockMap)
-            stockCachePort.removeDirtyFlags(snapshot)
 
             logger.info("===== Redis → DB 재고 동기화 완료 =====")
         } catch (e: Exception) {

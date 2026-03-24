@@ -105,7 +105,7 @@ class RedisStockClientTest(
         redisStockClient.confirmStock(productId, 30)
 
         // then
-        val dirtyIds = redisStockClient.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
         dirtyIds shouldContain productId
     }
 
@@ -138,7 +138,7 @@ class RedisStockClientTest(
         redisStockClient.releaseReservedStock(productId, 30)
 
         // then
-        val dirtyIds = redisStockClient.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
         dirtyIds.size shouldBe 0
     }
 
@@ -290,10 +290,38 @@ class RedisStockClientTest(
         }
 
         // then
-        val dirtyIds = redisStockClient.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
         dirtyIds.size shouldBe productIds.size
         productIds.forEach { productId ->
             dirtyIds shouldContain productId
         }
+    }
+
+    @Test
+    fun `getDirtyProductIdsAndClear 호출 후 dirty set이 비어있다`() {
+        // given
+        val productId = 1L
+        redisStockClient.setStock(productId, 100)
+        redisStockClient.reserveStock(productId, 10)
+        redisStockClient.confirmStock(productId, 10)
+
+        // when
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
+
+        // then
+        dirtyIds shouldContain productId
+        val afterClear = redisStockClient.getDirtyProductIdsAndClear()
+        afterClear.size shouldBe 0
+    }
+
+    @Test
+    fun `dirty set이 비어있으면 빈 Set을 반환한다`() {
+        // given - dirty set에 아무것도 없는 상태
+
+        // when
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
+
+        // then
+        dirtyIds.size shouldBe 0
     }
 }

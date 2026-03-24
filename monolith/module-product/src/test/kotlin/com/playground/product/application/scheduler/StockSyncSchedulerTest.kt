@@ -83,7 +83,7 @@ class StockSyncSchedulerTest(
         dbProduct.stock shouldBe 70
 
         // 더티 플래그 초기화 확인
-        val dirtyIds = redisStockClient.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
         dirtyIds.size shouldBe 0
     }
 
@@ -116,7 +116,7 @@ class StockSyncSchedulerTest(
         dbProducts[2].stock shouldBe 290 // 300 - 10
 
         // 더티 플래그 초기화 확인
-        val dirtyIds = redisStockClient.getDirtyProductIds()
+        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
         dirtyIds.size shouldBe 0
     }
 
