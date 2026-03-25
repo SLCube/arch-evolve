@@ -1,5 +1,6 @@
 package com.playground.order.consumer.config
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,7 +29,9 @@ class KafkaConsumerConfig(
             DefaultErrorHandler(
                 DeadLetterPublishingRecoverer(kafkaTemplate),
                 FixedBackOff(1000L, 2L),
-            ),
+            ).apply {
+                addNotRetryableExceptions(JsonProcessingException::class.java)
+            },
         )
         return factory
     }
@@ -45,15 +48,28 @@ class KafkaConsumerConfig(
             DefaultErrorHandler(
                 DeadLetterPublishingRecoverer(kafkaTemplate),
                 FixedBackOff(1000L, 2L),
-            ),
+            ).apply {
+                addNotRetryableExceptions(JsonProcessingException::class.java)
+            },
         )
+        return factory
+    }
+
+    @Bean
+    fun dltListenerContainerFactory(
+        configurer: ConcurrentKafkaListenerContainerFactoryConfigurer,
+        consumerFactory: ConsumerFactory<Any, Any>,
+    ): ConcurrentKafkaListenerContainerFactory<Any, Any> {
+        val factory = ConcurrentKafkaListenerContainerFactory<Any, Any>()
+        configurer.configure(factory, consumerFactory)
+        factory.setConcurrency(1)
         return factory
     }
 
     @Bean
     fun dltTopics(): NewTopics =
         NewTopics(
-            TopicBuilder.name("payment-authorized.DLT").partitions(3).replicas(1).build(),
-            TopicBuilder.name("payment-failed.DLT").partitions(3).replicas(1).build(),
+            TopicBuilder.name(KafkaConsumerTopic.PAYMENT_AUTHORIZED_DLT).partitions(3).replicas(1).build(),
+            TopicBuilder.name(KafkaConsumerTopic.PAYMENT_FAILED_DLT).partitions(3).replicas(1).build(),
         )
 }

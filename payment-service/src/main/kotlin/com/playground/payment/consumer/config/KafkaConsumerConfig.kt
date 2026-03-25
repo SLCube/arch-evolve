@@ -1,5 +1,6 @@
 package com.playground.payment.consumer.config
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import org.springframework.boot.autoconfigure.kafka.ConcurrentKafkaListenerContainerFactoryConfigurer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -28,8 +29,21 @@ class KafkaConsumerConfig(
             DefaultErrorHandler(
                 DeadLetterPublishingRecoverer(kafkaTemplate),
                 FixedBackOff(1000L, 2L),
-            ),
+            ).apply {
+                addNotRetryableExceptions(JsonProcessingException::class.java)
+            },
         )
+        return factory
+    }
+
+    @Bean
+    fun dltListenerContainerFactory(
+        configurer: ConcurrentKafkaListenerContainerFactoryConfigurer,
+        consumerFactory: ConsumerFactory<Any, Any>,
+    ): ConcurrentKafkaListenerContainerFactory<Any, Any> {
+        val factory = ConcurrentKafkaListenerContainerFactory<Any, Any>()
+        configurer.configure(factory, consumerFactory)
+        factory.setConcurrency(1)
         return factory
     }
 
@@ -37,7 +51,7 @@ class KafkaConsumerConfig(
     fun dltTopics(): NewTopics =
         NewTopics(
             TopicBuilder
-                .name("order-created.DLT")
+                .name(KafkaConsumerTopic.ORDER_CREATED_DLT)
                 .partitions(3)
                 .replicas(1)
                 .build(),
