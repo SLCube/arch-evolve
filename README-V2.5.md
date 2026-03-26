@@ -515,3 +515,5 @@ V2.5는 모놀리스로서 최선의 성능을 달성했지만 (RPS 100, P95 13.
 ## 향후 계획 (V3.0: Microservices Architecture)
 
 V2.5에서 확인한 모놀리스의 한계를 해결하기 위해, V3.0에서는 **Microservices Architecture**로 전환할 예정입니다.
+
+→ **[V3.0 상세 문서 보기](./README-V3.0.md)**
