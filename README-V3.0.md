@@ -41,7 +41,7 @@ factory.setConcurrency(50)  // partition 수와 일치
 
 partition 수 = consumer concurrency = 50. 50개 스레드가 각자 할당된 partition에서 독립적으로 메시지를 가져와 처리하므로 lag이 해소됐습니다. 각 메시지는 여전히 독립적인 트랜잭션으로 처리됩니다.
 
-concurrency 값은 Little's Law로 산출했습니다.
+concurrency 값은 리틀의 법칙으로 산출했습니다.
 
 ```
 필요 스레드 수 = 목표 RPS × 메시지 처리 시간(초)
@@ -53,7 +53,11 @@ concurrency 값은 Little's Law로 산출했습니다.
 
 ### 2. DB 인덱스 부재
 
-V2.5에서 RPS 100 수준의 테스트에서는 Full Scan이 눈에 띄는 병목으로 나타나지 않았습니다. V3.0에서 Kafka consumer들이 DB를 추가로 조회하는 구조가 되면서 3개 테이블의 인덱스 부재가 심각한 병목으로 드러났습니다.
+80 RPS 부하 테스트 중 부하를 높일수록 DB connection pending이 반복적으로 발생했습니다. 관측 가능한 모든 지표를 확인했지만 원인을 특정할 수 없었습니다. 복잡한 쿼리도 없는데 connection이 고갈되는 상황이 이해되지 않았습니다.
+
+남은 가능성은 쿼리 단위 지연이었습니다. 당시에는 DB 쿼리를 개별적으로 추적할 수단이 없었기 때문에 OTel JDBC 계측을 추가해 Tempo에서 쿼리 단위로 가시화했습니다.
+
+Tempo를 확인하자 단순 조회 쿼리들이 수백ms씩 걸리고 있었습니다. 인덱스가 누락되어 있었습니다.
 
 | 테이블 | 추가된 인덱스 |
 |--------|--------------|
@@ -61,6 +65,112 @@ V2.5에서 RPS 100 수준의 테스트에서는 Full Scan이 눈에 띄는 병�
 | `order_products` | `order_id` |
 | `payment_methods` | `user_id` |
 
-인덱스 3개 추가만으로 80 RPS 기준 P95가 1.03s → 592ms로 **42% 개선**되었고, monolith DB pool pending이 58 → 0으로 완전히 해소됐습니다. V2.5에서도 인덱스를 추가했다면 더 높은 RPS를 달성할 수 있었을 것입니다.
+인덱스 3개 추가만으로 P95가 1.03s → 592ms로 **42% 개선**되었고, DB pool pending이 58 → 0으로 해소됐습니다.
+
+![Tempo JDBC 트레이스](./images/v3.0-phases/tempo-jdbc-trace.png)
 
 ---
+
+## 코드 분리가 쉬웠던 이유
+
+MSA 전환에서 가장 어려운 작업 중 하나는 모놀리스에서 서비스 경계를 찾는 일입니다. 어디서 잘라야 할지 모호한 경우가 많습니다. 이 프로젝트에서는 그 작업이 거의 기계적이었습니다.
+
+V2.0에서 도입한 Contract Module이 이미 경계를 명확하게 정의해두었기 때문입니다.
+
+```
+module-order-contract/
+└── domain/event/
+    ├── OrderCreatedEvent.kt    // 다른 서비스에 노출하는 이벤트
+    ├── OrderCompletedEvent.kt
+    └── OrderFailedEvent.kt
+
+module-delivery-contract/
+├── domain/vo/DeliveryInfo.kt
+└── application/outbound/DeliveryInfoQueryPort.kt  // 다른 서비스에 노출하는 인터페이스
+```
+
+Contract Module은 "다른 도메인에 무엇을 노출할 것인가"를 컴파일 타임에 강제하는 구조였습니다. MSA 전환 시 이 경계가 그대로 서비스 간 계약이 됐습니다.
+
+- `OrderCreatedEvent` → Kafka 토픽 페이로드
+- `DeliveryInfoQueryPort` → internal API 엔드포인트
+
+서비스를 분리할 때 "무엇을 외부에 노출해야 하는가"를 새로 고민할 필요가 없었습니다. V2.0에서 이미 정의한 계약을 통신 방식만 바꿔 옮기는 작업이었습니다.
+
+---
+
+## 설계 결정
+
+### 1. Outbox 발행 방식: 복잡한 재발행 로직 → 단순 폴링
+
+처음 Outbox 패턴을 설계할 때, 다음 흐름을 계획했습니다.
+
+```
+주문 생성 → Outbox 저장 → Spring Event 발행 → Kafka publish (성공 시 PUBLISHED 처리)
+                                                       ↓ 실패 시
+                                    Scheduler → PENDING 상태 재조회 → 재발행
+```
+
+즉시 발행을 시도하고, 실패한 경우에만 Scheduler가 보정하는 방식입니다. 빠른 전달과 안정성을 동시에 얻으려는 의도였습니다.
+
+코드를 작성하다 보니 즉시 발행 경로와 재발행 경로가 서로 다른 트랜잭션 컨텍스트에서 Outbox 상태를 관리해야 했고, 두 경로가 같은 레코드를 두고 충돌하지 않도록 조율하는 로직이 추가됐습니다. 시스템 자체는 단순한데, 코드는 점점 복잡해지고 있었습니다.
+
+방향을 바꿨습니다. Scheduler 하나가 PENDING 이벤트를 주기적으로 조회하고 발행하는 단순 폴링 방식입니다. 즉시 발행 경로를 아예 없앴습니다.
+
+```kotlin
+// OutboxEventScheduler.kt
+@Scheduled(fixedDelay = 200)
+fun pollAndPublish() {
+    orderOutboxEventUseCase.pollAndPublishEvents()
+}
+
+// OrderOutboxEventService.kt
+@Transactional
+fun pollAndPublishEvents() {
+    val pendingEvents = outboxQueryPort.findByStatus(OutboxStatus.PENDING, POLL_LIMIT)
+    if (pendingEvents.isEmpty()) return
+
+    val published = orderEventPublisherPort.publishAll(pendingEvents)
+    outboxCommandPort.bulkMarkAsPublished(published.map { it.id!! })
+    // 실패한 것은 retryCount 증가, 한도 초과 시 FAILED 처리
+}
+```
+
+재발행은 별도 로직 없이 다음 폴링 주기에 PENDING 상태로 남아있으면 자동으로 재시도됩니다. 코드가 단순해진 만큼 동작도 명확합니다.
+
+### 2. consumer factory topic별 분리
+
+monolith는 payment-service로부터 두 가지 이벤트를 수신합니다.
+
+- `payment-authorized`: 결제 성공 → 주문 COMPLETED 처리
+- `payment-failed`: 결제 실패 → 주문 FAILED 처리
+
+초기에는 단일 factory를 두 topic에 공유했습니다. 문제는 Spring Kafka의 `ConcurrentKafkaListenerContainerFactory`에서 concurrency를 설정하면 그 factory를 참조하는 **모든 topic**에 동일한 concurrency가 적용된다는 점입니다.
+
+`payment-authorized`는 결제 성공 경로이므로 높은 처리량이 필요합니다. `payment-failed`는 결제 실패 이벤트로, 정상 트래픽에서는 빈도가 낮습니다. 둘에 동일한 concurrency를 적용하면 어느 쪽이든 낭비가 생깁니다.
+
+factory를 분리했습니다.
+
+```kotlin
+// KafkaConsumerConfig.kt (monolith)
+@Bean
+fun paymentAuthorizedListenerContainerFactory(...): ConcurrentKafkaListenerContainerFactory<Any, Any> {
+    ...
+    factory.setConcurrency(15)  // payment-authorized: 15개 파티션에 맞춤
+    ...
+}
+
+@Bean
+fun paymentFailedListenerContainerFactory(...): ConcurrentKafkaListenerContainerFactory<Any, Any> {
+    ...
+    factory.setConcurrency(3)   // payment-failed: 실패 이벤트 빈도 낮음
+    ...
+}
+```
+
+각 `@KafkaListener`에서 `containerFactory`를 명시적으로 지정합니다.
+
+```kotlin
+@KafkaListener(topics = [...], containerFactory = "paymentAuthorizedListenerContainerFactory")
+```
+
+topic의 특성에 맞는 concurrency를 독립적으로 설정할 수 있게 됐습니다.
