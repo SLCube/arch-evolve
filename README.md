@@ -30,7 +30,7 @@ Ports & Adapters 패턴으로 **도메인 순수성 확보**. JPA Entity와 Doma
 - 모놀리스 한계 증명: RPS 700에서 PostgreSQL max_connections 병목 → **MSA 전환 근거 확보**
 
 ### V3.0: Microservices Architecture (현재)
-API Gateway + 서비스 분리, Kafka 기반 이벤트 드리븐, Outbox Pattern으로 이벤트 유실 방지, MDC 기반 분산 추적.
+API Gateway + 서비스 분리, Kafka 기반 이벤트 드리븐, Outbox Pattern으로 이벤트 유실 방지, OpenTelemetry 기반 분산 추적.
 
 ## 각 버전 상세 문서
 
@@ -46,7 +46,7 @@ API Gateway + 서비스 분리, Kafka 기반 이벤트 드리븐, Outbox Pattern
 
 ### Backend
 - **언어**: Kotlin
-- **프레임워크**: Spring Boot 3.5.10, Spring Cloud Gateway
+- **프레임워크**: Spring Boot 3.5.X, Spring Cloud Gateway
 - **데이터베이스**: PostgreSQL
 - **캐시**: Redis
 - **ORM**: Spring Data JPA
