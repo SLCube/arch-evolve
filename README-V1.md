@@ -40,7 +40,7 @@ V1 아키텍처는 의도적으로 다음과 같은 문제점을 포함하고 �
 
 ### 실제 의존성 구조
 
-![V1 아키텍처 문제점](./v1-architecture-problems.png)
+![V1 아키텍처 문제점](./images/v1.0-phases/v1-architecture-problems.png)
 
 ### 1️⃣ Service Layer 강한 결합
 

@@ -4,7 +4,7 @@
 
 V1.5는 V1에서 발생했던 Service 간 강한 결합과 Fat JPA Domain 문제를 해결하기 위해 Ports & Adapters 패턴을 기반으로 한 헥사고날 아키텍처를 채택했습니다.
 
-![헥사고날 아키텍처](./hexagonal-architecture.png)
+![헥사고날 아키텍처](./images/v1.5-phases/hexagonal-architecture.png)
 
 **핵심 원칙:**
 - **의존성 방향**: 외부(Adapter) → 내부(Domain)로만 향함
@@ -60,7 +60,7 @@ V1의 문제는 해결했지만, V1.5는 여전히 **단일 모듈** 구조이�
 
 ### 도메인 간 순환 의존성
 
-![도메인 간 순환 의존성](./v1.5-circular-dependency.png)
+![도메인 간 순환 의존성](./images/v1.5-phases/v1.5-circular-dependency.png)
 
 ### 1️⃣ 도메인 간 순환 참조 가능성
 

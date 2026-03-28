@@ -94,7 +94,7 @@ class OrderCommandServiceTest {  // Spring 없음
 
 그러나 Contract 모듈 도입 전, 단순히 모듈만 분리했을 때는 **순환 참조 문제**가 발생했습니다.
 
-![멀티 모듈 순환 의존성 문제](./v2.0-multi-module-without-contract.png)
+![멀티 모듈 순환 의존성 문제](./images/v2.0-phases/v2.0-multi-module-without-contract.png)
 
 **문제 발생:**
 ```
@@ -169,7 +169,7 @@ dependencies {
 }
 ```
 
-![멀티 모듈 Contract 도입 후](./v2.0-multi-module-with-contract.png)
+![멀티 모듈 Contract 도입 후](./images/v2.0-phases/v2.0-multi-module-with-contract.png)
 
 **효과:**
 - 도메인 간 의존성 방향을 단방향으로 유지
