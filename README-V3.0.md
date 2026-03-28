@@ -120,7 +120,7 @@ concurrency 값은 리틀의 법칙으로 산출했습니다.
 
 ```kotlin
 // OutboxEventScheduler.kt
-@Scheduled(fixedDelay = 1000)
+@Scheduled(fixedDelay = 1000) // 초기 설정값, 이후 200ms로 튜닝 (성능 측정 섹션 참조)
 fun pollAndPublish() {
     orderOutboxEventUseCase.pollAndPublishEvents()
 }
