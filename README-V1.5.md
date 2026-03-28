@@ -62,11 +62,6 @@ V1의 문제는 해결했지만, V1.5는 여전히 **단일 모듈** 구조이�
 
 ![도메인 간 순환 의존성](./v1.5-circular-dependency.png)
 
-**⚠️ 순환 의존성:**
-- Order → Product: `OrderProductProvider`가 `ProductQueryPort`에 의존
-- Product → Order: `ProductStockEventListener`가 `OrderCreatedEvent` 구독
-- 단일 모듈이라 컴파일 타임 순환 참조 방지 불가
-
 ### 1️⃣ 도메인 간 순환 참조 가능성
 
 ```kotlin

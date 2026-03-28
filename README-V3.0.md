@@ -198,6 +198,8 @@ topic의 특성에 맞는 concurrency를 독립적으로 설정할 수 있게 �
 - Spring Boot 4개 (monolith, payment-service, delivery-service, api-gateway)
 - k6 (부하 생성)
 
+**테스트 조건:** 80 RPS, WireMock fixed(400ms), k6 constant-arrival-rate, 3분
+
 Outbox 폴링 간격이 E2E에 직접 영향을 주는 변수였습니다. 이벤트 흐름이 세 구간을 거치기 때문에, 간격이 1000ms이면 최대 3000ms가 폴링 대기로 소비됩니다.
 
 | 폴링 간격 | E2E P50 | E2E P95 | E2E P99 |
@@ -206,8 +208,6 @@ Outbox 폴링 간격이 E2E에 직접 영향을 주는 변수였습니다. 이�
 | 200ms | 1,132ms | 2,263ms | 3,217ms |
 
 이후 테스트는 200ms 기준으로 진행했습니다.
-
-**테스트 조건:** 80 RPS, WireMock fixed(400ms), k6 constant-arrival-rate, 3분
 
 | 지표 | HTTP | E2E |
 |------|------|-----|

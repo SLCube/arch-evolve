@@ -25,7 +25,7 @@ Ports & Adapters 패턴으로 **도메인 순수성 확보**. JPA Entity와 Doma
 각 도메인을 독립 Gradle 모듈로 분리. **Contract Module**을 도입하여 도메인 경계를 컴파일 타임에 강제. 통합테스트 → 레이어별 단위테스트 전환.
 
 ### V2.5: High Performed Monolith
-- Redis 재고 관리: **P95 94.9% 개선** (1.41s → 88.8ms), Connection Pool Pending 174 → 0
+- Redis 재고 관리: **P95 93.7% 개선** (1.41s → 88.8ms), Connection Pool Pending 174 → 0
 - 비동기 이벤트 처리: **P95 99.8% 개선** (16.4s → 13.8ms), 에러율 29% → 0%
 - 모놀리스 한계 증명: RPS 700에서 PostgreSQL max_connections 병목 → **MSA 전환 근거 확보**
 
