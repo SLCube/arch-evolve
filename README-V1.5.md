@@ -42,18 +42,6 @@ V1.5는 V1에서 발생했던 Service 간 강한 결합과 Fat JPA Domain 문제
 - 의존성 역전 원칙(DIP) 적용
 - 테스트 시 Adapter만 Mock 처리
 
-### 3. CQS 패턴 적용 (Order 모듈)
-
-`OrderService`를 `OrderCommandService`(상태 변경)와 `OrderQueryService`(상태 조회)로 분리하여 각 메소드의 책임을 명확히 구분합니다.
-
-- `OrderCommandUseCase`: createOrder, cancelOrder
-- `OrderQueryUseCase`: getOrder, getOrders
-
-**효과:**
-- 읽기/쓰기 책임 명확히 분리
-- 각 서비스의 트랜잭션 설정 최적화 가능 (readOnly=true)
-- 코드 가독성 및 유지보수성 향상
-
 ## 🚨 현재 아키텍처의 문제점
 
 V1의 문제는 해결했지만, V1.5는 여전히 **단일 모듈** 구조이기 때문에 새로운 문제가 존재합니다.
