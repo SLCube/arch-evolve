@@ -77,18 +77,3 @@ phase/3.0-micro-services-architecture          (V3.0, 현재)
 
 각 브랜치는 해당 Phase의 완성된 코드를 포함하며, 독립적으로 실행 가능합니다.
 
-## 공통 테스트 도구
-
-### `performAndDocument` DSL
-
-테스트 코드의 가독성, 일관성, 유지보수성을 높이기 위한 커스텀 DSL 기반 테스트 프레임워크입니다.
-
-```kotlin
-performAndDocument("주문 생성 - 성공") {
-    httpMethod = HttpMethod.POST
-    urlTemplate = "/orders"
-    requestBody = orderRequest
-    accessToken = jwtToken
-    expectedStatus = status().isCreated
-}
-```

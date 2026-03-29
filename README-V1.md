@@ -110,3 +110,21 @@ class Product(...) : BaseEntity() {
 이를 통해 더욱 유연하고 유지보수하기 쉬운 아키텍처로 진화할 것입니다.
 
 **→ [V1.5: Hexagonal Architecture로 이동](./README-V1.5.md)**
+
+---
+
+## 부록: 공통 테스트 도구
+
+### `performAndDocument` DSL
+
+테스트 코드의 가독성, 일관성, 유지보수성을 높이기 위한 커스텀 DSL 기반 테스트 프레임워크입니다.
+
+```kotlin
+performAndDocument("주문 생성 - 성공") {
+    httpMethod = HttpMethod.POST
+    urlTemplate = "/orders"
+    requestBody = orderRequest
+    accessToken = jwtToken
+    expectedStatus = status().isCreated
+}
+```
