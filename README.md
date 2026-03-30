@@ -54,7 +54,7 @@ Ports & Adapters 패턴으로 **도메인 순수성 확보**. JPA Entity와 Doma
 
 ### V2.5: High Performed Monolith
 - Redis 재고 관리: **P95 93.7% 개선** (1.41s → 88.8ms), Connection Pool Pending 174 → 0
-- 비동기 이벤트 처리: **P95 99.8% 개선** (16.4s → 13.8ms), 에러율 29% → 0%
+- 비동기 이벤트 처리: **P95 99.9% 개선** (16.4s → 13.8ms), 에러율 52.2% → 0%
 
 ### V3.0: Microservices Architecture (현재)
 - V2.0 Contract Module로 정의한 서비스 경계를 그대로 MSA 분리 기준으로 활용
