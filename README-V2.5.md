@@ -172,26 +172,7 @@ RPS 700에서 Connection Pool Pending이 평균 174개 발생 → Pool Size를 1
 - 원자적 연산 지원 (INCR, DECR) → 동시성 안전
 - Lua Script로 복잡한 재고 로직 구현 가능
 
-#### 2-2. 아키텍처 설계
-
-- `StockCachePort` (Port/Adapter 패턴 유지)
-- `RedisStockClient` (Redis 구현체)
-- Lua Script 기반 원자성 보장
-
-#### 2-3. 3단계 재고 관리 시스템
-
-- `available`: 초기 재고 (고정값, 기준점)
-- `reserved`: 결제 대기 중 (일시적, 유동적)
-- `confirmed`: 판매 완료 (확정, DB 동기화 대상)
-- 판매 가능 재고 = available - reserved - confirmed
-
-#### 2-4. DB 동기화 전략
-
-- Scheduler 기반 배치 동기화 (10초 주기)
-- MSET vs executePipelined 비교
-- PAGE_SIZE 최적화 (1천 vs 1만 vs 10만)
-
-#### 2-5. 성능 개선 결과
+#### 2-2. 성능 개선 결과
 
 **Before (Phase 1: PostgreSQL 재고 관리, RPS 700):**
 
@@ -236,7 +217,7 @@ RPS 700에서 Connection Pool Pending이 평균 174개 발생 → Pool Size를 1
 
 - **P95**: 16.4s
 - **P99**: 17.4s
-- **에러율**: 500 에러 29.0%, 401 에러 23.2%
+- **에러율**: 52.2%
 
 **문제 분석:**
 - 응답 시간 = 주문 생성 + 결제 + 재고 + 배송 (모두 합산)
@@ -266,12 +247,12 @@ fun handleOrderCreated(event: OrderCreatedEvent) {
 
 - **P95**: 6.65s
 - **P99**: 6.98s
-- **에러율**: 500 에러 19.5%, 401 에러 41.3%
+- **에러율**: 60.8%
 
-| 상태 | P95 | P99 | 500 에러 | 401 에러 |
-|------|-----|-----|----------|----------|
-| Before | 16.4s | 17.4s | 29.0% | 23.2% |
-| AFTER_COMMIT | 6.65s | 6.98s | 19.5% | 41.3% |
+| 상태 | P95 | P99 | 에러율 |
+|------|-----|-----|--------|
+| Before | 16.4s | 17.4s | 52.2% |
+| AFTER_COMMIT | 6.65s | 6.98s | 60.8% |
 
 **결론:**
 
@@ -318,11 +299,11 @@ fun handleOrderCreated(event: OrderCreatedEvent) {
 
 **전체 비교:**
 
-| 단계 | P95 | P99 | 500 에러 | 401 에러 |
-|------|-----|-----|----------|----------|
-| **Before** (동기식) | 16.4s | 17.4s | 29.0% | 23.2% |
-| **동기 AFTER_COMMIT** | 6.65s | 6.98s | 19.5% | 41.3% |
-| **비동기 AFTER_COMMIT** | **13.8ms** | **34.1ms** | **0%** | **0%** |
+| 단계 | P95 | P99 | 에러율 |
+|------|-----|-----|--------|
+| **Before** (동기식) | 16.4s | 17.4s | 52.2% |
+| **동기 AFTER_COMMIT** | 6.65s | 6.98s | 60.8% |
+| **비동기 AFTER_COMMIT** | **13.8ms** | **34.1ms** | **0%** |
 
 **핵심 성과:**
 - ✅ P95 응답 시간 **99.8% 개선** (16.4s → 13.8ms)
@@ -332,186 +313,24 @@ fun handleOrderCreated(event: OrderCreatedEvent) {
 
 **트랜잭션 설계:**
 - 각 도메인의 트랜잭션 독립 실행
-- `AFTER_COMMIT` + `@Async` 조합으로 정합성과 성능 모두 확보
+- `AFTER_COMMIT` + `@Async` 조합으로 성능 확보
 
 **핵심 교훈:**
 - `@TransactionalEventListener(AFTER_COMMIT)`: 트랜잭션 경계 제어
 - `@Async`: 스레드 실행 제어
 - 두 가지를 함께 사용해야 비동기 처리 완성
 
-### Phase 4: 모놀리스의 한계 확인
+## 남은 질문들
 
-#### 4-1. RPS 700 도전
+비동기 처리로 성능은 해결했지만, 한 가지 의문이 남았다.
 
-**기대:**
+결제는 금전 거래가 오가는 도메인이다. `@Async`는 프로세스 장애 시 처리 중이던 이벤트를 보장하지 않는다. 결제가 실패해도 사용자는 이미 "주문 완료" 화면을 보고 있다.
 
-Phase 3까지 완료 후, RPS 100에서 P95 13.8ms를 달성.
-→ RPS 700도 충분히 가능할 것으로 예상.
+그리고 더 근본적인 질문들이 있었다.
 
-**현실:**
+- 트래픽이 지금보다 더 늘어난다면?
+- 결제 도메인에 장애가 발생하면 주문 도메인까지 영향을 받아야 할까?
+- 모든 도메인이 단일 DB를 공유하는 한, 이 문제들은 해결되지 않는다.
 
-RPS 700 부하 테스트 시작 → **즉시 장애 발생**
+→ **[V3.0: Microservices Architecture](./README-V3.0.md)**
 
-#### 4-2. 첫 번째 시도: Connection Pool 50
-
-**측정 결과:**
-
-![Pool 50 성능](./images/v2.5-phases/03-phase3-limits/connection%20pool%2050개%20rps700%20p95%20p99.png)
-
-![Pool 50 Connection](./images/v2.5-phases/03-phase3-limits/connection%20pool%2050개%20connection%20pool.png)
-
-| 항목 | 값 | 상태 |
-|------|-----|------|
-| **P95** | 18.4s | 🚨 |
-| **P99** | 20.3s | 🚨 |
-| **Connection Timeout** | **3371개** | 🚨 |
-| Pool Size | 50 | |
-
-**문제:**
-- Connection Timeout 3371개 발생
-- Connection을 얻지 못하고 요청 실패
-- P95 18.4초 (RPS 100 대비 1300배 느림)
-
-#### 4-3. 두 번째 시도: Connection Pool 증가
-
-**시도:**
-
-Connection Pool을 더 늘려보자.
-- 설정: 50 → 100으로 증가
-
-**측정 결과:**
-
-![Pool 증가 후 성능](./images/v2.5-phases/03-phase3-limits/커넥션%20풀%20증가%20이후%20rps700%20p95%20p99.png)
-
-![Pool 증가 후 Connection](./images/v2.5-phases/03-phase3-limits/커넥션%20풀%20증가%20이후%20rps700%20connection%20pool.png)
-
-| 항목 | Before (Pool 50) | After (Pool 증가) | 개선 여부 |
-|------|-----------------|------------------|----------|
-| **P95** | 18.4s | 2.63s | ✅ 개선 |
-| **P99** | 20.3s | 3.17s | ✅ 개선 |
-| **Timeout** | 3371 | 0 | ✅ 해소 |
-| **Pending** | 측정 불가 | 평균 126, 최대 149 | ❌ 여전히 발생 |
-| **Active** | 측정 불가 | 평균 42.3 (거의 100%) | ⚠️ 포화 |
-
-**결과:**
-- Timeout은 해소되었지만, 여전히 **Pending 126개 대기**
-- P95 2.63s는 RPS 100 (13.8ms) 대비 **190배 느림**
-- Active Connection 거의 100% 사용 (포화 상태)
-
-#### 4-4. 근본 원인: PostgreSQL max_connections 한계
-
-**발견:**
-
-Connection Pool을 아무리 늘려도 **PostgreSQL max_connections** 한계 존재.
-
-**PostgreSQL 기본 설정:**
-```
-max_connections = 100
-```
-
-**문제:**
-- Connection Pool을 100으로 늘려도 DB 서버는 100개만 허용
-- 여러 인스턴스를 띄워도 **동일한 DB 공유** → 총합 100개 제한
-- Scale-up (max_connections 증가)은 임시방편
-
-**근본적 한계:**
-```
-모놀리스 아키텍처:
-- Order, Payment, Product, Delivery → 단일 DB 공유
-- Connection Pool 100 = 전체 시스템 공유
-- Order 트래픽 폭증 → Payment도 Connection 못 얻음
-```
-
-#### 4-5. 모놀리스의 구조적 한계
-
-**1️⃣ 리소스 격리 불가능**
-
-**문제:**
-- 모든 모듈이 하나의 Connection Pool 공유
-- Order 트래픽이 폭증하면 Payment, Product, Delivery도 영향
-- 한 모듈의 문제가 전체 시스템 마비
-
-**시나리오:**
-```
-RPS 700 도달
-  ↓
-Order 요청 급증 → Connection Pool 고갈
-  ↓
-Payment, Product, Delivery도 Connection 못 얻음
-  ↓
-전체 시스템 장애
-```
-
-**2️⃣ 수평 확장 불가능**
-
-**문제:**
-- 인스턴스를 여러 개 띄워도 **동일한 DB 공유**
-- Connection Pool 100 = DB 서버의 절대적 한계
-- Scale-out이 아닌 **Scale-up만 가능** (임시방편)
-
-**시도한 해결책:**
-- ❌ Connection Pool 증가 → PostgreSQL max_connections 한계
-- ❌ 인스턴스 추가 → 동일 DB 공유로 효과 없음
-- ❌ max_connections 증가 → DB 서버 메모리 한계, 성능 저하
-
-**3️⃣ 장애 격리 불가능**
-
-**문제:**
-- Product 도메인에 장애 발생 → Order, Payment, Delivery 모두 영향
-- 부분 장애가 **전체 장애로 확산**
-
-**4️⃣ 독립 배포 불가능**
-
-**문제:**
-- 기능이 많아질수록 배포 복잡도 증가
-- Payment 모듈만 배포하고 싶어도 **전체 시스템 재배포**
-- 작은 변경에도 전체 시스템 리스크
-
-#### 4-6. MSA 전환 결정
-
-**복합적인 이유로 MSA 전환 결정:**
-
-**1. 성능 한계 (데이터로 증명)**
-- RPS 100: P95 13.8ms ✅
-- RPS 700: P95 2.63s ❌ (190배 느림)
-- Connection Pool 한계 (PostgreSQL max_connections)
-
-**2. 리소스 격리 필요**
-- 한 모듈의 트래픽 폭증이 다른 모듈에 영향
-- 독립적인 Connection Pool 필요
-
-**3. 수평 확장 필요**
-- 인스턴스 추가로 확장 불가능 (동일 DB 공유)
-- Scale-up은 임시방편
-
-**4. 장애 격리 필요**
-- 특정 기능 장애가 전체 시스템 장애로 확산
-- 부분 장애 허용 아키텍처 필요
-
-**5. 독립 배포 필요**
-- 기능이 많아질수록 배포 복잡도 증가
-- 모듈별 독립 배포로 배포 리스크 감소
-
-**결론:**
-
-High Performed Monolith의 한계를 데이터로 증명.
-단일 DB 공유 구조로는 **리소스 격리, 수평 확장, 장애 격리, 독립 배포**가 불가능.
-
-→ **V3.0: Microservices Architecture 전환 필요**
-
-## 🚨 현재 프로젝트의 문제점
-
-V2.5는 모놀리스로서 최선의 성능을 달성했지만 (RPS 100, P95 13.8ms), **단일 DB 공유 구조의 근본적 한계**를 확인했습니다.
-
-**Phase 4에서 확인된 모놀리스의 한계:**
-- **성능 한계**: RPS 700 시 P95 2.63s (RPS 100 대비 190배 느림)
-- **리소스 격리 불가**: 한 모듈의 트래픽 폭증이 전체 시스템 영향
-- **수평 확장 불가**: 인스턴스 추가해도 동일 DB 공유 (PostgreSQL max_connections 한계)
-- **장애 격리 불가**: 부분 장애가 전체 장애로 확산
-- **독립 배포 불가**: 모듈별 배포 불가능, 전체 시스템 재배포 필요
-
-**근본 원인:** 단일 DB 공유 + 모놀리식 배포 구조
-
-## 향후 계획 (V3.0: Microservices Architecture)
-
-V2.5에서 확인한 모놀리스의 한계를 해결하기 위해, V3.0에서는 **Microservices Architecture**로 전환할 예정입니다.
