@@ -34,7 +34,7 @@ V1은 빠른 기능 개발과 초기 생산성을 우선시하는 단계에서 �
 - JPA Entity가 도메인 엔티티의 역할을 겸하고 있습니다. (Fat JPA Domain의 가능성)
 - Service Layer가 다른 Service Layer의 메소드를 직접 호출하여 비즈니스 로직을 오케스트레이션합니다. (강한 결합의 가능성)
 
-## 🚨 현재 아키텍처의 문제점
+## 현재 아키텍처의 문제점
 
 V1 아키텍처는 의도적으로 다음과 같은 문제점을 포함하고 있습니다. 이러한 문제들은 V1.5에서 Hexagonal Architecture로 전환하면서 해결될 예정입니다.
 
@@ -42,7 +42,7 @@ V1 아키텍처는 의도적으로 다음과 같은 문제점을 포함하고 �
 
 ![V1 아키텍처 문제점](./images/v1.0-phases/v1-architecture-problems.png)
 
-### 1️⃣ Service Layer 강한 결합
+### 1. Service Layer 강한 결합
 
 ```kotlin
 // OrderService.kt
@@ -67,7 +67,7 @@ class OrderService(
 - 테스트 시 다른 도메인의 인프라까지 Mock해야 함
 - 모듈 분리 시 순환 참조 가능성
 
-### 2️⃣ Fat JPA Domain
+### 2. Fat JPA Domain
 
 ```kotlin
 // Product.kt
