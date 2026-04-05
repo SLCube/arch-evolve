@@ -1,4 +1,4 @@
-# PlayGround Project (V1.5: Hexagonal Architecture)
+# ArchEvolve (V1.5: Hexagonal Architecture)
 
 ## V1.5 아키텍처: 헥사고날 아키텍처
 

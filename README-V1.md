@@ -1,4 +1,4 @@
-# PlayGround Project (V1: Layered Monolith)
+# ArchEvolve (V1: Layered Monolith)
 
 ## V1 아키텍처: 계층형 모놀리식 (Layered Monolith)
 

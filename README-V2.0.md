@@ -1,4 +1,4 @@
-# PlayGround Project (V2.0: Multi-Module Hexagonal Architecture)
+# ArchEvolve (V2.0: Multi-Module Hexagonal Architecture)
 
 ## V2.0 아키텍처: 멀티 모듈 헥사고날 아키텍처
 
