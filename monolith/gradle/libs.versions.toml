@@ -22,7 +22,7 @@ logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
 opentelemetryJdbc = "2.15.0-alpha"
 
-redisson = "4.3.0"
+redisson = "4.3.1"
 jedisMock = "1.1.12"
 
 [libraries]
