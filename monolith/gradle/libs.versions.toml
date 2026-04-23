@@ -16,7 +16,7 @@ restdocsApiSpec = "0.19.4"
 springdoc = "2.8.17"
 
 openfeignQuerydsl = "7.1"
-ksp = "2.3.6"
+ksp = "2.3.7"
 
 logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
