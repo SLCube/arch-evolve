@@ -13,7 +13,7 @@ mockitoKotlin = "6.3.0"
 restdocsApiSpec = "0.19.4"
 
 openfeignQuerydsl = "7.1"
-postgres = "42.7.10"
+postgres = "42.7.11"
 
 logstashLogbackEncoder = "9.0"
 loki4j = "1.6.0"
