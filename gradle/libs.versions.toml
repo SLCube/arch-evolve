@@ -10,7 +10,7 @@ jjwt = "0.13.0"
 kotest = "6.1.11"
 kotestSpringExtension = "1.3.0"
 mockitoKotlin = "6.3.0"
-restdocsApiSpec = "0.19.4"
+restdocsApiSpec = "0.20.1"
 
 openfeignQuerydsl = "7.1"
 postgres = "42.7.11"
