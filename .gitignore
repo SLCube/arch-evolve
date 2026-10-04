@@ -19,8 +19,7 @@ target/
 .DS_Store
 Thumbs.db
 
-# Secret properties
-application-secret.yml
+# Local build files
 /.kotlin/
 
 # Planning files
