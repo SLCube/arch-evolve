@@ -1,6 +1,8 @@
 package com.playground.product.infra.redis.client
 
 import com.playground.product.application.port.outbound.StockCachePort
+import com.playground.product.application.port.outbound.StockSyncSnapshot
+import com.playground.product.application.port.outbound.StockReservationSnapshot
 import com.playground.product.domain.exception.StockReservationConflictException
 import com.playground.product.domain.exception.StockReservationStateException
 import com.playground.product.infra.redis.client.StockLuaScripts.AVAILABLE_KEY_SUFFIX
@@ -14,6 +16,7 @@ import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCK_S
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCKS_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.STOCK_KEY_PREFIX
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ScanOptions
 import org.springframework.stereotype.Component
 
 @Component
@@ -41,7 +44,7 @@ class RedisStockClient(
         val keys =
             listOf("${STOCK_KEY_PREFIX}reservation:$orderId") + entries.flatMap { (productId, _) ->
                 listOf(getAvailableKey(productId), getReservedKey(productId), getConfirmedKey(productId))
-            }
+            } + StockLuaScripts.PENDING_RESERVATIONS_KEY
         val items = entries.joinToString(";") { (productId, quantity) -> "$productId:$quantity" }
         val quantities = entries.map { it.value.toString() }.toTypedArray()
         val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, items, attemptId, *quantities)
@@ -71,7 +74,7 @@ class RedisStockClient(
     ): Long? {
         if (quantities.isEmpty()) return null
         val entries = quantities.toSortedMap().entries.toList()
-        val keys = listOf("${STOCK_KEY_PREFIX}reservation:$orderId", DIRTY_SET_KEY) +
+        val keys = listOf("${STOCK_KEY_PREFIX}reservation:$orderId", DIRTY_SET_KEY, StockLuaScripts.PENDING_RESERVATIONS_KEY) +
             entries.flatMap { listOf(getReservedKey(it.key), getConfirmedKey(it.key)) }
         val items = entries.joinToString(";") { (id, quantity) -> "$id:$quantity" }
         val args = entries.flatMap { listOf(it.value.toString(), it.key.toString()) }.toTypedArray()
@@ -154,25 +157,58 @@ class RedisStockClient(
             return
         }
 
-        val availableMap =
-            stockMap
-                .mapKeys { getAvailableKey(it.key) }
-                .mapValues { it.value.toString() }
-        redisTemplate.opsForValue().multiSet(availableMap)
+        val entries = stockMap.entries.toList()
+        val keys = entries.flatMap { listOf(getAvailableKey(it.key), getReservedKey(it.key), getConfirmedKey(it.key)) }
+        redisTemplate.execute(StockLuaScripts.INITIALIZE_STOCK_SCRIPT, keys, *entries.map { it.value.toString() }.toTypedArray())
+    }
 
-        val confirmedMap =
-            stockMap.keys.associateBy(
-                { getConfirmedKey(it) },
-                { "0" },
-            )
-        redisTemplate.opsForValue().multiSet(confirmedMap)
+    override fun getReservationsForRecovery(nowMillis: Long, limit: Int): List<StockReservationSnapshot> {
+        val ids = redisTemplate.opsForZSet().rangeByScore(
+            StockLuaScripts.PENDING_RESERVATIONS_KEY, Double.NEGATIVE_INFINITY, nowMillis.toDouble(), 0, limit.toLong(),
+        ).orEmpty()
+        return ids.mapNotNull { id ->
+            val fields = redisTemplate.opsForHash<String, String>().entries("${STOCK_KEY_PREFIX}reservation:$id")
+            if (fields["status"] != "RESERVED") {
+                redisTemplate.opsForZSet().remove(StockLuaScripts.PENDING_RESERVATIONS_KEY, id)
+                null
+            } else {
+                val quantities = fields.getValue("items").split(';').associate { item ->
+                    val parts = item.split(':')
+                    parts[0].toLong() to parts[1].toInt()
+                }
+                StockReservationSnapshot(id.toLong(), quantities)
+            }
+        }
+    }
 
-        val reservedMap =
-            stockMap.keys.associateBy(
-                { getReservedKey(it) },
-                { "0" },
-            )
-        redisTemplate.opsForValue().multiSet(reservedMap)
+    override fun deferReservationRecovery(orderId: Long, retryAtMillis: Long) {
+        redisTemplate.execute(StockLuaScripts.DEFER_RECOVERY_SCRIPT,
+            listOf("${STOCK_KEY_PREFIX}reservation:$orderId", StockLuaScripts.PENDING_RESERVATIONS_KEY),
+            orderId.toString(), retryAtMillis.toString())
+    }
+
+    override fun rebuildReservationRecoveryIndex() {
+        redisTemplate.scan(ScanOptions.scanOptions().match("${STOCK_KEY_PREFIX}reservation:*").count(100).build()).use { cursor ->
+            while (cursor.hasNext()) {
+                val key = cursor.next()
+                redisTemplate.execute(StockLuaScripts.REINDEX_RESERVATION_SCRIPT,
+                    listOf(key, StockLuaScripts.PENDING_RESERVATIONS_KEY), key.substringAfterLast(':'))
+            }
+        }
+    }
+
+    override fun getDirtyStockSnapshot(): Map<Long, StockSyncSnapshot> {
+        val ids = redisTemplate.opsForSet().members(DIRTY_SET_KEY).orEmpty().map { it.toLong() }
+        return ids.associateWith { id ->
+            val values = redisTemplate.execute(StockLuaScripts.STOCK_SNAPSHOT_SCRIPT, listOf(getAvailableKey(id), getConfirmedKey(id)))
+            StockSyncSnapshot((values[0] as Long).toInt(), (values[1] as Long).toInt())
+        }
+    }
+
+    override fun acknowledgeStockSync(snapshot: Map<Long, StockSyncSnapshot>) {
+        snapshot.forEach { (id, value) ->
+            redisTemplate.execute(StockLuaScripts.ACK_STOCK_SYNC_SCRIPT, listOf(DIRTY_SET_KEY, getConfirmedKey(id)), id.toString(), value.confirmed.toString())
+        }
     }
 
     override fun getStock(productId: Long): Int {

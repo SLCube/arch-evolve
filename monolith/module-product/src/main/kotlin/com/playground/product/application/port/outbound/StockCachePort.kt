@@ -1,6 +1,16 @@
 package com.playground.product.application.port.outbound
 
 interface StockCachePort {
+    fun getReservationsForRecovery(nowMillis: Long, limit: Int): List<StockReservationSnapshot>
+
+    fun deferReservationRecovery(orderId: Long, retryAtMillis: Long)
+
+    fun rebuildReservationRecoveryIndex()
+
+    fun getDirtyStockSnapshot(): Map<Long, StockSyncSnapshot>
+
+    fun acknowledgeStockSync(snapshot: Map<Long, StockSyncSnapshot>)
+
     /** 모든 상품을 예약하며, 재고 부족 시 변경 없이 해당 상품 ID를 반환한다. 성공 시 null. */
     fun reserveStocks(
         orderId: Long,

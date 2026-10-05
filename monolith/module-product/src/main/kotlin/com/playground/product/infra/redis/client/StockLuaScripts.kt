@@ -11,6 +11,60 @@ internal object StockLuaScripts {
     const val RESERVED_KEY_SUFFIX = ":reserved"
     const val CONFIRMED_KEY_SUFFIX = ":confirmed"
     const val DIRTY_SET_KEY = "product:stock:dirty"
+    const val PENDING_RESERVATIONS_KEY = "product:stock:reservations:pending"
+
+    val DEFER_RECOVERY_SCRIPT = DefaultRedisScript<Long>(
+        """
+if redis.call('HGET', KEYS[1], 'status') == 'RESERVED' then
+    redis.call('ZADD', KEYS[2], ARGV[2], ARGV[1])
+else
+    redis.call('ZREM', KEYS[2], ARGV[1])
+end
+return 0
+        """, Long::class.java,
+    )
+
+    val REINDEX_RESERVATION_SCRIPT = DefaultRedisScript<Long>(
+        """
+if redis.call('HGET', KEYS[1], 'status') == 'RESERVED' then
+    redis.call('ZADD', KEYS[2], 'NX', 0, ARGV[1])
+end
+return 0
+        """, Long::class.java,
+    )
+
+    val INITIALIZE_STOCK_SCRIPT = DefaultRedisScript<Long>(
+        """
+for i = 1, #ARGV do
+    local base = (i - 1) * 3
+    redis.call('SETNX', KEYS[base + 1], ARGV[i])
+    redis.call('SETNX', KEYS[base + 2], '0')
+    redis.call('SETNX', KEYS[base + 3], '0')
+end
+return 0
+        """,
+        Long::class.java,
+    )
+
+    val STOCK_SNAPSHOT_SCRIPT = DefaultRedisScript<List<*>>(
+        """
+local available = tonumber(redis.call('GET', KEYS[1]))
+local confirmed = tonumber(redis.call('GET', KEYS[2]) or '0')
+if not available then return redis.error_reply('Missing stock baseline') end
+return {available - confirmed, confirmed}
+        """,
+        List::class.java,
+    )
+
+    val ACK_STOCK_SYNC_SCRIPT = DefaultRedisScript<Long>(
+        """
+if (redis.call('GET', KEYS[2]) or '0') == ARGV[2] then
+    return redis.call('SREM', KEYS[1], ARGV[1])
+end
+return 0
+        """,
+        Long::class.java,
+    )
 
     /**
      * KEYS[1]은 주문별 예약 Hash이며 이후 상품별 available, reserved, confirmed 키가 이어진다.
@@ -49,6 +103,7 @@ end
 
 redis.call('HSET', KEYS[1], 'items', ARGV[1], 'status', 'RESERVED')
 if ARGV[2] ~= '' then redis.call('HSET', KEYS[1], 'attemptId', ARGV[2]) end
+redis.call('ZADD', KEYS[#KEYS], 0, string.match(KEYS[1], '(%d+)$'))
 
 return 0
         """
@@ -59,7 +114,7 @@ return 0
             resultType = Long::class.java
         }
 
-    /** KEYS: 예약 Hash, dirty Set, 상품별 reserved/confirmed. ARGV: items, 목표 상태, 시도 ID, 수량/ID. */
+    /** KEYS: 예약 Hash, dirty Set, 복구 ZSet, 상품별 reserved/confirmed. ARGV: items, 상태, 시도 ID, 수량/ID. */
     val TRANSITION_RESERVATION_SCRIPT: DefaultRedisScript<Long> =
         DefaultRedisScript<Long>().apply {
             setScriptText(
@@ -80,21 +135,22 @@ if state == target then return 0 end
 if state ~= 'RESERVED' then return -2 end
 local count = (#ARGV - 3) / 2
 for i = 1, count do
-    local reserved = tonumber(redis.call('GET', KEYS[i * 2 + 1]) or '0')
-    local confirmed = tonumber(redis.call('GET', KEYS[i * 2 + 2]) or '0')
+    local reserved = tonumber(redis.call('GET', KEYS[i * 2 + 2]) or '0')
+    local confirmed = tonumber(redis.call('GET', KEYS[i * 2 + 3]) or '0')
     local quantity = tonumber(ARGV[i * 2 + 2])
     if not confirmed then return -2 end
     if reserved < quantity then return i end
 end
 for i = 1, count do
     local quantity = ARGV[i * 2 + 2]
-    redis.call('DECRBY', KEYS[i * 2 + 1], quantity)
+    redis.call('DECRBY', KEYS[i * 2 + 2], quantity)
     if target == 'CONFIRMED' then
-        redis.call('INCRBY', KEYS[i * 2 + 2], quantity)
+        redis.call('INCRBY', KEYS[i * 2 + 3], quantity)
         redis.call('SADD', KEYS[2], ARGV[i * 2 + 3])
     end
 end
 redis.call('HSET', KEYS[1], 'status', target)
+redis.call('ZREM', KEYS[3], string.match(KEYS[1], '(%d+)$'))
 return 0
                 """,
             )

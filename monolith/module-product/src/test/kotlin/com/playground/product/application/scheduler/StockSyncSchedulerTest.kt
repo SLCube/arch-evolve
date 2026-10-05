@@ -1,6 +1,7 @@
 package com.playground.product.application.scheduler
 
 import com.playground.product.infra.redis.client.RedisStockClient
+import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.IntegrationTestSupport
@@ -11,6 +12,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.core.RedisTemplate
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
 
 @Suppress("NonAsciiCharacters")
 @SpringBootTest
@@ -31,6 +36,42 @@ class StockSyncSchedulerTest(
     fun tearDown() {
         redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
         productRepository.deleteAll()
+    }
+
+    @Test
+    fun `DB 동기화가 실패하면 변경 표시를 유지하여 다시 시도한다`() {
+        redisStockClient.setStock(1L, 100)
+        redisStockClient.reserveStock(1L, 10)
+        redisStockClient.confirmStock(1L, 10)
+        val failingPort: ProductCommandPort = mock()
+        given(failingPort.batchUpdateStock(any())).willThrow(IllegalStateException("DB 저장 실패"))
+        StockSyncScheduler(redisStockClient, failingPort).syncToDatabase()
+
+        redisStockClient.getDirtyProductIdsAndClear() shouldBe setOf(1L)
+    }
+
+    @Test
+    fun `동기화 중 추가 확정이 발생하면 변경 표시를 지우지 않는다`() {
+        redisStockClient.setStock(1L, 100)
+        redisStockClient.reserveStock(1L, 10)
+        redisStockClient.confirmStock(1L, 10)
+        val updatingPort: ProductCommandPort = mock()
+        doAnswer {
+            redisStockClient.reserveStock(1L, 5)
+            redisStockClient.confirmStock(1L, 5)
+            null
+        }.`when`(updatingPort).batchUpdateStock(any())
+        StockSyncScheduler(redisStockClient, updatingPort).syncToDatabase()
+
+        redisStockClient.getDirtyProductIdsAndClear() shouldBe setOf(1L)
+    }
+
+    @Test
+    fun `뒤늦은 이전 동기화 값은 더 최신 DB 재고를 되돌리지 않는다`() {
+        val product = productRepository.save(ProductJpaEntity(name = "동기화 상품", stock = 100, price = 10000.toBigDecimal()))
+        productRepository.batchUpdateStock(mapOf(product.id!! to 70))
+        productRepository.batchUpdateStock(mapOf(product.id!! to 80))
+        productRepository.findById(product.id!!).get().stock shouldBe 70
     }
 
     @Test

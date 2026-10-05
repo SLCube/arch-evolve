@@ -31,6 +31,19 @@ class RedisStockClientTest(
     }
 
     @Test
+    fun `재시작 초기화는 기존 기준 재고와 예약 확정 수량을 덮어쓰지 않는다`() {
+        redisStockClient.setStockBatch(mapOf(1L to 100))
+        redisStockClient.reserveStock(1L, 30)
+        redisStockClient.confirmStock(1L, 10)
+        redisStockClient.setStockBatch(mapOf(1L to 90))
+
+        redisStockClient.getAvailableStock(1L) shouldBe 100
+        redisStockClient.getReservedStock(1L) shouldBe 20
+        redisStockClient.getConfirmedStock(1L) shouldBe 10
+        redisStockClient.getStock(1L) shouldBe 70
+    }
+
+    @Test
     fun `재고 설정 및 조회가 정상 동작한다`() {
         // given
         val productId = 1L

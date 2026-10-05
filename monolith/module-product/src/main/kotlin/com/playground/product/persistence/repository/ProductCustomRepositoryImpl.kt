@@ -11,7 +11,8 @@ class ProductCustomRepositoryImpl(
             return
         }
 
-        val sql = "UPDATE products SET stock = :stock WHERE product_id = :productId"
+        // 확정 수량이 누적되는 현재 모델에서는 동기화 재고가 단조 감소한다. 재입고는 별도 설계가 필요하다.
+        val sql = "UPDATE products SET stock = :stock WHERE product_id = :productId AND stock >= :stock"
         val batchParams = stockMap.map { (productId, stock) ->
             mapOf(
                 "stock" to stock,

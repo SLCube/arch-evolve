@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional
  * 이 클래스를 통해 트랜잭션을 메서드 단위로 분리한다.
  *
  * - [getExternalData]: readOnly TX → SELECT 완료 후 즉시 커넥션 반환
- * - [saveOrderWithEventAndOutbox]: write TX → INSERT × 2 + Redis 재고 차감을 하나의 TX로 보장
+ * - [saveOrderWithEventAndOutbox]: 주문·Outbox를 DB TX로 저장하고 Redis 예약은 롤백 보상으로 연결
  *
  * @see OrderCommandService 실제 주문 생성 흐름 오케스트레이션
  */
