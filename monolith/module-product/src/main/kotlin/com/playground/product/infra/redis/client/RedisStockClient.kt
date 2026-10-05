@@ -2,6 +2,7 @@ package com.playground.product.infra.redis.client
 
 import com.playground.product.application.port.outbound.StockCachePort
 import com.playground.product.domain.exception.StockReservationConflictException
+import com.playground.product.domain.exception.StockReservationStateException
 import com.playground.product.infra.redis.client.StockLuaScripts.AVAILABLE_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRMED_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRM_STOCK_SCRIPT
@@ -44,7 +45,32 @@ class RedisStockClient(
         if (failedIndex == -1L) {
             throw StockReservationConflictException(orderId)
         }
+        if (failedIndex == -2L) {
+            throw StockReservationStateException(orderId)
+        }
         return if (failedIndex == 0L) null else entries[(failedIndex - 1).toInt()].key
+    }
+
+    override fun confirmStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long? =
+        transitionReservation(orderId, quantitiesByProductId, "CONFIRMED")
+
+    override fun releaseStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long? =
+        transitionReservation(orderId, quantitiesByProductId, "RELEASED")
+
+    private fun transitionReservation(orderId: Long, quantities: Map<Long, Int>, target: String): Long? {
+        if (quantities.isEmpty()) return null
+        val entries = quantities.toSortedMap().entries.toList()
+        val keys = listOf("${STOCK_KEY_PREFIX}reservation:$orderId", DIRTY_SET_KEY) +
+            entries.flatMap { listOf(getReservedKey(it.key), getConfirmedKey(it.key)) }
+        val items = entries.joinToString(";") { (id, quantity) -> "$id:$quantity" }
+        val args = entries.flatMap { listOf(it.value.toString(), it.key.toString()) }.toTypedArray()
+        val result = redisTemplate.execute(StockLuaScripts.TRANSITION_RESERVATION_SCRIPT, keys, items, target, *args)
+        return when (result) {
+            0L -> null
+            -1L -> throw StockReservationConflictException(orderId)
+            -2L -> throw StockReservationStateException(orderId)
+            else -> entries[(result - 1).toInt()].key
+        }
     }
 
     override fun reserveStock(

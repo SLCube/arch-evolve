@@ -37,12 +37,10 @@ class StockService(
         orderId: Long,
         commands: List<StockConfirmCommand>,
     ) {
-        commands.forEach { command ->
-            val result = stockCachePort.confirmStock(command.productId, command.quantity)
-
-            if (result < 0) {
-                throw InsufficientReservedStockException(command.productId, command.quantity)
-            }
+        val quantities = aggregateQuantities(commands.map { it.productId to it.quantity })
+        val failedId = stockCachePort.confirmStocks(orderId, quantities)
+        if (failedId != null) {
+            throw InsufficientReservedStockException(failedId, quantities.getValue(failedId))
         }
     }
 
@@ -50,12 +48,15 @@ class StockService(
         orderId: Long,
         commands: List<StockReleaseCommand>,
     ) {
-        commands.forEach { command ->
-            val result = stockCachePort.releaseReservedStock(command.productId, command.quantity)
-
-            if (result < 0) {
-                throw InsufficientReservedStockException(command.productId, command.quantity)
-            }
+        val quantities = aggregateQuantities(commands.map { it.productId to it.quantity })
+        val failedId = stockCachePort.releaseStocks(orderId, quantities)
+        if (failedId != null) {
+            throw InsufficientReservedStockException(failedId, quantities.getValue(failedId))
         }
     }
+
+    private fun aggregateQuantities(items: List<Pair<Long, Int>>): Map<Long, Int> =
+        items.fold(linkedMapOf()) { quantities, (id, quantity) ->
+            quantities.apply { this[id] = Math.addExact(this[id] ?: 0, quantity) }
+        }
 }

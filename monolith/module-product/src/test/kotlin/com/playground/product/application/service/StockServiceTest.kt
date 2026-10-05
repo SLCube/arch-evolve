@@ -100,17 +100,14 @@ class StockServiceTest {
                 StockCommandTestFixture.mockStockConfirmCommand(productId = productId2, quantity = quantity),
             )
 
-        given(stockCachePort.confirmStock(productId1, quantity))
-            .willReturn(10L)
-        given(stockCachePort.confirmStock(productId2, quantity))
-            .willReturn(10L)
+        given(stockCachePort.confirmStocks(123L, mapOf(productId1 to quantity, productId2 to quantity)))
+            .willReturn(null)
 
         // when
         stockService.confirmStocks(orderId = 123L, commands = commands)
 
         // then
-        verify(stockCachePort).confirmStock(productId1, quantity)
-        verify(stockCachePort).confirmStock(productId2, quantity)
+        verify(stockCachePort).confirmStocks(123L, mapOf(productId1 to quantity, productId2 to quantity))
     }
 
     @Test
@@ -126,17 +123,14 @@ class StockServiceTest {
                 StockCommandTestFixture.mockStockReleaseCommand(productId = productId2, quantity = quantity),
             )
 
-        given(stockCachePort.releaseReservedStock(productId1, quantity))
-            .willReturn(0L)
-        given(stockCachePort.releaseReservedStock(productId2, quantity))
-            .willReturn(0L)
+        given(stockCachePort.releaseStocks(123L, mapOf(productId1 to quantity, productId2 to quantity)))
+            .willReturn(null)
 
         // when
         stockService.releaseReservedStocks(orderId = 123L, commands = commands)
 
         // then
-        verify(stockCachePort).releaseReservedStock(productId1, quantity)
-        verify(stockCachePort).releaseReservedStock(productId2, quantity)
+        verify(stockCachePort).releaseStocks(123L, mapOf(productId1 to quantity, productId2 to quantity))
     }
 
     @Test
@@ -149,8 +143,8 @@ class StockServiceTest {
                 StockCommandTestFixture.mockStockConfirmCommand(productId = productId, quantity = quantity),
             )
 
-        given(stockCachePort.confirmStock(productId, quantity))
-            .willReturn(-1L)
+        given(stockCachePort.confirmStocks(123L, mapOf(productId to quantity)))
+            .willReturn(productId)
 
         // when & then
         shouldThrow<InsufficientReservedStockException> {
@@ -168,8 +162,8 @@ class StockServiceTest {
                 StockCommandTestFixture.mockStockReleaseCommand(productId = productId, quantity = quantity),
             )
 
-        given(stockCachePort.releaseReservedStock(productId, quantity))
-            .willReturn(-1L)
+        given(stockCachePort.releaseStocks(123L, mapOf(productId to quantity)))
+            .willReturn(productId)
 
         // when & then
         shouldThrow<InsufficientReservedStockException> {

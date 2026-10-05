@@ -24,6 +24,9 @@ if existingItems then
     if existingItems ~= ARGV[1] then
         return -1
     end
+    if redis.call('HGET', KEYS[1], 'status') == 'RELEASED' then
+        return -2
+    end
     return 0
 end
 
@@ -52,6 +55,47 @@ return 0
     val RESERVE_STOCKS_SCRIPT: DefaultRedisScript<Long> =
         DefaultRedisScript<Long>().apply {
             setScriptText(RESERVE_STOCKS_SCRIPT_TEXT)
+            resultType = Long::class.java
+        }
+
+    /** KEYS: 예약 Hash, dirty Set, 상품별 reserved/confirmed. ARGV: items, 목표 상태, 상품별 수량/ID. */
+    val TRANSITION_RESERVATION_SCRIPT: DefaultRedisScript<Long> =
+        DefaultRedisScript<Long>().apply {
+            setScriptText(
+                """
+local items = redis.call('HGET', KEYS[1], 'items')
+local target = ARGV[2]
+if not items then
+    if target == 'RELEASED' then
+        redis.call('HSET', KEYS[1], 'items', ARGV[1], 'status', target)
+        return 0
+    end
+    return -2
+end
+if items ~= ARGV[1] then return -1 end
+local state = redis.call('HGET', KEYS[1], 'status')
+if state == target then return 0 end
+if state ~= 'RESERVED' then return -2 end
+local count = (#ARGV - 2) / 2
+for i = 1, count do
+    local reserved = tonumber(redis.call('GET', KEYS[i * 2 + 1]) or '0')
+    local confirmed = tonumber(redis.call('GET', KEYS[i * 2 + 2]) or '0')
+    local quantity = tonumber(ARGV[i * 2 + 1])
+    if not confirmed then return -2 end
+    if reserved < quantity then return i end
+end
+for i = 1, count do
+    local quantity = ARGV[i * 2 + 1]
+    redis.call('DECRBY', KEYS[i * 2 + 1], quantity)
+    if target == 'CONFIRMED' then
+        redis.call('INCRBY', KEYS[i * 2 + 2], quantity)
+        redis.call('SADD', KEYS[2], ARGV[i * 2 + 2])
+    end
+end
+redis.call('HSET', KEYS[1], 'status', target)
+return 0
+                """,
+            )
             resultType = Long::class.java
         }
 

@@ -7,6 +7,10 @@ interface StockCachePort {
         quantitiesByProductId: Map<Long, Int>,
     ): Long?
 
+    fun confirmStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long?
+
+    fun releaseStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long?
+
     // 3단계 재고 관리
     fun reserveStock(
         productId: Long,

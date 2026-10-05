@@ -39,6 +39,11 @@ enum class ErrorCode(
         HttpStatus.CONFLICT,
         "기존 재고 예약과 요청한 상품 또는 수량이 다릅니다. (주문 ID: %d)",
     ),
+    STOCK_RESERVATION_STATE_INVALID(
+        "STOCK_RESERVATION_STATE_INVALID",
+        HttpStatus.CONFLICT,
+        "해당 상태에서는 재고 예약을 처리할 수 없습니다. (주문 ID: %d)",
+    ),
 
     // Order
     ORDERABLE_PRODUCT_NOT_FOUND("ORDERABLE_PRODUCT_NOT_FOUND", HttpStatus.NOT_FOUND, "주문하려는 상품을 찾을 수 없습니다. (상품 ID: %d)"),

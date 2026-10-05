@@ -2,6 +2,8 @@ package com.playground.product.application.service
 
 import com.playground.common.error.BusinessException
 import com.playground.product.application.port.inbound.command.DecreaseStockCommand
+import com.playground.product.application.port.inbound.command.StockConfirmCommand
+import com.playground.product.application.port.inbound.command.StockReleaseCommand
 import com.playground.product.application.port.outbound.ProductQueryPort
 import com.playground.product.domain.exception.InsufficientStockException
 import com.playground.product.fixture.application.domain.ProductDomainTestFixture
@@ -48,6 +50,73 @@ class StockReservationTest(
     @AfterEach
     fun tearDown() {
         redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
+    }
+
+    @Test
+    fun `중복 확정은 한 번만 반영하고 다른 주문의 예약을 유지한다`() {
+        service.decreaseStocks(orderId, commands)
+        service.decreaseStocks(orderId + 1, commands)
+        repeat(2) {
+            service.confirmStocks(orderId, commands.map { StockConfirmCommand(it.id, it.quantity) })
+        }
+        stockClient.getReservedStock(11L) shouldBe 10
+        stockClient.getConfirmedStock(11L) shouldBe 10
+        stockClient.getReservedStock(22L) shouldBe 20
+        stockClient.getConfirmedStock(22L) shouldBe 20
+        redisTemplate.opsForHash<String, String>().get(reservationKey, "status") shouldBe "CONFIRMED"
+    }
+
+    @Test
+    fun `중복 해제는 한 번만 반영하고 다른 주문의 예약을 유지한다`() {
+        service.decreaseStocks(orderId, commands)
+        service.decreaseStocks(orderId + 1, commands)
+        repeat(2) {
+            service.releaseReservedStocks(orderId, commands.map { StockReleaseCommand(it.id, it.quantity) })
+        }
+        stockClient.getReservedStock(11L) shouldBe 10
+        stockClient.getReservedStock(22L) shouldBe 20
+        redisTemplate.opsForHash<String, String>().get(reservationKey, "status") shouldBe "RELEASED"
+    }
+
+    @Test
+    fun `해제된 주문은 다시 예약하거나 확정할 수 없다`() {
+        service.decreaseStocks(orderId, commands)
+        service.releaseReservedStocks(orderId, commands.map { StockReleaseCommand(it.id, it.quantity) })
+        shouldThrow<BusinessException> { service.decreaseStocks(orderId, commands) }
+        shouldThrow<BusinessException> {
+            service.confirmStocks(orderId, commands.map { StockConfirmCommand(it.id, it.quantity) })
+        }
+        stockClient.getReservedStock(11L) shouldBe 0
+        stockClient.getConfirmedStock(11L) shouldBe 0
+    }
+
+    @Test
+    fun `확정된 주문의 예약 해제는 거절한다`() {
+        service.decreaseStocks(orderId, commands)
+        service.confirmStocks(orderId, commands.map { StockConfirmCommand(it.id, it.quantity) })
+        shouldThrow<BusinessException> {
+            service.releaseReservedStocks(orderId, commands.map { StockReleaseCommand(it.id, it.quantity) })
+        }
+        stockClient.getConfirmedStock(11L) shouldBe 10
+    }
+
+    @Test
+    fun `예약과 다른 수량의 확정은 어느 상품에도 반영하지 않는다`() {
+        service.decreaseStocks(orderId, commands)
+        shouldThrow<BusinessException> {
+            service.confirmStocks(orderId, listOf(StockConfirmCommand(11L, 10), StockConfirmCommand(22L, 21)))
+        }
+        stockClient.getReservedStock(11L) shouldBe 10
+        stockClient.getConfirmedStock(11L) shouldBe 0
+    }
+
+    @Test
+    fun `예약 전 해제가 도착해도 다른 주문을 건드리지 않고 늦은 예약을 막는다`() {
+        service.decreaseStocks(orderId + 1, commands)
+        service.releaseReservedStocks(orderId, commands.map { StockReleaseCommand(it.id, it.quantity) })
+        shouldThrow<BusinessException> { service.decreaseStocks(orderId, commands) }
+        stockClient.getReservedStock(11L) shouldBe 10
+        redisTemplate.opsForHash<String, String>().get(reservationKey, "status") shouldBe "RELEASED"
     }
 
     @Test
