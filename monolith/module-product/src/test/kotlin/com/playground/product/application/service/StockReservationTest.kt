@@ -20,6 +20,10 @@ import org.mockito.kotlin.mock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.test.context.transaction.TestTransaction
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -50,6 +54,56 @@ class StockReservationTest(
     @AfterEach
     fun tearDown() {
         redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
+    }
+
+    @Test
+    @Transactional
+    fun `주문 저장 트랜잭션이 롤백되면 예약을 해제한다`() {
+        service.decreaseStocks(orderId, commands)
+        TestTransaction.flagForRollback()
+        TestTransaction.end()
+        stockClient.getReservedStock(11L) shouldBe 0
+        stockClient.getReservedStock(22L) shouldBe 0
+        redisTemplate.opsForHash<String, String>().get(reservationKey, "status") shouldBe "RELEASED"
+    }
+
+    @Test
+    @Transactional
+    fun `메서드 반환 후 커밋 준비 단계에서 실패해도 예약을 해제한다`() {
+        service.decreaseStocks(orderId, commands)
+        TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+            override fun beforeCommit(readOnly: Boolean) {
+                error("커밋 단계 실패")
+            }
+        })
+        TestTransaction.flagForCommit()
+        shouldThrow<IllegalStateException> { TestTransaction.end() }
+        stockClient.getReservedStock(11L) shouldBe 0
+        redisTemplate.opsForHash<String, String>().get(reservationKey, "status") shouldBe "RELEASED"
+    }
+
+    @Test
+    @Transactional
+    fun `주문 저장 트랜잭션이 커밋되면 예약을 유지한다`() {
+        service.decreaseStocks(orderId, commands)
+        TestTransaction.flagForCommit()
+        TestTransaction.end()
+        stockClient.getReservedStock(11L) shouldBe 10
+        redisTemplate.opsForHash<String, String>().get(reservationKey, "status") shouldBe "RESERVED"
+    }
+
+    @Test
+    @Transactional
+    fun `기존 주문의 재시도 트랜잭션이 롤백돼도 원래 예약은 유지한다`() {
+        service.decreaseStocks(orderId, commands)
+        TestTransaction.flagForCommit()
+        TestTransaction.end()
+        TestTransaction.start()
+        service.decreaseStocks(orderId, commands)
+        TestTransaction.flagForRollback()
+        TestTransaction.end()
+        stockClient.getReservedStock(11L) shouldBe 10
+        redisTemplate.opsForHash<String, String>().get(reservationKey, "status") shouldBe "RESERVED"
     }
 
     @Test

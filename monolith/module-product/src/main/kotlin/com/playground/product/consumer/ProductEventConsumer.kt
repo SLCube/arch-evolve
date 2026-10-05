@@ -45,7 +45,7 @@ class ProductEventConsumer(
     }
 
     @Async("eventExecutor")
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleOrderFailedEvent(event: OrderFailedEvent) {
         val commands =
             event.products.map { product ->

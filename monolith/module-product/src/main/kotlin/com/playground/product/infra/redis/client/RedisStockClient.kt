@@ -29,7 +29,10 @@ class RedisStockClient(
     override fun reserveStocks(
         orderId: Long,
         quantitiesByProductId: Map<Long, Int>,
-    ): Long? {
+    ): Long? = reserveStocksForTransaction(orderId, quantitiesByProductId, "")
+
+    override fun reserveStocksForTransaction(orderId: Long, quantities: Map<Long, Int>, attemptId: String): Long? {
+        val quantitiesByProductId = quantities
         if (quantitiesByProductId.isEmpty()) {
             return null
         }
@@ -41,7 +44,7 @@ class RedisStockClient(
             }
         val items = entries.joinToString(";") { (productId, quantity) -> "$productId:$quantity" }
         val quantities = entries.map { it.value.toString() }.toTypedArray()
-        val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, items, *quantities)
+        val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, items, attemptId, *quantities)
         if (failedIndex == -1L) {
             throw StockReservationConflictException(orderId)
         }
@@ -57,14 +60,22 @@ class RedisStockClient(
     override fun releaseStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long? =
         transitionReservation(orderId, quantitiesByProductId, "RELEASED")
 
-    private fun transitionReservation(orderId: Long, quantities: Map<Long, Int>, target: String): Long? {
+    override fun releaseStocksForTransaction(orderId: Long, quantities: Map<Long, Int>, attemptId: String): Long? =
+        transitionReservation(orderId, quantities, "RELEASED", attemptId)
+
+    private fun transitionReservation(
+        orderId: Long,
+        quantities: Map<Long, Int>,
+        target: String,
+        attemptId: String = "",
+    ): Long? {
         if (quantities.isEmpty()) return null
         val entries = quantities.toSortedMap().entries.toList()
         val keys = listOf("${STOCK_KEY_PREFIX}reservation:$orderId", DIRTY_SET_KEY) +
             entries.flatMap { listOf(getReservedKey(it.key), getConfirmedKey(it.key)) }
         val items = entries.joinToString(";") { (id, quantity) -> "$id:$quantity" }
         val args = entries.flatMap { listOf(it.value.toString(), it.key.toString()) }.toTypedArray()
-        val result = redisTemplate.execute(StockLuaScripts.TRANSITION_RESERVATION_SCRIPT, keys, items, target, *args)
+        val result = redisTemplate.execute(StockLuaScripts.TRANSITION_RESERVATION_SCRIPT, keys, items, target, attemptId, *args)
         return when (result) {
             0L -> null
             -1L -> throw StockReservationConflictException(orderId)

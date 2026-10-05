@@ -14,7 +14,7 @@ internal object StockLuaScripts {
 
     /**
      * KEYS[1]은 주문별 예약 Hash이며 이후 상품별 available, reserved, confirmed 키가 이어진다.
-     * ARGV[1]은 정렬·합산한 상품 수량 기록이며 이후 상품별 수량이 이어진다.
+     * ARGV[1]은 정렬·합산한 상품 수량 기록, ARGV[2]는 트랜잭션 시도 ID이며 이후 수량이 이어진다.
      * 성공·동일 예약 재시도 시 0, 예약 내용 충돌 시 -1, 재고 부족 시 상품의 1-based 위치를 반환한다.
      */
     private const val RESERVE_STOCKS_SCRIPT_TEXT =
@@ -30,24 +30,25 @@ if existingItems then
     return 0
 end
 
-for i = 1, #ARGV - 1 do
+for i = 1, #ARGV - 2 do
     local keyIndex = (i - 1) * 3 + 1
     local available = tonumber(redis.call('GET', KEYS[keyIndex + 1]) or '0')
     local reserved = tonumber(redis.call('GET', KEYS[keyIndex + 2]) or '0')
     local confirmed = tonumber(redis.call('GET', KEYS[keyIndex + 3]) or '0')
-    local quantity = tonumber(ARGV[i + 1])
+    local quantity = tonumber(ARGV[i + 2])
 
     if available - reserved - confirmed < quantity then
         return i
     end
 end
 
-for i = 1, #ARGV - 1 do
+for i = 1, #ARGV - 2 do
     local keyIndex = (i - 1) * 3 + 1
-    redis.call('INCRBY', KEYS[keyIndex + 2], ARGV[i + 1])
+    redis.call('INCRBY', KEYS[keyIndex + 2], ARGV[i + 2])
 end
 
 redis.call('HSET', KEYS[1], 'items', ARGV[1], 'status', 'RESERVED')
+if ARGV[2] ~= '' then redis.call('HSET', KEYS[1], 'attemptId', ARGV[2]) end
 
 return 0
         """
@@ -58,7 +59,7 @@ return 0
             resultType = Long::class.java
         }
 
-    /** KEYS: 예약 Hash, dirty Set, 상품별 reserved/confirmed. ARGV: items, 목표 상태, 상품별 수량/ID. */
+    /** KEYS: 예약 Hash, dirty Set, 상품별 reserved/confirmed. ARGV: items, 목표 상태, 시도 ID, 수량/ID. */
     val TRANSITION_RESERVATION_SCRIPT: DefaultRedisScript<Long> =
         DefaultRedisScript<Long>().apply {
             setScriptText(
@@ -72,24 +73,25 @@ if not items then
     end
     return -2
 end
+if ARGV[3] ~= '' and redis.call('HGET', KEYS[1], 'attemptId') ~= ARGV[3] then return 0 end
 if items ~= ARGV[1] then return -1 end
 local state = redis.call('HGET', KEYS[1], 'status')
 if state == target then return 0 end
 if state ~= 'RESERVED' then return -2 end
-local count = (#ARGV - 2) / 2
+local count = (#ARGV - 3) / 2
 for i = 1, count do
     local reserved = tonumber(redis.call('GET', KEYS[i * 2 + 1]) or '0')
     local confirmed = tonumber(redis.call('GET', KEYS[i * 2 + 2]) or '0')
-    local quantity = tonumber(ARGV[i * 2 + 1])
+    local quantity = tonumber(ARGV[i * 2 + 2])
     if not confirmed then return -2 end
     if reserved < quantity then return i end
 end
 for i = 1, count do
-    local quantity = ARGV[i * 2 + 1]
+    local quantity = ARGV[i * 2 + 2]
     redis.call('DECRBY', KEYS[i * 2 + 1], quantity)
     if target == 'CONFIRMED' then
         redis.call('INCRBY', KEYS[i * 2 + 2], quantity)
-        redis.call('SADD', KEYS[2], ARGV[i * 2 + 2])
+        redis.call('SADD', KEYS[2], ARGV[i * 2 + 3])
     end
 end
 redis.call('HSET', KEYS[1], 'status', target)

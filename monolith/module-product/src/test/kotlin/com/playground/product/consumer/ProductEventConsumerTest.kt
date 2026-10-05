@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
+import io.kotest.matchers.shouldBe
+import org.springframework.transaction.event.TransactionPhase
+import org.springframework.transaction.event.TransactionalEventListener
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -20,6 +23,14 @@ class ProductEventConsumerTest {
     private val consumer = ProductEventConsumer(stockUseCase)
     private val orderId = 123L
     private val occurredAt = LocalDateTime.of(2026, 10, 5, 12, 0)
+
+    @Test
+    fun `주문 실패 이벤트는 DB 커밋 이후에만 예약을 해제한다`() {
+        val listener = ProductEventConsumer::class.java
+            .getMethod("handleOrderFailedEvent", OrderFailedEvent::class.java)
+            .getAnnotation(TransactionalEventListener::class.java)
+        listener?.phase shouldBe TransactionPhase.AFTER_COMMIT
+    }
 
     @Test
     fun `주문 생성 이벤트의 주문 ID와 상품 목록을 재고 예약에 전달한다`() {

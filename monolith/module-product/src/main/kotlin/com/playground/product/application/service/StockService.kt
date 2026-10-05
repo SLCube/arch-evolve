@@ -9,12 +9,17 @@ import com.playground.product.application.port.outbound.StockCachePort
 import com.playground.product.domain.exception.InsufficientReservedStockException
 import com.playground.product.domain.exception.InsufficientStockException
 import org.springframework.stereotype.Service
+import org.slf4j.LoggerFactory
+import org.springframework.transaction.support.TransactionSynchronization
+import org.springframework.transaction.support.TransactionSynchronizationManager
+import java.util.UUID
 
 @Service
 class StockService(
     private val productQueryPort: ProductQueryPort,
     private val stockCachePort: StockCachePort,
 ) : StockUseCase {
+    private val logger = LoggerFactory.getLogger(javaClass)
     override fun decreaseStocks(
         orderId: Long,
         commands: List<DecreaseStockCommand>,
@@ -27,7 +32,27 @@ class StockService(
                 Math.addExact(quantitiesByProductId[productId] ?: 0, command.quantity)
         }
 
-        val failedProductId = stockCachePort.reserveStocks(orderId, quantitiesByProductId)
+        val failedProductId =
+            if (TransactionSynchronizationManager.isActualTransactionActive() &&
+                TransactionSynchronizationManager.isSynchronizationActive()
+            ) {
+                val attemptId = UUID.randomUUID().toString()
+                TransactionSynchronizationManager.registerSynchronization(object : TransactionSynchronization {
+                    override fun afterCompletion(status: Int) {
+                        if (status != TransactionSynchronization.STATUS_ROLLED_BACK) return
+                        try {
+                            val failedId = stockCachePort.releaseStocksForTransaction(orderId, quantitiesByProductId, attemptId)
+                            check(failedId == null) { "예약 보상 실패: 상품 $failedId" }
+                        } catch (exception: Exception) {
+                            // 예약 기록은 삭제하지 않는다. 재조정 작업에서 커밋 결과를 확인하고 재시도한다.
+                            logger.error("재고 예약 보상 실패: orderId={}", orderId, exception)
+                        }
+                    }
+                })
+                stockCachePort.reserveStocksForTransaction(orderId, quantitiesByProductId, attemptId)
+            } else {
+                stockCachePort.reserveStocks(orderId, quantitiesByProductId)
+            }
         if (failedProductId != null) {
             throw InsufficientStockException(failedProductId, quantitiesByProductId.getValue(failedProductId))
         }
