@@ -50,7 +50,7 @@ class StockServiceTest {
         given(productQueryPort.findById(productId1)).willReturn(mockProduct1)
         given(productQueryPort.findById(productId2)).willReturn(mockProduct2)
         val quantitiesByProductId = mapOf(productId1 to quantityToDecrease, productId2 to quantityToDecrease)
-        given(stockCachePort.reserveStocks(quantitiesByProductId)).willReturn(null)
+        given(stockCachePort.reserveStocks(123L, quantitiesByProductId)).willReturn(null)
 
         // when
         stockService.decreaseStocks(orderId = 123L, commands = commands)
@@ -58,7 +58,7 @@ class StockServiceTest {
         // then
         verify(productQueryPort).findById(productId1)
         verify(productQueryPort).findById(productId2)
-        verify(stockCachePort).reserveStocks(quantitiesByProductId)
+        verify(stockCachePort).reserveStocks(123L, quantitiesByProductId)
     }
 
     @Test
@@ -78,7 +78,7 @@ class StockServiceTest {
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
 
         given(productQueryPort.findById(productId)).willReturn(mockProduct)
-        given(stockCachePort.reserveStocks(mapOf(productId to quantityToDecrease)))
+        given(stockCachePort.reserveStocks(123L, mapOf(productId to quantityToDecrease)))
             .willReturn(productId)
 
         // when & then

@@ -1,6 +1,7 @@
 package com.playground.product.infra.redis.client
 
 import com.playground.product.application.port.outbound.StockCachePort
+import com.playground.product.domain.exception.StockReservationConflictException
 import com.playground.product.infra.redis.client.StockLuaScripts.AVAILABLE_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRMED_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRM_STOCK_SCRIPT
@@ -24,18 +25,25 @@ class RedisStockClient(
 
     private fun getConfirmedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$CONFIRMED_KEY_SUFFIX"
 
-    override fun reserveStocks(quantitiesByProductId: Map<Long, Int>): Long? {
+    override fun reserveStocks(
+        orderId: Long,
+        quantitiesByProductId: Map<Long, Int>,
+    ): Long? {
         if (quantitiesByProductId.isEmpty()) {
             return null
         }
 
-        val entries = quantitiesByProductId.entries.toList()
+        val entries = quantitiesByProductId.toSortedMap().entries.toList()
         val keys =
-            entries.flatMap { (productId, _) ->
+            listOf("${STOCK_KEY_PREFIX}reservation:$orderId") + entries.flatMap { (productId, _) ->
                 listOf(getAvailableKey(productId), getReservedKey(productId), getConfirmedKey(productId))
             }
+        val items = entries.joinToString(";") { (productId, quantity) -> "$productId:$quantity" }
         val quantities = entries.map { it.value.toString() }.toTypedArray()
-        val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, *quantities)
+        val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, items, *quantities)
+        if (failedIndex == -1L) {
+            throw StockReservationConflictException(orderId)
+        }
         return if (failedIndex == 0L) null else entries[(failedIndex - 1).toInt()].key
     }
 

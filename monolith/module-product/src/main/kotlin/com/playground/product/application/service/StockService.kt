@@ -27,7 +27,7 @@ class StockService(
                 Math.addExact(quantitiesByProductId[productId] ?: 0, command.quantity)
         }
 
-        val failedProductId = stockCachePort.reserveStocks(quantitiesByProductId)
+        val failedProductId = stockCachePort.reserveStocks(orderId, quantitiesByProductId)
         if (failedProductId != null) {
             throw InsufficientStockException(failedProductId, quantitiesByProductId.getValue(failedProductId))
         }

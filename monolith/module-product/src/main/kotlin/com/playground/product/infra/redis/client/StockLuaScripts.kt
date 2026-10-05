@@ -13,27 +13,38 @@ internal object StockLuaScripts {
     const val DIRTY_SET_KEY = "product:stock:dirty"
 
     /**
-     * 상품별 KEYS는 available, reserved, confirmed 순서이며 ARGV는 상품별 수량이다.
-     * 전체 재고 검사 후 예약한다. 성공 시 0, 재고 부족 시 해당 상품의 1-based 위치를 반환한다.
+     * KEYS[1]은 주문별 예약 Hash이며 이후 상품별 available, reserved, confirmed 키가 이어진다.
+     * ARGV[1]은 정렬·합산한 상품 수량 기록이며 이후 상품별 수량이 이어진다.
+     * 성공·동일 예약 재시도 시 0, 예약 내용 충돌 시 -1, 재고 부족 시 상품의 1-based 위치를 반환한다.
      */
     private const val RESERVE_STOCKS_SCRIPT_TEXT =
         """
-for i = 1, #ARGV do
-    local keyIndex = (i - 1) * 3
+local existingItems = redis.call('HGET', KEYS[1], 'items')
+if existingItems then
+    if existingItems ~= ARGV[1] then
+        return -1
+    end
+    return 0
+end
+
+for i = 1, #ARGV - 1 do
+    local keyIndex = (i - 1) * 3 + 1
     local available = tonumber(redis.call('GET', KEYS[keyIndex + 1]) or '0')
     local reserved = tonumber(redis.call('GET', KEYS[keyIndex + 2]) or '0')
     local confirmed = tonumber(redis.call('GET', KEYS[keyIndex + 3]) or '0')
-    local quantity = tonumber(ARGV[i])
+    local quantity = tonumber(ARGV[i + 1])
 
     if available - reserved - confirmed < quantity then
         return i
     end
 end
 
-for i = 1, #ARGV do
-    local keyIndex = (i - 1) * 3
-    redis.call('INCRBY', KEYS[keyIndex + 2], ARGV[i])
+for i = 1, #ARGV - 1 do
+    local keyIndex = (i - 1) * 3 + 1
+    redis.call('INCRBY', KEYS[keyIndex + 2], ARGV[i + 1])
 end
+
+redis.call('HSET', KEYS[1], 'items', ARGV[1], 'status', 'RESERVED')
 
 return 0
         """
