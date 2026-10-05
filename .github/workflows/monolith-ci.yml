@@ -62,11 +62,3 @@ jobs:
           JWT_EXPIRATION_HOURS: ${{ secrets.JWT_EXPIRATION_HOURS }}
           JWT_REFRESH_EXPIRATION_HOURS: ${{ secrets.JWT_REFRESH_EXPIRATION_HOURS }}
         run: ./gradlew build
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: monolith/build/reports/jacoco/jacocoTestReport/jacocoTestReport.xml
-          flags: monolith
-          verbose: true
