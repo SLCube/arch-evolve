@@ -1,6 +1,7 @@
 package com.playground.product.application.scheduler
 
 import com.playground.product.infra.redis.client.RedisStockClient
+import com.playground.product.application.port.outbound.ProductCommandPort
 import com.playground.product.persistence.entity.ProductJpaEntity
 import com.playground.product.persistence.repository.ProductRepository
 import com.playground.support.IntegrationTestSupport
@@ -11,6 +12,10 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.redis.core.RedisTemplate
+import org.mockito.kotlin.any
+import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.given
+import org.mockito.kotlin.mock
 
 @Suppress("NonAsciiCharacters")
 @SpringBootTest
@@ -31,6 +36,42 @@ class StockSyncSchedulerTest(
     fun tearDown() {
         redisTemplate.connectionFactory?.connection?.serverCommands()?.flushAll()
         productRepository.deleteAll()
+    }
+
+    @Test
+    fun `DB 동기화가 실패하면 변경 표시를 유지하여 다시 시도한다`() {
+        redisStockClient.setStock(1L, 100)
+        redisStockClient.reserveStocks(1L, mapOf(1L to 10))
+        redisStockClient.confirmStocks(1L, mapOf(1L to 10))
+        val failingPort: ProductCommandPort = mock()
+        given(failingPort.batchUpdateStock(any())).willThrow(IllegalStateException("DB 저장 실패"))
+        StockSyncScheduler(redisStockClient, failingPort).syncToDatabase()
+
+        redisStockClient.getDirtyStockSnapshot().keys shouldBe setOf(1L)
+    }
+
+    @Test
+    fun `동기화 중 추가 확정이 발생하면 변경 표시를 지우지 않는다`() {
+        redisStockClient.setStock(1L, 100)
+        redisStockClient.reserveStocks(1L, mapOf(1L to 10))
+        redisStockClient.confirmStocks(1L, mapOf(1L to 10))
+        val updatingPort: ProductCommandPort = mock()
+        doAnswer {
+            redisStockClient.reserveStocks(2L, mapOf(1L to 5))
+            redisStockClient.confirmStocks(2L, mapOf(1L to 5))
+            null
+        }.`when`(updatingPort).batchUpdateStock(any())
+        StockSyncScheduler(redisStockClient, updatingPort).syncToDatabase()
+
+        redisStockClient.getDirtyStockSnapshot().keys shouldBe setOf(1L)
+    }
+
+    @Test
+    fun `뒤늦은 이전 동기화 값은 더 최신 DB 재고를 되돌리지 않는다`() {
+        val product = productRepository.save(ProductJpaEntity(name = "동기화 상품", stock = 100, price = 10000.toBigDecimal()))
+        productRepository.batchUpdateStock(mapOf(product.id!! to 70))
+        productRepository.batchUpdateStock(mapOf(product.id!! to 80))
+        productRepository.findById(product.id!!).get().stock shouldBe 70
     }
 
     @Test
@@ -72,8 +113,8 @@ class StockSyncSchedulerTest(
 
         // Redis 재고 설정, 예약 및 확정 (더티 플래그 생성)
         redisStockClient.setStock(productId, 100)
-        redisStockClient.reserveStock(productId, 30)
-        redisStockClient.confirmStock(productId, 30)
+        redisStockClient.reserveStocks(1L, mapOf(productId to 30))
+        redisStockClient.confirmStocks(1L, mapOf(productId to 30))
 
         // when
         stockSyncScheduler.syncToDatabase()
@@ -83,7 +124,7 @@ class StockSyncSchedulerTest(
         dbProduct.stock shouldBe 70
 
         // 더티 플래그 초기화 확인
-        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
+        val dirtyIds = redisStockClient.getDirtyStockSnapshot().keys
         dirtyIds.size shouldBe 0
     }
 
@@ -102,8 +143,8 @@ class StockSyncSchedulerTest(
         // Redis 재고 설정, 예약 및 확정
         productIds.forEachIndexed { index, productId ->
             redisStockClient.setStock(productId, (index + 1) * 100)
-            redisStockClient.reserveStock(productId, 10)
-            redisStockClient.confirmStock(productId, 10)
+            redisStockClient.reserveStocks(productId, mapOf(productId to 10))
+            redisStockClient.confirmStocks(productId, mapOf(productId to 10))
         }
 
         // when
@@ -116,7 +157,7 @@ class StockSyncSchedulerTest(
         dbProducts[2].stock shouldBe 290 // 300 - 10
 
         // 더티 플래그 초기화 확인
-        val dirtyIds = redisStockClient.getDirtyProductIdsAndClear()
+        val dirtyIds = redisStockClient.getDirtyStockSnapshot().keys
         dirtyIds.size shouldBe 0
     }
 
@@ -137,9 +178,10 @@ class StockSyncSchedulerTest(
         redisStockClient.setStock(productId, 1000)
 
         // 여러 번 재고 예약 및 확정
-        repeat(10) {
-            redisStockClient.reserveStock(productId, 50)
-            redisStockClient.confirmStock(productId, 50)
+        repeat(10) { index ->
+            val orderId = index.toLong() + 1
+            redisStockClient.reserveStocks(orderId, mapOf(productId to 50))
+            redisStockClient.confirmStocks(orderId, mapOf(productId to 50))
         }
 
         // when - 동기화

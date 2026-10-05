@@ -20,6 +20,7 @@ import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.inOrder
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -101,6 +102,10 @@ class OrderTransactionManagerTest {
 
         verify(outboxFactory).from(eventCaptor.firstValue)
         verify(outboxCommandPort).save(mockOutbox)
+        inOrder(orderCommandPort, orderEventPort).apply {
+            verify(orderCommandPort).save(mockOrder)
+            verify(orderEventPort).publish(eventCaptor.firstValue)
+        }
 
         result shouldBe savedOrder
     }

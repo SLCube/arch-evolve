@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component
 /**
  * 애플리케이션 시작 시 DB 상품 재고를 Cache로 초기화
  *
- * Paging + MSET으로 대량 데이터 처리 (메모리 안정성 + 네트워크 효율)
+ * 페이징과 일괄 SETNX로 없는 키만 초기화하며, 재시작 시 기존 재고를 보존한다.
  */
 @Component
 @ConditionalOnProperty(

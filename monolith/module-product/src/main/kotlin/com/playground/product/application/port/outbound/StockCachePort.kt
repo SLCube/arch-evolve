@@ -1,21 +1,29 @@
 package com.playground.product.application.port.outbound
 
 interface StockCachePort {
-    // 3단계 재고 관리
-    fun reserveStock(
-        productId: Long,
-        quantity: Int,
-    ): Long
+    fun getReservationsForRecovery(nowMillis: Long, limit: Int): List<StockReservationSnapshot>
 
-    fun confirmStock(
-        productId: Long,
-        quantity: Int,
-    ): Long
+    fun deferReservationRecovery(orderId: Long, retryAtMillis: Long)
 
-    fun releaseReservedStock(
-        productId: Long,
-        quantity: Int,
-    ): Long
+    fun rebuildReservationRecoveryIndex()
+
+    fun getDirtyStockSnapshot(): Map<Long, StockSyncSnapshot>
+
+    fun acknowledgeStockSync(snapshot: Map<Long, StockSyncSnapshot>)
+
+    /** 모든 상품을 예약하며, 재고 부족 시 변경 없이 해당 상품 ID를 반환한다. 성공 시 null. */
+    fun reserveStocks(
+        orderId: Long,
+        quantitiesByProductId: Map<Long, Int>,
+    ): Long?
+
+    fun confirmStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long?
+
+    fun reserveStocksForTransaction(orderId: Long, quantities: Map<Long, Int>, attemptId: String): Long?
+
+    fun releaseStocksForTransaction(orderId: Long, quantities: Map<Long, Int>, attemptId: String): Long?
+
+    fun releaseStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long?
 
     // 조회
     fun getAvailableStock(productId: Long): Int
@@ -32,9 +40,4 @@ interface StockCachePort {
     fun setStockBatch(stockMap: Map<Long, Int>)
 
     fun getStock(productId: Long): Int
-
-    /**
-     * dirty set의 모든 productId를 원자적으로 읽고 삭제한다.
-     */
-    fun getDirtyProductIdsAndClear(): Set<Long>
 }

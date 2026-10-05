@@ -11,123 +11,160 @@ internal object StockLuaScripts {
     const val RESERVED_KEY_SUFFIX = ":reserved"
     const val CONFIRMED_KEY_SUFFIX = ":confirmed"
     const val DIRTY_SET_KEY = "product:stock:dirty"
+    const val RESERVATION_KEY_PREFIX = "${STOCK_KEY_PREFIX}reservation:"
+    const val ITEMS_FIELD = "items"
+    const val STATUS_FIELD = "status"
+    const val RESERVED_STATE = "RESERVED"
+    const val CONFIRMED_STATE = "CONFIRMED"
+    const val RELEASED_STATE = "RELEASED"
+    const val SUCCESS = 0L
+    const val ITEMS_CONFLICT = -1L
+    const val INVALID_STATE = -2L
+    const val PENDING_RESERVATIONS_KEY = "product:stock:reservations:pending"
 
-    /**
-     * Lua Script: 재고 예약 (3단계 재고 관리 - Step 1)
-     *
-     * KEYS[1]: product:stock:{productId}:available
-     * KEYS[2]: product:stock:{productId}:reserved
-     * KEYS[3]: product:stock:{productId}:confirmed
-     * ARGV[1]: quantity
-     *
-     * 반환: 성공 시 남은 판매 가능 재고, 실패 시 -1
-     */
-    private const val RESERVE_STOCK_SCRIPT_TEXT =
+    val DEFER_RECOVERY_SCRIPT = DefaultRedisScript<Long>(
         """
-local available = tonumber(redis.call('GET', KEYS[1]) or '0')
-local reserved = tonumber(redis.call('GET', KEYS[2]) or '0')
-local confirmed = tonumber(redis.call('GET', KEYS[3]) or '0')
-local quantity = tonumber(ARGV[1])
-
-local sellableStock = available - reserved - confirmed
-
-if sellableStock >= quantity then
-    redis.call('INCRBY', KEYS[2], quantity)
-    return sellableStock - quantity
+if redis.call('HGET', KEYS[1], '$STATUS_FIELD') == '$RESERVED_STATE' then
+    redis.call('ZADD', KEYS[2], ARGV[2], ARGV[1])
 else
-    return -1
+    redis.call('ZREM', KEYS[2], ARGV[1])
 end
+return 0
+        """,
+        Long::class.java,
+    )
+
+    val REINDEX_RESERVATION_SCRIPT = DefaultRedisScript<Long>(
         """
+if redis.call('HGET', KEYS[1], '$STATUS_FIELD') == '$RESERVED_STATE' then
+    redis.call('ZADD', KEYS[2], 'NX', 0, ARGV[1])
+end
+return 0
+        """,
+        Long::class.java,
+    )
+
+    val INITIALIZE_STOCK_SCRIPT = DefaultRedisScript<Long>(
+        """
+for i = 1, #ARGV do
+    local base = (i - 1) * 3
+    redis.call('SETNX', KEYS[base + 1], ARGV[i])
+    redis.call('SETNX', KEYS[base + 2], '0')
+    redis.call('SETNX', KEYS[base + 3], '0')
+end
+return 0
+        """,
+        Long::class.java,
+    )
+
+    val STOCK_SNAPSHOT_SCRIPT = DefaultRedisScript<List<*>>(
+        """
+local available = tonumber(redis.call('GET', KEYS[1]))
+local confirmed = tonumber(redis.call('GET', KEYS[2]) or '0')
+if not available then return redis.error_reply('Missing stock baseline') end
+return {available - confirmed, confirmed}
+        """,
+        List::class.java,
+    )
+
+    val ACK_STOCK_SYNC_SCRIPT = DefaultRedisScript<Long>(
+        """
+if (redis.call('GET', KEYS[2]) or '0') == ARGV[2] then
+    return redis.call('SREM', KEYS[1], ARGV[1])
+end
+return 0
+        """,
+        Long::class.java,
+    )
 
     /**
-     * Lua Script: 재고 확정 (3단계 재고 관리 - Step 2)
-     *
-     * KEYS[1]: product:stock:{productId}:reserved
-     * KEYS[2]: product:stock:{productId}:confirmed
-     * KEYS[3]: product:stock:dirty
-     * ARGV[1]: quantity
-     * ARGV[2]: productId
-     *
-     * 반환: 성공 시 confirmed 값, 실패 시 -1 (reserved 부족)
+     * KEYS[1]은 주문별 예약 Hash이며 상품별 available/reserved/confirmed 키와 마지막 복구 ZSet이 이어진다.
+     * ARGV[1]은 정렬·합산한 상품 수량 기록, ARGV[2]는 트랜잭션 시도 ID이며 이후 수량이 이어진다.
+     * 성공·동일 예약 재시도 시 0, 내용 충돌 -1, 상태 충돌 -2, 재고 부족 시 상품의 1-based 위치를 반환한다.
      */
-    private const val CONFIRM_STOCK_SCRIPT_TEXT =
+    private const val RESERVE_STOCKS_SCRIPT_TEXT =
         """
-local quantity = tonumber(ARGV[1])
-local productId = ARGV[2]
-
-local reserved = tonumber(redis.call('GET', KEYS[1]) or '0')
-
-if reserved < quantity then
-    return -1
+local existingItems = redis.call('HGET', KEYS[1], '$ITEMS_FIELD')
+if existingItems then
+    if existingItems ~= ARGV[1] then
+        return -1
+    end
+    if redis.call('HGET', KEYS[1], '$STATUS_FIELD') == '$RELEASED_STATE' then
+        return -2
+    end
+    return 0
 end
 
-redis.call('DECRBY', KEYS[1], quantity)
-redis.call('INCRBY', KEYS[2], quantity)
-redis.call('SADD', KEYS[3], productId)
+for i = 1, #ARGV - 2 do
+    local keyIndex = (i - 1) * 3 + 1
+    local available = tonumber(redis.call('GET', KEYS[keyIndex + 1]) or '0')
+    local reserved = tonumber(redis.call('GET', KEYS[keyIndex + 2]) or '0')
+    local confirmed = tonumber(redis.call('GET', KEYS[keyIndex + 3]) or '0')
+    local quantity = tonumber(ARGV[i + 2])
 
-return tonumber(redis.call('GET', KEYS[2]))
-        """
-
-    /**
-     * Lua Script: 예약 해제 (3단계 재고 관리 - Step 3)
-     *
-     * KEYS[1]: product:stock:{productId}:reserved
-     * ARGV[1]: quantity
-     *
-     * 반환: 성공 시 reserved 값, 실패 시 -1 (reserved 부족)
-     */
-    private const val RELEASE_RESERVED_STOCK_SCRIPT_TEXT =
-        """
-local quantity = tonumber(ARGV[1])
-
-local reserved = tonumber(redis.call('GET', KEYS[1]) or '0')
-
-if reserved < quantity then
-    return -1
+    if available - reserved - confirmed < quantity then
+        return i
+    end
 end
 
-redis.call('DECRBY', KEYS[1], quantity)
-
-return tonumber(redis.call('GET', KEYS[1]))
-        """
-
-    /**
-     * Lua Script: dirty set의 모든 productId를 원자적으로 읽고 삭제
-     *
-     * KEYS[1]: product:stock:dirty
-     *
-     * 반환: 삭제된 productId 목록 (String List)
-     */
-    private const val GET_DIRTY_AND_CLEAR_SCRIPT_TEXT =
-        """
-local members = redis.call('SMEMBERS', KEYS[1])
-if #members > 0 then
-    redis.call('DEL', KEYS[1])
+for i = 1, #ARGV - 2 do
+    local keyIndex = (i - 1) * 3 + 1
+    redis.call('INCRBY', KEYS[keyIndex + 2], ARGV[i + 2])
 end
-return members
+
+redis.call('HSET', KEYS[1], '$ITEMS_FIELD', ARGV[1], '$STATUS_FIELD', '$RESERVED_STATE')
+if ARGV[2] ~= '' then redis.call('HSET', KEYS[1], 'attemptId', ARGV[2]) end
+redis.call('ZADD', KEYS[#KEYS], 0, string.match(KEYS[1], '(%d+)$'))
+
+return 0
         """
 
-    val RESERVE_STOCK_SCRIPT: DefaultRedisScript<Long> =
+    val RESERVE_STOCKS_SCRIPT: DefaultRedisScript<Long> =
         DefaultRedisScript<Long>().apply {
-            setScriptText(RESERVE_STOCK_SCRIPT_TEXT)
+            setScriptText(RESERVE_STOCKS_SCRIPT_TEXT)
             resultType = Long::class.java
         }
 
-    val CONFIRM_STOCK_SCRIPT: DefaultRedisScript<Long> =
+    /** KEYS: 예약 Hash, dirty Set, 복구 ZSet, 상품별 reserved/confirmed. ARGV: items, 상태, 시도 ID, 수량/ID. */
+    val TRANSITION_RESERVATION_SCRIPT: DefaultRedisScript<Long> =
         DefaultRedisScript<Long>().apply {
-            setScriptText(CONFIRM_STOCK_SCRIPT_TEXT)
+            setScriptText(
+                """
+local items = redis.call('HGET', KEYS[1], '$ITEMS_FIELD')
+local target = ARGV[2]
+if not items then
+    if target == '$RELEASED_STATE' then
+        redis.call('HSET', KEYS[1], '$ITEMS_FIELD', ARGV[1], '$STATUS_FIELD', target)
+        return 0
+    end
+    return -2
+end
+if ARGV[3] ~= '' and redis.call('HGET', KEYS[1], 'attemptId') ~= ARGV[3] then return 0 end
+if items ~= ARGV[1] then return -1 end
+local state = redis.call('HGET', KEYS[1], '$STATUS_FIELD')
+if state == target then return 0 end
+if state ~= '$RESERVED_STATE' then return -2 end
+local count = (#ARGV - 3) / 2
+for i = 1, count do
+    local reserved = tonumber(redis.call('GET', KEYS[i * 2 + 2]) or '0')
+    local confirmed = tonumber(redis.call('GET', KEYS[i * 2 + 3]) or '0')
+    local quantity = tonumber(ARGV[i * 2 + 2])
+    if not confirmed then return -2 end
+    if reserved < quantity then return i end
+end
+for i = 1, count do
+    local quantity = ARGV[i * 2 + 2]
+    redis.call('DECRBY', KEYS[i * 2 + 2], quantity)
+    if target == '$CONFIRMED_STATE' then
+        redis.call('INCRBY', KEYS[i * 2 + 3], quantity)
+        redis.call('SADD', KEYS[2], ARGV[i * 2 + 3])
+    end
+end
+redis.call('HSET', KEYS[1], '$STATUS_FIELD', target)
+redis.call('ZREM', KEYS[3], string.match(KEYS[1], '(%d+)$'))
+return 0
+                """,
+            )
             resultType = Long::class.java
-        }
-
-    val RELEASE_RESERVED_STOCK_SCRIPT: DefaultRedisScript<Long> =
-        DefaultRedisScript<Long>().apply {
-            setScriptText(RELEASE_RESERVED_STOCK_SCRIPT_TEXT)
-            resultType = Long::class.java
-        }
-
-    val GET_DIRTY_AND_CLEAR_SCRIPT: DefaultRedisScript<List<*>> =
-        DefaultRedisScript<List<*>>().apply {
-            setScriptText(GET_DIRTY_AND_CLEAR_SCRIPT_TEXT)
-            resultType = List::class.java
         }
 }

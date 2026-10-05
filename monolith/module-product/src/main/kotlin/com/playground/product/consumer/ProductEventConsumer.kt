@@ -28,7 +28,7 @@ class ProductEventConsumer(
                     quantity = productDetail.quantity,
                 )
             }
-        stockUseCase.decreaseStocks(commands)
+        stockUseCase.decreaseStocks(orderId = event.orderId, commands = commands)
     }
 
     @Async("eventExecutor")
@@ -41,11 +41,11 @@ class ProductEventConsumer(
                     quantity = product.quantity,
                 )
             }
-        stockUseCase.confirmStocks(commands)
+        stockUseCase.confirmStocks(orderId = event.orderId, commands = commands)
     }
 
     @Async("eventExecutor")
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun handleOrderFailedEvent(event: OrderFailedEvent) {
         val commands =
             event.products.map { product ->
@@ -54,6 +54,6 @@ class ProductEventConsumer(
                     quantity = product.quantity,
                 )
             }
-        stockUseCase.releaseReservedStocks(commands)
+        stockUseCase.releaseReservedStocks(orderId = event.orderId, commands = commands)
     }
 }
