@@ -1,0 +1,37 @@
+# Public, local demo only. Do not use these credentials in production.
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: payment-service
+              uri: http://payment-service:8082
+              predicates:
+                - Path=/payment/**
+              filters:
+                - JwtAuthentication
+                - StripPrefix=1
+            - id: delivery-service
+              uri: http://delivery-service:8083
+              predicates:
+                - Path=/delivery/**
+              filters:
+                - JwtAuthentication
+                - StripPrefix=1
+            - id: monolith
+              uri: http://monolith:8081
+              predicates:
+                - Path=/**
+management:
+  tracing:
+    enabled: false
+  otlp:
+    tracing:
+      endpoint: http://tempo:4318/v1/traces
+logging:
+  config: /app/logback-spring.xml
+jwt:
+  secret: arch-evolve-docker-demo-jwt-key-not-for-production

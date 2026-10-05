@@ -1,0 +1,13 @@
+.git
+**/.gradle
+**/.kotlin
+**/build
+.idea
+benchmarks
+images
+diagrams
+k6
+*.pdf
+PORTFOLIO*.md
+**/*.log
+**/node_modules

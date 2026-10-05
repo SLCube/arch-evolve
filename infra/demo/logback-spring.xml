@@ -1,0 +1,22 @@
+<configuration>
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="monolith"/>
+    <springProperty scope="context" name="LOKI_URL" source="logging.loki.url" defaultValue="http://loki:3100/loki/api/v1/push"/>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%-5level] [%thread] %logger{32} - %msg traceId=%X{traceId} spanId=%X{spanId}%n</pattern>
+        </encoder>
+    </appender>
+    <springProfile name="demo-monitoring">
+        <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+            <http><url>${LOKI_URL}</url><connectionTimeoutMs>3000</connectionTimeoutMs></http>
+            <format>
+                <label><pattern>app=${APP_NAME},env=demo,level=%level</pattern></label>
+                <message class="net.logstash.logback.layout.LogstashLayout"><includeMdc>true</includeMdc></message>
+            </format>
+        </appender>
+    </springProfile>
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <springProfile name="demo-monitoring"><appender-ref ref="LOKI"/></springProfile>
+    </root>
+</configuration>

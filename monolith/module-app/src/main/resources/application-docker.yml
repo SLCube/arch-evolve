@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: monolith
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    url: jdbc:postgresql://monolith-db:5432/playground
+    username: playground
+    password: playground
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  data:
+    redis:
+      host: redis
+  kafka:
+    bootstrap-servers: kafka:9092
+management:
+  tracing:
+    enabled: false
+  otlp:
+    tracing:
+      endpoint: http://tempo:4318/v1/traces
+logging:
+  config: /app/logback-spring.xml
+delivery-service:
+  base-url: http://delivery-service:8083
+jwt:
+  secret: arch-evolve-docker-demo-jwt-key-not-for-production

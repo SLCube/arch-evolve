@@ -1,0 +1,21 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    url: jdbc:postgresql://delivery-db:5432/delivery
+    username: delivery
+    password: delivery
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  kafka:
+    bootstrap-servers: kafka:9092
+management:
+  tracing:
+    enabled: false
+  otlp:
+    tracing:
+      endpoint: http://tempo:4318/v1/traces
+logging:
+  config: /app/logback-spring.xml

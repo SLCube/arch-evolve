@@ -1,0 +1,62 @@
+# Optional overlay: docker compose -f compose.yml -f compose.monitoring.yml up -d --wait
+x-observed: &observed
+  environment:
+    SPRING_PROFILES_ACTIVE: docker,demo-monitoring
+    MANAGEMENT_TRACING_ENABLED: 'true'
+    MANAGEMENT_OTLP_TRACING_ENDPOINT: http://tempo:4318/v1/traces
+
+services:
+  api-gateway:
+    <<: *observed
+  monolith:
+    <<: *observed
+  payment-service:
+    <<: *observed
+  delivery-service:
+    <<: *observed
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    command: [--config.file=/etc/prometheus/prometheus.yml]
+    volumes:
+      - ./infra/demo/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - '127.0.0.1:19090:9090'
+    restart: unless-stopped
+  tempo:
+    image: grafana/tempo:2.6.1
+    command: [-config.file=/etc/tempo/tempo.yml]
+    volumes:
+      - ./infra/src/main/resources/tempo.yml:/etc/tempo/tempo.yml:ro
+      - tempo-data:/var/tempo
+    restart: unless-stopped
+  loki:
+    image: grafana/loki:2.9.4
+    command: [-config.file=/etc/loki/local-config.yaml]
+    volumes:
+      - ./infra/src/main/resources/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana:11.6.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_DEFAULT_THEME: dark
+    ports:
+      - '127.0.0.1:13000:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infra/demo/grafana-datasources.yml:/etc/grafana/provisioning/datasources/demo.yml:ro
+      - ./infra/src/main/resources/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - prometheus
+      - tempo
+      - loki
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  tempo-data:
+  loki-data:
+  grafana-data:

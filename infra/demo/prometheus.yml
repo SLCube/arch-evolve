@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 5s
+scrape_configs:
+  - job_name: gateway
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [api-gateway:8080]
+  - job_name: monolith
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [monolith:8081]
+  - job_name: payment-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [payment-service:8082]
+  - job_name: delivery-service
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: [delivery-service:8083]

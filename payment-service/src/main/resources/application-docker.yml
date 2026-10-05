@@ -1,0 +1,23 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+  datasource:
+    url: jdbc:postgresql://payment-db:5432/payment
+    username: payment
+    password: payment
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+  kafka:
+    bootstrap-servers: kafka:9092
+pg:
+  base-url: http://wiremock:8080
+management:
+  tracing:
+    enabled: false
+  otlp:
+    tracing:
+      endpoint: http://tempo:4318/v1/traces
+logging:
+  config: /app/logback-spring.xml
