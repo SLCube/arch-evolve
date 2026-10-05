@@ -11,11 +11,16 @@ class StockReservationRecoveryService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    companion object {
+        private const val RECOVERY_BATCH_SIZE = 100
+        private const val RETRY_DELAY_MILLIS = 30_000L
+    }
+
     fun recover(nowMillis: Long = System.currentTimeMillis()) {
-        stock.getReservationsForRecovery(nowMillis, 100).forEach { reservation ->
+        stock.getReservationsForRecovery(nowMillis, RECOVERY_BATCH_SIZE).forEach { reservation ->
             try {
                 // 처리 실패·PENDING도 다음 시도 시각을 갱신하여 특정 주문이 배치를 독점하지 않는다.
-                stock.deferReservationRecovery(reservation.orderId, nowMillis + 30000)
+                stock.deferReservationRecovery(reservation.orderId, nowMillis + RETRY_DELAY_MILLIS)
                 val failedId = when (orders.inspect(reservation.orderId)) {
                     OrderStockOutcome.CONFIRMED -> stock.confirmStocks(reservation.orderId, reservation.quantities)
                     OrderStockOutcome.RELEASED -> stock.releaseStocks(reservation.orderId, reservation.quantities)

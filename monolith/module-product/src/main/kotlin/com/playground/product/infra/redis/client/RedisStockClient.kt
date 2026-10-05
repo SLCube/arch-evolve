@@ -1,18 +1,14 @@
 package com.playground.product.infra.redis.client
 
 import com.playground.product.application.port.outbound.StockCachePort
-import com.playground.product.application.port.outbound.StockSyncSnapshot
 import com.playground.product.application.port.outbound.StockReservationSnapshot
+import com.playground.product.application.port.outbound.StockSyncSnapshot
 import com.playground.product.domain.exception.StockReservationConflictException
 import com.playground.product.domain.exception.StockReservationStateException
 import com.playground.product.infra.redis.client.StockLuaScripts.AVAILABLE_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRMED_KEY_SUFFIX
-import com.playground.product.infra.redis.client.StockLuaScripts.CONFIRM_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.DIRTY_SET_KEY
-import com.playground.product.infra.redis.client.StockLuaScripts.GET_DIRTY_AND_CLEAR_SCRIPT
-import com.playground.product.infra.redis.client.StockLuaScripts.RELEASE_RESERVED_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVED_KEY_SUFFIX
-import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCKS_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.STOCK_KEY_PREFIX
 import org.springframework.data.redis.core.RedisTemplate
@@ -23,11 +19,34 @@ import org.springframework.stereotype.Component
 class RedisStockClient(
     private val redisTemplate: RedisTemplate<String, String>,
 ) : StockCachePort {
+    companion object {
+        private const val RESERVATION_SCAN_COUNT = 100L
+    }
+
     private fun getAvailableKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$AVAILABLE_KEY_SUFFIX"
 
     private fun getReservedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$RESERVED_KEY_SUFFIX"
 
     private fun getConfirmedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$CONFIRMED_KEY_SUFFIX"
+
+    private fun getReservationKey(orderId: Long): String = "${StockLuaScripts.RESERVATION_KEY_PREFIX}$orderId"
+
+    private fun serializeItems(entries: List<Map.Entry<Long, Int>>): String =
+        entries.joinToString(";") { (id, quantity) -> "$id:$quantity" }
+
+    private fun deserializeItems(items: String): Map<Long, Int> =
+        items.split(';').associate { item ->
+            val (id, quantity) = item.split(':')
+            id.toLong() to quantity.toInt()
+        }
+
+    private fun failedProductId(orderId: Long, result: Long, entries: List<Map.Entry<Long, Int>>): Long? =
+        when (result) {
+            StockLuaScripts.SUCCESS -> null
+            StockLuaScripts.ITEMS_CONFLICT -> throw StockReservationConflictException(orderId)
+            StockLuaScripts.INVALID_STATE -> throw StockReservationStateException(orderId)
+            else -> entries[(result - 1).toInt()].key
+        }
 
     override fun reserveStocks(
         orderId: Long,
@@ -35,36 +54,29 @@ class RedisStockClient(
     ): Long? = reserveStocksForTransaction(orderId, quantitiesByProductId, "")
 
     override fun reserveStocksForTransaction(orderId: Long, quantities: Map<Long, Int>, attemptId: String): Long? {
-        val quantitiesByProductId = quantities
-        if (quantitiesByProductId.isEmpty()) {
+        if (quantities.isEmpty()) {
             return null
         }
 
-        val entries = quantitiesByProductId.toSortedMap().entries.toList()
+        val entries = quantities.toSortedMap().entries.toList()
         val keys =
-            listOf("${STOCK_KEY_PREFIX}reservation:$orderId") + entries.flatMap { (productId, _) ->
+            listOf(getReservationKey(orderId)) + entries.flatMap { (productId, _) ->
                 listOf(getAvailableKey(productId), getReservedKey(productId), getConfirmedKey(productId))
             } + StockLuaScripts.PENDING_RESERVATIONS_KEY
-        val items = entries.joinToString(";") { (productId, quantity) -> "$productId:$quantity" }
-        val quantities = entries.map { it.value.toString() }.toTypedArray()
-        val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, items, attemptId, *quantities)
-        if (failedIndex == -1L) {
-            throw StockReservationConflictException(orderId)
-        }
-        if (failedIndex == -2L) {
-            throw StockReservationStateException(orderId)
-        }
-        return if (failedIndex == 0L) null else entries[(failedIndex - 1).toInt()].key
+        val items = serializeItems(entries)
+        val args = entries.map { it.value.toString() }.toTypedArray()
+        val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, items, attemptId, *args)
+        return failedProductId(orderId, failedIndex, entries)
     }
 
     override fun confirmStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long? =
-        transitionReservation(orderId, quantitiesByProductId, "CONFIRMED")
+        transitionReservation(orderId, quantitiesByProductId, StockLuaScripts.CONFIRMED_STATE)
 
     override fun releaseStocks(orderId: Long, quantitiesByProductId: Map<Long, Int>): Long? =
-        transitionReservation(orderId, quantitiesByProductId, "RELEASED")
+        transitionReservation(orderId, quantitiesByProductId, StockLuaScripts.RELEASED_STATE)
 
     override fun releaseStocksForTransaction(orderId: Long, quantities: Map<Long, Int>, attemptId: String): Long? =
-        transitionReservation(orderId, quantities, "RELEASED", attemptId)
+        transitionReservation(orderId, quantities, StockLuaScripts.RELEASED_STATE, attemptId)
 
     private fun transitionReservation(
         orderId: Long,
@@ -74,59 +86,12 @@ class RedisStockClient(
     ): Long? {
         if (quantities.isEmpty()) return null
         val entries = quantities.toSortedMap().entries.toList()
-        val keys = listOf("${STOCK_KEY_PREFIX}reservation:$orderId", DIRTY_SET_KEY, StockLuaScripts.PENDING_RESERVATIONS_KEY) +
+        val keys = listOf(getReservationKey(orderId), DIRTY_SET_KEY, StockLuaScripts.PENDING_RESERVATIONS_KEY) +
             entries.flatMap { listOf(getReservedKey(it.key), getConfirmedKey(it.key)) }
-        val items = entries.joinToString(";") { (id, quantity) -> "$id:$quantity" }
+        val items = serializeItems(entries)
         val args = entries.flatMap { listOf(it.value.toString(), it.key.toString()) }.toTypedArray()
         val result = redisTemplate.execute(StockLuaScripts.TRANSITION_RESERVATION_SCRIPT, keys, items, target, attemptId, *args)
-        return when (result) {
-            0L -> null
-            -1L -> throw StockReservationConflictException(orderId)
-            -2L -> throw StockReservationStateException(orderId)
-            else -> entries[(result - 1).toInt()].key
-        }
-    }
-
-    override fun reserveStock(
-        productId: Long,
-        quantity: Int,
-    ): Long {
-        return redisTemplate.execute(
-            RESERVE_STOCK_SCRIPT,
-            listOf(
-                getAvailableKey(productId),
-                getReservedKey(productId),
-                getConfirmedKey(productId),
-            ),
-            quantity.toString(),
-        )
-    }
-
-    override fun confirmStock(
-        productId: Long,
-        quantity: Int,
-    ): Long {
-        return redisTemplate.execute(
-            CONFIRM_STOCK_SCRIPT,
-            listOf(
-                getReservedKey(productId),
-                getConfirmedKey(productId),
-                DIRTY_SET_KEY,
-            ),
-            quantity.toString(),
-            productId.toString(),
-        )
-    }
-
-    override fun releaseReservedStock(
-        productId: Long,
-        quantity: Int,
-    ): Long {
-        return redisTemplate.execute(
-            RELEASE_RESERVED_STOCK_SCRIPT,
-            listOf(getReservedKey(productId)),
-            quantity.toString(),
-        )
+        return failedProductId(orderId, result, entries)
     }
 
     override fun getAvailableStock(productId: Long): Int {
@@ -167,32 +132,39 @@ class RedisStockClient(
             StockLuaScripts.PENDING_RESERVATIONS_KEY, Double.NEGATIVE_INFINITY, nowMillis.toDouble(), 0, limit.toLong(),
         ).orEmpty()
         return ids.mapNotNull { id ->
-            val fields = redisTemplate.opsForHash<String, String>().entries("${STOCK_KEY_PREFIX}reservation:$id")
-            if (fields["status"] != "RESERVED") {
+            val fields = redisTemplate.opsForHash<String, String>().entries(getReservationKey(id.toLong()))
+            if (fields[StockLuaScripts.STATUS_FIELD] != StockLuaScripts.RESERVED_STATE) {
                 redisTemplate.opsForZSet().remove(StockLuaScripts.PENDING_RESERVATIONS_KEY, id)
                 null
             } else {
-                val quantities = fields.getValue("items").split(';').associate { item ->
-                    val parts = item.split(':')
-                    parts[0].toLong() to parts[1].toInt()
-                }
+                val quantities = deserializeItems(fields.getValue(StockLuaScripts.ITEMS_FIELD))
                 StockReservationSnapshot(id.toLong(), quantities)
             }
         }
     }
 
     override fun deferReservationRecovery(orderId: Long, retryAtMillis: Long) {
-        redisTemplate.execute(StockLuaScripts.DEFER_RECOVERY_SCRIPT,
-            listOf("${STOCK_KEY_PREFIX}reservation:$orderId", StockLuaScripts.PENDING_RESERVATIONS_KEY),
-            orderId.toString(), retryAtMillis.toString())
+        redisTemplate.execute(
+            StockLuaScripts.DEFER_RECOVERY_SCRIPT,
+            listOf(getReservationKey(orderId), StockLuaScripts.PENDING_RESERVATIONS_KEY),
+            orderId.toString(),
+            retryAtMillis.toString(),
+        )
     }
 
     override fun rebuildReservationRecoveryIndex() {
-        redisTemplate.scan(ScanOptions.scanOptions().match("${STOCK_KEY_PREFIX}reservation:*").count(100).build()).use { cursor ->
+        val options = ScanOptions.scanOptions()
+            .match("${StockLuaScripts.RESERVATION_KEY_PREFIX}*")
+            .count(RESERVATION_SCAN_COUNT)
+            .build()
+        redisTemplate.scan(options).use { cursor ->
             while (cursor.hasNext()) {
                 val key = cursor.next()
-                redisTemplate.execute(StockLuaScripts.REINDEX_RESERVATION_SCRIPT,
-                    listOf(key, StockLuaScripts.PENDING_RESERVATIONS_KEY), key.substringAfterLast(':'))
+                redisTemplate.execute(
+                    StockLuaScripts.REINDEX_RESERVATION_SCRIPT,
+                    listOf(key, StockLuaScripts.PENDING_RESERVATIONS_KEY),
+                    key.substringAfterLast(':'),
+                )
             }
         }
     }
@@ -216,16 +188,5 @@ class RedisStockClient(
         val reserved = getReservedStock(productId)
         val confirmed = getConfirmedStock(productId)
         return available - reserved - confirmed
-    }
-
-    override fun getDirtyProductIdsAndClear(): Set<Long> {
-        @Suppress("UNCHECKED_CAST")
-        val result =
-            redisTemplate.execute(
-                GET_DIRTY_AND_CLEAR_SCRIPT,
-                listOf(DIRTY_SET_KEY),
-            ) as? List<String> ?: emptyList()
-
-        return result.map { it.toLong() }.toSet()
     }
 }

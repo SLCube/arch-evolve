@@ -16,16 +16,23 @@ class StockReservationRecoveryScheduler(
     private val orders: ObjectProvider<OrderStockRecoveryPort>,
 ) : ApplicationRunner {
     private val logger = LoggerFactory.getLogger(javaClass)
+    private val recovery by lazy {
+        orders.ifAvailable?.let { StockReservationRecoveryService(stock, it) }
+    }
+
+    companion object {
+        private const val RECOVERY_INTERVAL_MILLIS = 10_000L
+    }
 
     override fun run(args: ApplicationArguments?) {
         if (orders.ifAvailable != null) stock.rebuildReservationRecoveryIndex()
     }
 
-    @Scheduled(fixedDelay = 10000, initialDelay = 10000)
+    @Scheduled(fixedDelay = RECOVERY_INTERVAL_MILLIS, initialDelay = RECOVERY_INTERVAL_MILLIS)
     fun recover() {
-        val port = orders.ifAvailable ?: return // 상품 모듈 단독 테스트에는 주문 어댑터가 없다.
+        val service = recovery ?: return // 주문 어댑터가 없는 실행 환경에서는 복구를 생략한다.
         try {
-            StockReservationRecoveryService(stock, port).recover()
+            service.recover()
         } catch (exception: Exception) {
             logger.error("재고 예약 복구 배치 실패", exception)
         }
