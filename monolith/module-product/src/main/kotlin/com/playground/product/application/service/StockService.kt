@@ -15,7 +15,10 @@ class StockService(
     private val productQueryPort: ProductQueryPort,
     private val stockCachePort: StockCachePort,
 ) : StockUseCase {
-    override fun decreaseStocks(commands: List<DecreaseStockCommand>) {
+    override fun decreaseStocks(
+        orderId: Long,
+        commands: List<DecreaseStockCommand>,
+    ) {
         val quantitiesByProductId = linkedMapOf<Long, Int>()
         commands.forEach { command ->
             val product = productQueryPort.findById(command.id)
@@ -30,7 +33,10 @@ class StockService(
         }
     }
 
-    override fun confirmStocks(commands: List<StockConfirmCommand>) {
+    override fun confirmStocks(
+        orderId: Long,
+        commands: List<StockConfirmCommand>,
+    ) {
         commands.forEach { command ->
             val result = stockCachePort.confirmStock(command.productId, command.quantity)
 
@@ -40,7 +46,10 @@ class StockService(
         }
     }
 
-    override fun releaseReservedStocks(commands: List<StockReleaseCommand>) {
+    override fun releaseReservedStocks(
+        orderId: Long,
+        commands: List<StockReleaseCommand>,
+    ) {
         commands.forEach { command ->
             val result = stockCachePort.releaseReservedStock(command.productId, command.quantity)
 

@@ -5,9 +5,18 @@ import com.playground.product.application.port.inbound.command.StockConfirmComma
 import com.playground.product.application.port.inbound.command.StockReleaseCommand
 
 interface StockUseCase {
-    fun decreaseStocks(commands: List<DecreaseStockCommand>)
+    fun decreaseStocks(
+        orderId: Long,
+        commands: List<DecreaseStockCommand>,
+    )
 
-    fun confirmStocks(commands: List<StockConfirmCommand>)
+    fun confirmStocks(
+        orderId: Long,
+        commands: List<StockConfirmCommand>,
+    )
 
-    fun releaseReservedStocks(commands: List<StockReleaseCommand>)
+    fun releaseReservedStocks(
+        orderId: Long,
+        commands: List<StockReleaseCommand>,
+    )
 }

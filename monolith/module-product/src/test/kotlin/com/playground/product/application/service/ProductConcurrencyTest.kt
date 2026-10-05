@@ -75,7 +75,7 @@ class ProductConcurrencyTest(
 
         // when
         shouldThrow<InsufficientStockException> {
-            stockUseCase.decreaseStocks(commands)
+            stockUseCase.decreaseStocks(orderId = 123L, commands = commands)
         }
 
         // then
@@ -96,7 +96,7 @@ class ProductConcurrencyTest(
             )
 
         shouldThrow<InsufficientStockException> {
-            stockUseCase.decreaseStocks(commands)
+            stockUseCase.decreaseStocks(orderId = 123L, commands = commands)
         }
 
         redisStockClient.getReservedStock(productId) shouldBe 0
@@ -106,7 +106,8 @@ class ProductConcurrencyTest(
     @Test
     fun `동일 상품의 요청 수량을 합산하여 예약한다`() {
         stockUseCase.decreaseStocks(
-            listOf(
+            orderId = 123L,
+            commands = listOf(
                 DecreaseStockCommand(productId, 10),
                 DecreaseStockCommand(productId, 20),
             ),
@@ -125,7 +126,10 @@ class ProductConcurrencyTest(
         for (i in 1..threadCount) {
             executorService.submit {
                 try {
-                    stockUseCase.decreaseStocks(listOf(DecreaseStockCommand(productId, 1)))
+                    stockUseCase.decreaseStocks(
+                        orderId = i.toLong(),
+                        commands = listOf(DecreaseStockCommand(productId, 1)),
+                    )
                 } finally {
                     latch.countDown()
                 }

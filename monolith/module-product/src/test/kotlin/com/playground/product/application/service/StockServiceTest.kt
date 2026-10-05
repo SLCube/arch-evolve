@@ -53,7 +53,7 @@ class StockServiceTest {
         given(stockCachePort.reserveStocks(quantitiesByProductId)).willReturn(null)
 
         // when
-        stockService.decreaseStocks(commands)
+        stockService.decreaseStocks(orderId = 123L, commands = commands)
 
         // then
         verify(productQueryPort).findById(productId1)
@@ -83,7 +83,7 @@ class StockServiceTest {
 
         // when & then
         shouldThrow<InsufficientStockException> {
-            stockService.decreaseStocks(commands)
+            stockService.decreaseStocks(orderId = 123L, commands = commands)
         }
     }
 
@@ -106,7 +106,7 @@ class StockServiceTest {
             .willReturn(10L)
 
         // when
-        stockService.confirmStocks(commands)
+        stockService.confirmStocks(orderId = 123L, commands = commands)
 
         // then
         verify(stockCachePort).confirmStock(productId1, quantity)
@@ -132,7 +132,7 @@ class StockServiceTest {
             .willReturn(0L)
 
         // when
-        stockService.releaseReservedStocks(commands)
+        stockService.releaseReservedStocks(orderId = 123L, commands = commands)
 
         // then
         verify(stockCachePort).releaseReservedStock(productId1, quantity)
@@ -154,7 +154,7 @@ class StockServiceTest {
 
         // when & then
         shouldThrow<InsufficientReservedStockException> {
-            stockService.confirmStocks(commands)
+            stockService.confirmStocks(orderId = 123L, commands = commands)
         }
     }
 
@@ -173,7 +173,7 @@ class StockServiceTest {
 
         // when & then
         shouldThrow<InsufficientReservedStockException> {
-            stockService.releaseReservedStocks(commands)
+            stockService.releaseReservedStocks(orderId = 123L, commands = commands)
         }
     }
 }
