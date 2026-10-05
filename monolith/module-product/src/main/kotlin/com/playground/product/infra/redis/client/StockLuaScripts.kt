@@ -13,6 +13,38 @@ internal object StockLuaScripts {
     const val DIRTY_SET_KEY = "product:stock:dirty"
 
     /**
+     * 상품별 KEYS는 available, reserved, confirmed 순서이며 ARGV는 상품별 수량이다.
+     * 전체 재고 검사 후 예약한다. 성공 시 0, 재고 부족 시 해당 상품의 1-based 위치를 반환한다.
+     */
+    private const val RESERVE_STOCKS_SCRIPT_TEXT =
+        """
+for i = 1, #ARGV do
+    local keyIndex = (i - 1) * 3
+    local available = tonumber(redis.call('GET', KEYS[keyIndex + 1]) or '0')
+    local reserved = tonumber(redis.call('GET', KEYS[keyIndex + 2]) or '0')
+    local confirmed = tonumber(redis.call('GET', KEYS[keyIndex + 3]) or '0')
+    local quantity = tonumber(ARGV[i])
+
+    if available - reserved - confirmed < quantity then
+        return i
+    end
+end
+
+for i = 1, #ARGV do
+    local keyIndex = (i - 1) * 3
+    redis.call('INCRBY', KEYS[keyIndex + 2], ARGV[i])
+end
+
+return 0
+        """
+
+    val RESERVE_STOCKS_SCRIPT: DefaultRedisScript<Long> =
+        DefaultRedisScript<Long>().apply {
+            setScriptText(RESERVE_STOCKS_SCRIPT_TEXT)
+            resultType = Long::class.java
+        }
+
+    /**
      * Lua Script: 재고 예약 (3단계 재고 관리 - Step 1)
      *
      * KEYS[1]: product:stock:{productId}:available

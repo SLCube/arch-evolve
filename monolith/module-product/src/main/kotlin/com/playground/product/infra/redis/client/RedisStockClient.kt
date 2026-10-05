@@ -9,6 +9,7 @@ import com.playground.product.infra.redis.client.StockLuaScripts.GET_DIRTY_AND_C
 import com.playground.product.infra.redis.client.StockLuaScripts.RELEASE_RESERVED_STOCK_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVED_KEY_SUFFIX
 import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCK_SCRIPT
+import com.playground.product.infra.redis.client.StockLuaScripts.RESERVE_STOCKS_SCRIPT
 import com.playground.product.infra.redis.client.StockLuaScripts.STOCK_KEY_PREFIX
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
@@ -22,6 +23,21 @@ class RedisStockClient(
     private fun getReservedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$RESERVED_KEY_SUFFIX"
 
     private fun getConfirmedKey(productId: Long): String = "$STOCK_KEY_PREFIX$productId$CONFIRMED_KEY_SUFFIX"
+
+    override fun reserveStocks(quantitiesByProductId: Map<Long, Int>): Long? {
+        if (quantitiesByProductId.isEmpty()) {
+            return null
+        }
+
+        val entries = quantitiesByProductId.entries.toList()
+        val keys =
+            entries.flatMap { (productId, _) ->
+                listOf(getAvailableKey(productId), getReservedKey(productId), getConfirmedKey(productId))
+            }
+        val quantities = entries.map { it.value.toString() }.toTypedArray()
+        val failedIndex = redisTemplate.execute(RESERVE_STOCKS_SCRIPT, keys, *quantities)
+        return if (failedIndex == 0L) null else entries[(failedIndex - 1).toInt()].key
+    }
 
     override fun reserveStock(
         productId: Long,

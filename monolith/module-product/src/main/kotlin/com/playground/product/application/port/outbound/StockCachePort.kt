@@ -1,6 +1,9 @@
 package com.playground.product.application.port.outbound
 
 interface StockCachePort {
+    /** 모든 상품을 예약하며, 재고 부족 시 변경 없이 해당 상품 ID를 반환한다. 성공 시 null. */
+    fun reserveStocks(quantitiesByProductId: Map<Long, Int>): Long?
+
     // 3단계 재고 관리
     fun reserveStock(
         productId: Long,

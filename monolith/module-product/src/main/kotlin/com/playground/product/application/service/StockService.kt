@@ -16,14 +16,17 @@ class StockService(
     private val stockCachePort: StockCachePort,
 ) : StockUseCase {
     override fun decreaseStocks(commands: List<DecreaseStockCommand>) {
+        val quantitiesByProductId = linkedMapOf<Long, Int>()
         commands.forEach { command ->
             val product = productQueryPort.findById(command.id)
             val productId = product.id!!
-            val result = stockCachePort.reserveStock(productId, command.quantity)
+            quantitiesByProductId[productId] =
+                Math.addExact(quantitiesByProductId[productId] ?: 0, command.quantity)
+        }
 
-            if (result < 0) {
-                throw InsufficientStockException(productId, command.quantity)
-            }
+        val failedProductId = stockCachePort.reserveStocks(quantitiesByProductId)
+        if (failedProductId != null) {
+            throw InsufficientStockException(failedProductId, quantitiesByProductId.getValue(failedProductId))
         }
     }
 

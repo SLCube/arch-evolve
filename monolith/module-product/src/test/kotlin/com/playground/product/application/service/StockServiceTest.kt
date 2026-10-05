@@ -25,7 +25,7 @@ class StockServiceTest {
         )
 
     @Test
-    fun `재고 예약 성공 시 모든 상품에 대해 reserveStock이 호출되어야 한다`() {
+    fun `재고 예약 성공 시 모든 상품을 한 번에 reserveStocks로 전달한다`() {
         // given
         val productId1 = 1L
         val productId2 = 2L
@@ -49,10 +49,8 @@ class StockServiceTest {
 
         given(productQueryPort.findById(productId1)).willReturn(mockProduct1)
         given(productQueryPort.findById(productId2)).willReturn(mockProduct2)
-        given(stockCachePort.reserveStock(productId1, quantityToDecrease))
-            .willReturn(90L)
-        given(stockCachePort.reserveStock(productId2, quantityToDecrease))
-            .willReturn(90L)
+        val quantitiesByProductId = mapOf(productId1 to quantityToDecrease, productId2 to quantityToDecrease)
+        given(stockCachePort.reserveStocks(quantitiesByProductId)).willReturn(null)
 
         // when
         stockService.decreaseStocks(commands)
@@ -60,8 +58,7 @@ class StockServiceTest {
         // then
         verify(productQueryPort).findById(productId1)
         verify(productQueryPort).findById(productId2)
-        verify(stockCachePort).reserveStock(productId1, quantityToDecrease)
-        verify(stockCachePort).reserveStock(productId2, quantityToDecrease)
+        verify(stockCachePort).reserveStocks(quantitiesByProductId)
     }
 
     @Test
@@ -81,8 +78,8 @@ class StockServiceTest {
         val mockProduct = ProductDomainTestFixture.mockProduct(id = productId, stock = initialStock)
 
         given(productQueryPort.findById(productId)).willReturn(mockProduct)
-        given(stockCachePort.reserveStock(productId, quantityToDecrease))
-            .willReturn(-1L)
+        given(stockCachePort.reserveStocks(mapOf(productId to quantityToDecrease)))
+            .willReturn(productId)
 
         // when & then
         shouldThrow<InsufficientStockException> {
